@@ -1,0 +1,395 @@
+import { logger } from '../../logger';
+import { allHtmls } from '../html';
+/**
+ * display states that are designed by simplity
+ */
+const viewStates = {
+    /**
+     * clickable: some action will be triggered on click-of this element
+     */
+    clickable: 'boolean',
+    /**
+     * a row can be "selected", may be an item can be "selected"
+     */
+    selectable: 'boolean',
+    /**
+     * true/false. Generally used for input fields.
+     * However, we should be able to use it for wrapper elements that contain input fields
+     */
+    disabled: 'boolean',
+    /**
+     * used by the template to mark that the element would like to set its width to all it can
+     */
+    full: 'boolean',
+    /**
+     * id is meant for the template to identify sub-elements
+     * e.g. data-id="row" for a tr element etc..
+     */
+    id: 'string',
+    /**
+     * generally meant for input field, but may be used for a wrapper that contain input fields
+     */
+    invalid: 'boolean',
+    /**
+     * index of the element within its parent array.
+     * e.g. for a tr-element, this is the idx into the data-array that this tr is rendering from
+     */
+    idx: 'number',
+    /**
+     * true/false to show/hide an element
+     */
+    hidden: 'boolean',
+    /**
+     * width of this element as per column-width design for this app.
+     * for example, in a standard grid-layout design, full-width is 12.
+     *
+     */
+    width: 'number',
+    /**
+     * initialization function for this element
+     */
+    init: 'string',
+    /**
+     * change alignment at run time. like right-align for numbers in a table-column
+     */
+    align: 'string',
+    /**
+     * how a column in a table is sorted.
+     * 'asc' or 'desc'
+     */
+    sorted: 'string',
+    /**
+     * whether a select element is empty. Used for the label positioning
+     */
+    empty: 'boolean',
+    /**
+     * whether a menu/button is currently pressed
+     */
+    current: 'boolean',
+};
+/**
+ * to be used only by design-time utilities to check if all the required templates are supplied or not
+ */
+export const predefinedHtmlTemplates = [
+    'button',
+    'button-panel',
+    'check-box',
+    'content',
+    'chart',
+    'date-field',
+    'dialog',
+    'disable-ux',
+    'image-field',
+    'image',
+    'layout',
+    'line',
+    'list',
+    'module',
+    'menu-item',
+    'message',
+    'output',
+    'page',
+    'panel',
+    'panel-flex',
+    'panel-grid',
+    'panel-modal',
+    'range-wrapper',
+    'password',
+    'select-output',
+    'select',
+    'snack-bar',
+    'sortable-header',
+    'tab',
+    'table-editable',
+    'table',
+    'tabs',
+    'text-area',
+    'text-field',
+];
+export const childElementIds = [
+    'add-button',
+    'arrow-icon',
+    'buttons',
+    'chart',
+    'color-theme',
+    'data',
+    'container',
+    'description',
+    'field',
+    'from-field',
+    'full',
+    'header',
+    'label',
+    'left',
+    'list-config',
+    'menu-bar',
+    'menu-item',
+    'message',
+    'middle',
+    'no-data',
+    'page',
+    'right',
+    'row',
+    'rows',
+    'search',
+    'table',
+    'title',
+    'to-field',
+];
+const viewFactory = undefined;
+/**
+ * base path for all images. This is generally set by the app at initialization time
+ */
+let imageBasePath = './assets/images/';
+/**
+ * caching the elements that are created from html-templates
+ */
+const cachedElements = {};
+export const htmlUtil = {
+    /**
+     * removes all children of an html element using child.remove() method
+     */
+    removeChildren,
+    /**
+     * create a new instance of this template html element
+     * @param name template name
+     */
+    newHtmlElement,
+    /**
+     * create a new instance of an app-specific custom element that is not part of standard simplity library
+     * @param name template name
+     */
+    newCustomElement: newElement,
+    /**
+     * templates are designed to have unique values for data-id within their innerHTML.
+     * this function gets the element within the template with the specified id
+     * for example in a text-field template, label element has data-id="label" while input element has data-id="input"
+     * @param rootEle parent element
+     * @param id to be returned
+     * @returns element
+     * @throws error in case the element is not found
+     */
+    getChildElement,
+    /**
+     * templates are designed to have unique values for data-id within their innerHTML.
+     * this function gets the element within the template with the specified id
+     * for example in a text-field template, label element has data-id="label" while input element has data-id="input"
+     * @param rootEle parent element
+     * @param id to be returned
+     * @returns element, or undefined if it is not found
+     */
+    getOptionalElement,
+    /**
+     * append text to an html element
+     * @param ele to which text is to be appended to
+     * @param text text to be appended
+     */
+    appendText,
+    /**
+     *
+     * @param ele to which the icon is to be appended
+     * @param icon name of image file, or htmlName.html
+     * @param alt alt text to be added if it is an image
+     */
+    appendIcon,
+    /**
+     * formats a field name as a label.
+     * e.g. fieldName is converted as "Field Name"
+     * @param fieldName field name to be formatted as a label
+     */
+    toLabel,
+    /**
+     * Set the View-state of this element to the desired value.
+     *
+     * @param ele
+     * @param stateName  must be a valid name as per the design specification for the app
+     *
+     * @param value    value as per the design of this attribute.
+     */
+    setViewState,
+    /**
+     * get the value of a display state.
+     * @returns undefined if the state is not set at all,
+     *  true if the attribute is set, but with no value, or ="" or with the the name of the attribute itself
+     * string otherwise
+     */
+    getViewState,
+    /**
+     * returns an instance of the right view component from the app-specific factory, or undefined if the app-specific factory does not have it
+     */
+    newViewComponent,
+    /**
+     * Adds image-urls to the map of available images.
+     * @param name name of the image
+     * @param src src of the image
+     */
+    setImgBasePath(basePath) {
+        imageBasePath = basePath;
+    },
+    /**
+     * Adds multiple html templates to the map of available templates.
+     * @param templates map of template-name to innerHTML
+     */
+    addTemplates(templates) {
+        Object.keys(templates).forEach((k) => {
+            allHtmls[k] = templates[k];
+        });
+    },
+};
+function getOptionalElement(rootEle, id) {
+    const ele = rootEle.querySelector(`[data-id="${id}"]`);
+    if (ele) {
+        return ele;
+    }
+    const att = rootEle.getAttribute('data-id');
+    if (id === att) {
+        return rootEle;
+    }
+    return undefined;
+}
+function getChildElement(rootEle, id) {
+    const ele = getOptionalElement(rootEle, id);
+    if (ele) {
+        return ele;
+    }
+    console.info(rootEle);
+    throw new Error(`HTML Template does not contain a child element with data-id="${id}". This is required as a container to render a child component`);
+}
+function newHtmlElement(name) {
+    return newElement('_' + name);
+}
+function newElement(name) {
+    let ele = cachedElements[name];
+    if (!ele) {
+        let html = allHtmls[name];
+        if (!html) {
+            logger.warn(`A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`);
+            html = `<div><!-- html source ${name} not found --></div>`;
+        }
+        ele = toEle(html);
+        cachedElements[name] = ele;
+    }
+    if (!ele) {
+        console.error(`ele is null when name=${name}`);
+        return toEle(`<div><!-- html source ${name} not found --></div>`);
+    }
+    return ele.cloneNode(true);
+}
+function toEle(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.firstElementChild;
+}
+function removeChildren(ele) {
+    ele.innerHTML = '';
+}
+function appendText(ele, text) {
+    ele.appendChild(document.createTextNode(text));
+}
+function appendIcon(ele, icon, alt) {
+    if (icon.endsWith('.html')) {
+        const s = icon.substring(0, icon.length - 5);
+        const html = allHtmls[s];
+        if (html) {
+            ele.appendChild(toEle(html));
+            return;
+        }
+        logger.error(`an icon named ${icon} could not be created because no html is available with name = ${s}`);
+        return;
+    }
+    const img = document.createElement('img');
+    const src = getImageSrc(icon);
+    if (src) {
+        img.src = src;
+        img.alt = alt || '';
+    }
+    else {
+        img.alt = 'icon ' + icon + ' not found';
+    }
+    ele.appendChild(img);
+}
+function toLabel(name) {
+    if (!name) {
+        return '';
+    }
+    const firstChar = name.charAt(0).toUpperCase();
+    const n = name.length;
+    if (n === 1) {
+        return firstChar;
+    }
+    const text = firstChar + name.substring(1);
+    let label = '';
+    /**
+     * we have ensure that the first character is upper case.
+     * hence the loop will end after adding all the words when we come from the end
+     */
+    let lastAt = n;
+    for (let i = n - 1; i >= 0; i--) {
+        const c = text.charAt(i);
+        if (c >= 'A' && c <= 'Z') {
+            const part = text.substring(i, lastAt);
+            if (label) {
+                label = part + ' ' + label;
+            }
+            else {
+                label = part;
+            }
+            lastAt = i;
+        }
+    }
+    return label;
+}
+function getViewState(ele, stateName) {
+    const attr = 'data-' + stateName;
+    const val = ele.getAttribute(attr);
+    if (val === null) {
+        return undefined;
+    }
+    //booleans could be set with no value, or to the name of the attribute itself!!
+    if (val === '' || val === attr) {
+        return true;
+    }
+    return val;
+}
+function setViewState(ele, stateName, stateValue) {
+    const vt = typeof stateValue;
+    const knownOne = viewStates[stateName];
+    if (knownOne && knownOne !== vt) {
+        logger.warn(`displayState '${stateName}' takes a ${knownOne} value but ${stateValue} is being set.
+      state value not set to the view-component`);
+    }
+    const attName = 'data-' + stateName;
+    if (vt === 'boolean') {
+        if (stateValue) {
+            ele.setAttribute(attName, '');
+        }
+        else {
+            ele.removeAttribute(attName);
+        }
+        return;
+    }
+    const val = '' + stateValue; //playing it safe
+    if (val) {
+        ele.setAttribute(attName, val);
+    }
+    else {
+        ele.removeAttribute(attName);
+    }
+}
+function newViewComponent(pc, fc, comp, maxWidth, value) {
+    if (viewFactory) {
+        return viewFactory.newViewComponent(pc, fc, comp, maxWidth, value);
+    }
+    return undefined;
+}
+function getImageSrc(imageName) {
+    let s = '' + imageName;
+    if (s.length > 4) {
+        const st = s.substring(0, 6).toLowerCase();
+        if (st.startsWith('http:') || st.startsWith('https:')) {
+            return imageName;
+        }
+    }
+    return imageBasePath + imageName;
+}
+//# sourceMappingURL=htmlUtils.js.map

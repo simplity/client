@@ -1,0 +1,82 @@
+<div data-id="container" class="px-4 sm:px-6 lg:px-8">
+  <div class="sm:flex sm:items-center">
+    <div
+      data-id="label"
+      class="text-base font-semibold leading-6 text-gray-900 sm:flex-auto"
+    ></div>
+  </div>
+  <div data-id="list-config"></div>
+
+  <div data-id="search" class="relative w-80">
+    <!-- prettier-ignore -->
+    <input
+      type="text"
+      class="
+        w-full px-4 py-2 pl-10 pr-4 text-gray-700 bg-white border rounded-lg shadow-sm 
+        focus:[outline-none ring-2 ring-blue-500]
+      "
+      placeholder="Search..."
+    />
+    <div
+      class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+    >
+      <svg
+        class="h-5 w-5 text-gray-500"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M12.9 14.32a7 7 0 111.41-1.41l4.3 4.29a1 1 0 01-1.42 1.42l-4.29-4.3zm-6.4-3.9a5 5 0 100-10 5 5 0 000 10z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </div>
+  </div>
+
+  <div class="mt-8 flow-root">
+    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+        <div class="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
+          <!-- min-w-full -->
+
+          <!--
+            data-selectable
+            data-sortable
+          -->
+          <table data-id="table" class="min-w-full divide-y divide-gray-300">
+            <!-- min-w-full -->
+
+            <thead>
+              <tr data-id="header">
+                <th
+                  scope="col"
+                  class="p3-3 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                ></th>
+              </tr>
+            </thead>
+            <tbody data-id="rows" class="divide-y divide-gray-200 bg-white">
+              <!-- 
+              1. if NOT 'selectable' then even:bg-gray-50
+              2. if 'selectable' then hover:bg-gray-50, selected/active: bg-gray-200 text-gray-900 group-hover:bg-gray-300
+              -->
+              <!-- prettier-ignore -->
+              <tr
+                data-id="row"
+                class="
+                data-selectable:bg-white data-selectable:cursor-auto 
+                data-selected:bg-gray-200 data-selected:text-gray-900
+                hover:bg-gray-300 
+                even:bg-gray-50"
+              >
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0"
+                ></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

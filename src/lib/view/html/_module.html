@@ -1,0 +1,43 @@
+<!-- prettier-ignore -->
+<li data-clickable class="group">
+  <button
+    role="menuitem"
+    class="
+      flex items-center justify-between w-full py-2 pl-3 pr-4
+      text-gray-500 group-data-current:text-white
+      hover:text-white 
+    "
+ >
+    <span data-id="label"></span>
+    <svg
+      data-id="arrow-icon"
+      class="w-2.5 h-2.5 ml-2.5"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 10 6"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="m1 1 4 4 4-4"
+      />
+    </svg>
+  </button>
+  <div
+    class="
+      absolute z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44
+      group-data-empty:hidden!
+      group-focus-within:block group-hover:block
+      hover:block 
+      dark:bg-gray-700 dark:divide-gray-600
+    "
+  >
+    <ul
+      data-id="menu-item"
+      class="py-2 text-sm text-gray-700 dark:text-gray-400"
+    ></ul>
+  </div>
+</li>

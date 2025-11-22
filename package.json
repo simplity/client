@@ -1,0 +1,58 @@
+{
+  "name": "simplity",
+  "version": "0.0.1",
+  "description": "low code platform to build web and mobile apps rapidly",
+  "main": "./dist/lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.js",
+      "default": "./dist/lib/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js",
+      "require": "./dist/utils/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "process": "npx tsx ./src/utils/processHtmls.ts && npx @tailwindcss/cli -i ./src/input.css -o ./src/styles.css",
+    "build": "tsc && cp src/styles.css dist/",
+    "build:all": "npm run process && npm run build",
+    "lint": "eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simplity/simplity-client.git"
+  },
+  "author": "R G Bhandi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simplity/simplity-client/issues"
+  },
+  "homepage": "https://github.com/simplity/simplity-client#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.14",
+    "@tailwindcss/forms": "^0.5.10",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^24.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "jsdom": "^27.0.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "flowbite": "^3.1.2",
+    "gridjs": "^6.2.0"
+  }
+}

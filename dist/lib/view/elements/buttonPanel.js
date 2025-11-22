@@ -1,0 +1,36 @@
+import { BaseElement } from './baseElement';
+import { elementFactory } from './elementFactory';
+import { htmlUtil } from './htmlUtils';
+/**
+ * button panel renders action buttons, typically at the bottom of a form
+ * Current design is to use left, center and right partitions to render three types of buttons.
+ * 1. buttons to go back on the left
+ * 2. action buttons for this form in the center
+ * 3. buttons that take you forward, like next step, on the right
+ *
+ * this is just a wrapper and is not a component. It's job is to render its child components
+ */
+export class ButtonPanelElement extends BaseElement {
+    panel;
+    constructor(pc, fc, panel, maxWidth) {
+        super(pc, fc, panel, 'button-panel', maxWidth);
+        this.panel = panel;
+        /**
+         * render the three sets of buttons
+         */
+        for (const [place, buttons] of [
+            ['left', panel.leftButtons],
+            ['middle', panel.middleButtons],
+            ['right', panel.rightButtons],
+        ]) {
+            if (buttons) {
+                const parent = htmlUtil.getChildElement(this.root, place);
+                for (const button of buttons) {
+                    const ele = elementFactory.newElement(pc, fc, button, 0);
+                    parent.appendChild(ele.root);
+                }
+            }
+        }
+    }
+}
+//# sourceMappingURL=buttonPanel.js.map

@@ -1,0 +1,4 @@
+- all the file names MUST start with "_" to ensure that these predefined template names do not clash with user-defined template names.
+- all icon fle names MUST end with -icon.html to clearly indicate that these files are intended to be used as icon templates.
+- all the template names MUST be in lowercase to maintain consistency and avoid case-sensitivity issues across different operating systems.
+- all the template names MUST use hyphens (-) instead of underscores (_) to separate words, ensuring uniformity in naming conventions.

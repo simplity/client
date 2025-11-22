@@ -1,0 +1,35 @@
+<!-- 
+  This is a clone of _text-field.html. Obvioulsy, <input> is replaced with <select>
+-->
+
+<!-- prettier-ignore -->
+<div data-id="text-field" class="group mx-4">
+  <label class="relative">
+    <select
+      data-id="field"
+      class="
+        block w-full rounded-lg border border-gray-300 bg-white px-2.5 pb-2.5 pt-3 text-sm text-gray-900
+        group-data-disabled:text-gray-300 group-data-disabled:cursor-not-allowed
+        focus:border-blue-500 focus:ring-blue-500
+        dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-400 
+        dark:focus:border-blue-500 dark:focus:ring-blue-500
+      "
+
+   ></select>
+    <span
+      data-id="label"
+      class="
+        absolute -top-3 left-2 px-2 w-max text-sm text-gray-500 bg-white
+        dark:text-gray-400 dark:bg-gray-900
+      "
+    ></span>
+  </label>
+  <p
+    data-id="description"
+    class="
+      mt-2 text-xs text-gray-500 
+      group-data-invalid:text-red-600
+      dark:text-gray-400
+      dark:group-data-invalid:text-red-400"
+  ></p>
+</div>

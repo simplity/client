@@ -1,0 +1,102 @@
+@import 'tailwindcss';
+/*
+ * defining dark variant to work with our way of setting dark mode.
+ * we set dark mode by adding 'dark' attribute to <html> element.
+ * tailwind by default looks for class 'dark' in the ancestry.
+ * so we define our own variant to look for attribute 'dark' instead.
+ */
+@custom-variant dark (&:where([dark], [dark] *));
+
+@import 'gridjs/dist/theme/mermaid.css';
+@import 'flowbite/src/themes/default';
+@plugin 'flowbite/plugin';
+@source '../node_modules/flowbite';
+
+/*
+ * any element should hide if asked to.
+ * using !important as an exception to our endeavor to avoid it.
+ */
+[data-hidden] {
+  display: none !important;
+}
+
+[data-clickable] {
+  cursor: pointer;
+}
+
+/* Container sets the max columns based on breakpoint */
+._form-container {
+  display: grid;
+  --max-cols: 4; /* default for mobile */
+  grid-template-columns: repeat(var(--max-cols), 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  ._form-container {
+    --max-cols: 8;
+  }
+}
+
+@media (min-width: 1024px) {
+  ._form-container {
+    --max-cols: 12;
+  }
+}
+
+/*
+ * run-time code sets data-width="n" to indicate the width of an element.
+ * we know that upto 4 columns are always available.
+ */
+[data-width='1'] {
+  grid-column: span 1;
+}
+[data-width='2'] {
+  grid-column: span 2;
+}
+[data-width='3'] {
+  grid-column: span 3;
+}
+[data-width='4'] {
+  grid-column: span 4;
+}
+/*
+  * for widths beyond 4, we need to consider max-cols at that breakpoint and ensure that any width beyond that
+  * is capped to max-cols.
+  */
+[data-width='5'] {
+  grid-column: span min(5, var(--max-cols));
+}
+[data-width='6'] {
+  grid-column: span min(6, var(--max-cols));
+}
+[data-width='7'] {
+  grid-column: span min(7, var(--max-cols));
+}
+[data-width='8'] {
+  grid-column: span min(8, var(--max-cols));
+}
+[data-width='9'] {
+  grid-column: span min(9, var(--max-cols));
+}
+[data-width='10'] {
+  grid-column: span min(10, var(--max-cols));
+}
+[data-width='11'] {
+  grid-column: span min(11, var(--max-cols));
+}
+[data-width='12'] {
+  grid-column: span min(12, var(--max-cols));
+}
+/**
+ * floating label for select. By default [empty] takes higher preference and so the label does not float up.
+ * this rule is created to provide a natural higher specificity. 
+ * We try and avoid !important as it throws a spanner into the whole specificity logic
+ 
+ floating label is not used in this version
+
+select.peer[data-empty]:focus + label.float {
+  top: 0.125rem;
+  @apply scale-90;
+}
+   */
