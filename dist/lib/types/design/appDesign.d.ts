@@ -1,5 +1,5 @@
 import { FunctionType, StringMap, ValueFormatter } from '../common';
-import { Layout, MenuItem, Module, Page, ServiceSpec, Sql, PageTemplate, ValueSchema, PageAlteration, ListSource, Record, ValueList, Form } from '.';
+import { Layout, MenuItem, Module, Page, Service, Sql, PageTemplate, ValueSchema, PageAlteration, ListSource, Record, ValueList, Form } from '.';
 /**
  * All the metadata that captures the core design that are directly used at run time.
  * This is the output of the design layer, and input to the runtime layer
@@ -104,7 +104,7 @@ export type GeneratorInput = {
     /**
      * API (input-output) specification for all the services that are exposed by the server-app for the client-app
      */
-    specs?: StringMap<ServiceSpec>;
+    services?: StringMap<Service>;
     /**
      * sqls are server-side components to interface with the database
      */

@@ -99,4 +99,9 @@ select.peer[data-empty]:focus + label.float {
   top: 0.125rem;
   @apply scale-90;
 }
-   */
+*/
+
+/* system specific styles */
+._label {
+  @apply bg-white text-sm text-gray-500 dark:bg-gray-900 dark:text-gray-400;
+}

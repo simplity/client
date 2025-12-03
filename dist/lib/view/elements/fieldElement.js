@@ -73,10 +73,6 @@ export class FieldElement extends BaseElement {
     descEle;
     fieldRendering;
     /**
-     * super.fieldEle is optional. Asserted value set to this local attribute for convenience
-     */
-    assertedFieldEle;
-    /**
      * to be called from the concrete class after rendering itself in the constructor
      */
     constructor(pc, fc, field, maxWidth, initialValue) {
@@ -85,13 +81,12 @@ export class FieldElement extends BaseElement {
         if (!this.fieldEle) {
             throw new Error(`HTML template :'${getTemplateName(field)}' - data-id="field" missing for the target element for the field. e.g. <input data-id="field"...../>`);
         }
-        this.assertedFieldEle = this.fieldEle;
         this.fieldRendering = field.renderAs || 'text-field';
         /**
          * uncontrolled fields are to be disabled. Typically in a table-row
          */
         if (!fc) {
-            this.assertedFieldEle.setAttribute('disabled', '');
+            this.fieldEle.setAttribute('disabled', '');
         }
         /**
          * no labels inside grids
@@ -100,7 +95,7 @@ export class FieldElement extends BaseElement {
             this.labelEle.remove();
             this.labelEle = undefined;
         }
-        this.assertedFieldEle.setAttribute('name', field.name);
+        this.fieldEle.setAttribute('name', field.name);
         this.descEle = htmlUtil.getOptionalElement(this.root, 'description');
         if (this.descEle && field.helpText) {
             this.descEle.innerText = field.helpText;
@@ -145,15 +140,14 @@ export class FieldElement extends BaseElement {
             case 'password':
             case 'text-area':
             case 'select':
-                this.assertedFieldEle.value =
-                    text;
+                this.fieldEle.value = text;
                 this.setEmpty(text === '');
                 return;
             case 'select-output':
-                this.assertedFieldEle.innerText = this.getSelectValue(text);
+                this.fieldEle.innerText = this.getSelectValue(text);
                 return;
             case 'check-box':
-                this.assertedFieldEle.checked = !!newValue;
+                this.fieldEle.checked = !!newValue;
                 return;
             case 'image':
             case 'hidden':
@@ -165,14 +159,14 @@ export class FieldElement extends BaseElement {
     renderFormattedOutput(val) {
         const formatter = this.field.valueFormatter;
         if (!formatter) {
-            this.assertedFieldEle.innerHTML = val === undefined ? '' : '' + val;
+            this.fieldEle.innerHTML = val === undefined ? '' : '' + val;
             return;
         }
         const { value, markups } = this.ac.formatValue(formatter, val);
-        this.assertedFieldEle.innerHTML = value;
+        this.fieldEle.innerHTML = value;
         if (markups) {
             for (const [attr, v] of markups) {
-                htmlUtil.setViewState(this.assertedFieldEle, attr, v);
+                htmlUtil.setViewState(this.fieldEle, attr, v);
             }
         }
     }
@@ -192,18 +186,18 @@ export class FieldElement extends BaseElement {
             case 'select':
                 //this.requiresValidation = true;
                 //need to track changing as well as changed
-                this.assertedFieldEle.addEventListener('change', () => {
-                    this.valueHasChanged(this.assertedFieldEle.value);
+                this.fieldEle.addEventListener('change', () => {
+                    this.valueHasChanged(this.fieldEle.value);
                 });
                 //for select, input does not trigger, and we are fine with that
-                this.assertedFieldEle.addEventListener('input', () => {
-                    this.valueIsChanging(this.assertedFieldEle.value);
+                this.fieldEle.addEventListener('input', () => {
+                    this.valueIsChanging(this.fieldEle.value);
                 });
                 return;
             case 'check-box':
                 //we check for checked attribute and not value for check-box
-                this.assertedFieldEle.addEventListener('change', () => {
-                    this.valueHasChanged('' + this.assertedFieldEle.checked);
+                this.fieldEle.addEventListener('change', () => {
+                    this.valueHasChanged('' + this.fieldEle.checked);
                 });
                 return;
             case 'output':
@@ -352,7 +346,7 @@ export class FieldElement extends BaseElement {
      */
     setList(list) {
         this.list = list;
-        htmlUtil.removeChildren(this.assertedFieldEle);
+        htmlUtil.removeChildren(this.fieldEle);
         this.setEmpty(true);
         if (!list || list.length === 0) {
             /**
@@ -370,7 +364,7 @@ export class FieldElement extends BaseElement {
         /**
          * render the options
          */
-        const sel = this.assertedFieldEle;
+        const sel = this.fieldEle;
         const option = document.createElement('option');
         //add an empty option if this field is optional
         const firstOpt = option.cloneNode(true);
@@ -410,20 +404,20 @@ export class FieldElement extends BaseElement {
         }
     }
     setEmpty(isEmpty) {
-        htmlUtil.setViewState(this.assertedFieldEle, 'empty', isEmpty);
+        htmlUtil.setViewState(this.fieldEle, 'empty', isEmpty);
     }
     able(enabled) {
         if (this.isDisabled === !enabled) {
             return;
         }
         this.isDisabled = !this.isDisabled;
-        if (this.assertedFieldEle) {
+        if (this.fieldEle) {
             //no harm in using the attribute even if it has no meaning for that element
             if (enabled) {
-                this.assertedFieldEle.setAttribute('disabled', 'disabled');
+                this.fieldEle.setAttribute('disabled', 'disabled');
             }
             else {
-                this.assertedFieldEle.removeAttribute('disabled');
+                this.fieldEle.removeAttribute('disabled');
             }
         }
     }

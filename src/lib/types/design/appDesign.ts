@@ -4,7 +4,7 @@ import {
   MenuItem,
   Module,
   Page,
-  ServiceSpec,
+  Service,
   Sql,
   PageTemplate,
   ValueSchema,
@@ -134,7 +134,7 @@ export type GeneratorInput = {
   /**
    * API (input-output) specification for all the services that are exposed by the server-app for the client-app
    */
-  specs?: StringMap<ServiceSpec>;
+  services?: StringMap<Service>;
 
   /**
    * sqls are server-side components to interface with the database

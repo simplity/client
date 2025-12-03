@@ -8,6 +8,10 @@ import { BaseElement } from './baseElement';
 export declare class FieldElement extends BaseElement implements FieldView {
     readonly field: DataField;
     /**
+     * Override to make fieldEle required for FieldElement
+     */
+    readonly fieldEle: HTMLElement;
+    /**
      * we have implemented only HTMl client as of now.
      * value being string fits that quite well.
      *
@@ -53,10 +57,6 @@ export declare class FieldElement extends BaseElement implements FieldView {
      */
     private descEle?;
     private fieldRendering?;
-    /**
-     * super.fieldEle is optional. Asserted value set to this local attribute for convenience
-     */
-    private readonly assertedFieldEle;
     /**
      * to be called from the concrete class after rendering itself in the constructor
      */

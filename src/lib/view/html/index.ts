@@ -74,10 +74,7 @@
       data-id="field"
       class="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
     />
-    <span
-      data-id="label"
-      class="dark:[text-gray-400 bg-gray-900] bg-white px-1 text-sm text-gray-500"
-    ></span>
+    <span data-id="label" class="_label px-1"></span>
   </label>
   <div>
     <p
@@ -114,10 +111,7 @@
     </span>
     <span
       data-id="label"
-      class="
-        absolute -top-3 w-max left-2 px-2 text-sm text-gray-500 bg-white
-        dark:text-gray-400 dark:bg-gray-900
-      "
+      class="_label absolute -top-3 w-max left-2 px-2"
     ></span>
   </label>
   <p
@@ -165,7 +159,7 @@
   <div class="mt-2 sm:flex sm:items-center">
     <div
       data-id="label"
-      class="text-base font-semibold leading-6 text-gray-900 sm:flex-auto"
+      class="_label text-base font-semibold leading-6 sm:flex-auto"
     ></div>
   </div>
   <div class="mt-8 flow-root">
@@ -180,7 +174,7 @@
             <tr data-id="header">
               <th
                 scope="col"
-                class="p3-3 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                class="_label p3-3 py-2 text-left font-semibold sm:pl-0"
               ></th>
             </tr>
           </thead>
@@ -554,10 +548,13 @@
   </div>
 </li>
 `,
-  '_output': `<div class="mx-4">
-  <label data-id="label"></label>
-  <span data-id="field"></span>
-</div>
+  '_output': `<label class="mx-4 flex">
+  <span class="_label w-2/3" data-id="label"></span>
+  <div class="w-1/3">
+    :&nbsp;
+    <span data-id="field"></span>
+  </div>
+</label>
 `,
   '_page-with-border': `<div class="white p-3 antialiased">
   <div
@@ -669,7 +666,7 @@
   <!-- Label inside the border -->
   <label
     data-id="label"
-    class="m-x-2 absolute -top-3 left-3 bg-white px-1 text-sm text-gray-500 dark:bg-gray-900 dark:text-gray-400"
+    class="_label m-x-2 absolute -top-3 left-3 px-1"
   ></label>
 
   <!-- Fields inside -->
@@ -711,10 +708,7 @@
     />
     <span
       data-id="label"
-      class="
-        absolute -top-3 left-2 px-2 w-max text-sm text-gray-500 bg-white
-        dark:text-gray-400 dark:bg-gray-900
-      "
+      class="_label absolute -top-3 left-2 px-2 w-max"
     ></span>
   </label>
   <p
@@ -747,10 +741,11 @@
   />
 </svg>
 `,
-  '_select-output': `<div class="mx-4">
-  <label data-id="label"></label>
-  <span data-id="field"></span>
-</div>
+  '_select-output': `<label class="mx-4 flex">
+  <span class="_label w-1/3" data-id="label"></span>
+  :
+  <span class="w-2/3" data-id="field"></span>
+</label>
 `,
   '_select': `<!-- 
   This is a clone of _text-field.html. Obvioulsy, <input> is replaced with <select>
@@ -772,10 +767,7 @@
    ></select>
     <span
       data-id="label"
-      class="
-        absolute -top-3 left-2 px-2 w-max text-sm text-gray-500 bg-white
-        dark:text-gray-400 dark:bg-gray-900
-      "
+      class="_label absolute -top-3 left-2 px-2 w-max"
     ></span>
   </label>
   <p
@@ -820,7 +812,7 @@
   class="group-px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
 >
   <div class="inline-flex cursor-pointer">
-    <span data-id="label"></span>
+    <span data-id="label" class="_label"></span>
     <!-- prettier-ignore -->
     <span
       class="
@@ -854,7 +846,7 @@
   <div class="sm:flex sm:items-center">
     <div
       data-id="label"
-      class="text-base font-semibold leading-6 text-gray-900 sm:flex-auto"
+      class="_label text-base font-semibold leading-6 sm:flex-auto"
     ></div>
   </div>
   <div data-id="list-config"></div>
@@ -903,7 +895,7 @@
               <tr data-id="header">
                 <th
                   scope="col"
-                  class="p3-3 py-2 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                  class="_label p3-3 py-2 text-left font-semibold sm:pl-0"
                 ></th>
               </tr>
             </thead>
@@ -922,7 +914,7 @@
                 even:bg-gray-50"
               >
                 <td
-                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0"
+                  class="_label whitespace-nowrap py-4 pl-4 pr-3 font-medium sm:pl-0"
                 ></td>
               </tr>
             </tbody>
@@ -972,10 +964,7 @@
     ></textarea>
     <span
       data-id="label"
-      class="
-         absolute -top-3 left-2 px-2 text-sm text-gray-500 bg-white
-        dark:text-gray-400 dark:bg-gray-900
-      "
+      class="_label absolute -top-3 left-2 px-2"
     ></span>
   </label>
   <p
@@ -1011,10 +1000,7 @@
     />
     <span
       data-id="label"
-      class="
-        absolute -top-3 left-2 px-2 w-max text-sm text-gray-500 bg-white
-        dark:text-gray-400 dark:bg-gray-900
-      "
+      class="_label absolute -top-3 left-2 px-2 w-max"
     ></span>
   </label>
   <p
@@ -1105,13 +1091,11 @@ export const allClasses: string[] = [
   "dark:bg-gray-700",
   "dark:ring-offset-gray-800",
   "dark:focus:ring-blue-600",
-  "dark:[text-gray-400",
-  "bg-gray-900]",
-  "bg-white",
+  "_label",
   "px-1",
-  "text-gray-500",
   "mt-2",
   "text-xs",
+  "text-gray-500",
   "dark:text-gray-400",
   "group",
   "relative",
@@ -1120,6 +1104,7 @@ export const allClasses: string[] = [
   "pb-2.5",
   "pt-3",
   "text-gray-900",
+  "bg-white",
   "border",
   "focus:outline-none",
   "focus:ring-0",
@@ -1296,6 +1281,8 @@ export const allClasses: string[] = [
   "hover:block",
   "dark:divide-gray-600",
   "text-gray-700",
+  "w-2/3",
+  "w-1/3",
   "white",
   "p-3",
   "antialiased",

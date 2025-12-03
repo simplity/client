@@ -22,9 +22,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "process": "npx tsx ./src/utils/processHtmls.ts && npx @tailwindcss/cli -i ./src/input.css -o ./src/styles.css",
-    "build": "tsc && cp src/styles.css dist/",
-    "build:all": "npm run process && npm run build",
+    "build": "npx tsx ./src/utils/processHtmls.ts && tsc && npx @tailwindcss/cli -i ./src/input.css -o ./dist/styles.css",
     "lint": "eslint . --ext .ts"
   },
   "repository": {

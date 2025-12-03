@@ -18,9 +18,9 @@ const collections = [
         type: 'Record',
     },
     {
-        name: 'specs',
-        ext: 'spec',
-        type: 'ServiceSpec',
+        name: 'services',
+        ext: 'service',
+        type: 'Service',
     },
     {
         name: 'templates',

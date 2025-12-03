@@ -98,6 +98,13 @@ export class BaseElement implements BaseView {
     }
 
     /**
+     * set clicakble if required, but not for fields
+     */
+    if (comp.onClick) {
+      htmlUtil.setViewState(this.root, 'clickable', true);
+    }
+
+    /**
      * does this html require custom initialization?
      */
     const att = htmlUtil.getViewState(this.root, 'init');

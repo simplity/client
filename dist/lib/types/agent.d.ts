@@ -36,12 +36,12 @@ export type AgentConfigData = {
      * some local logic based on which the response can be determined.
      * note that the service is called only if no ready response is available.
      */
-    localServices?: StringMap<Service>;
+    localServices?: StringMap<ServiceFunction>;
 };
 /**
- * Service is a function that responds with its response when invoked with its specified, possibly optional, input data
+ * ServiceFunction is a function that responds with its response when invoked with its specified, possibly optional, input data
  */
-export type Service = (data?: Vo) => ServiceResponse;
+export type ServiceFunction = (data?: ServiceRequest) => ServiceResponse;
 /**
  * request for a ListService must contain certain data elements
  */
@@ -97,6 +97,11 @@ export type ServerRequest = {
     sessionId?: string;
     data?: Vo;
 };
+/**
+ * service request is just an arbitrary data structure.
+ * Hoever, it should comply with the semantics expected by the service.
+ */
+export type ServiceRequest = Vo;
 /**
  * Data structure of the response for a service request.
  * This is the generic format. Each service will have it's specific Vo

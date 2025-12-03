@@ -1,4 +1,4 @@
-import { Service, ServiceResponse } from './agent';
+import { ServiceFunction, ServiceResponse } from './agent';
 import { StringMap } from './common';
 import { FunctionImpl } from './controller';
 import { AppDesign, ValueList } from './design';
@@ -47,7 +47,7 @@ export type AppRuntime = AppDesign & {
    * local services are used during development as stubs.
    * a service  that is meant to be served by the server is over-ridden to be served locally on the client instead
    */
-  localServices?: StringMap<Service>;
+  localServices?: StringMap<ServiceFunction>;
 
   /**
    * Function implementations that can be invoked at run time

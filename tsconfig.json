@@ -14,7 +14,7 @@
     "lib": ["ES2023", "DOM"],
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "incremental": true,
+    "incremental": false,
     "rootDir": "src",
     "declaration": true,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,

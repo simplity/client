@@ -35,6 +35,10 @@ function getTemplateName(field: DataField): HtmlTemplateName | '' {
  */
 export class FieldElement extends BaseElement implements FieldView {
   /**
+   * Override to make fieldEle required for FieldElement
+   */
+  declare public readonly fieldEle: HTMLElement;
+  /**
    * we have implemented only HTMl client as of now.
    * value being string fits that quite well.
    *
@@ -94,11 +98,6 @@ export class FieldElement extends BaseElement implements FieldView {
   private fieldRendering?;
 
   /**
-   * super.fieldEle is optional. Asserted value set to this local attribute for convenience
-   */
-  private readonly assertedFieldEle: HTMLElement;
-
-  /**
    * to be called from the concrete class after rendering itself in the constructor
    */
   constructor(
@@ -114,14 +113,13 @@ export class FieldElement extends BaseElement implements FieldView {
         `HTML template :'${getTemplateName(field)}' - data-id="field" missing for the target element for the field. e.g. <input data-id="field"...../>`,
       );
     }
-    this.assertedFieldEle = this.fieldEle;
     this.fieldRendering = field.renderAs || 'text-field';
 
     /**
      * uncontrolled fields are to be disabled. Typically in a table-row
      */
     if (!fc) {
-      this.assertedFieldEle.setAttribute('disabled', '');
+      this.fieldEle.setAttribute('disabled', '');
     }
     /**
      * no labels inside grids
@@ -131,7 +129,7 @@ export class FieldElement extends BaseElement implements FieldView {
       this.labelEle = undefined;
     }
 
-    this.assertedFieldEle.setAttribute('name', field.name);
+    this.fieldEle.setAttribute('name', field.name);
 
     this.descEle = htmlUtil.getOptionalElement(this.root, 'description');
     if (this.descEle && field.helpText) {
@@ -186,17 +184,16 @@ export class FieldElement extends BaseElement implements FieldView {
       case 'password':
       case 'text-area':
       case 'select':
-        (this.assertedFieldEle as HTMLInputElement | HTMLSelectElement).value =
-          text;
+        (this.fieldEle as HTMLInputElement | HTMLSelectElement).value = text;
         this.setEmpty(text === '');
         return;
 
       case 'select-output':
-        this.assertedFieldEle.innerText = this.getSelectValue(text);
+        this.fieldEle.innerText = this.getSelectValue(text);
         return;
 
       case 'check-box':
-        (this.assertedFieldEle as HTMLInputElement).checked = !!newValue;
+        (this.fieldEle as HTMLInputElement).checked = !!newValue;
         return;
 
       case 'image':
@@ -213,14 +210,14 @@ export class FieldElement extends BaseElement implements FieldView {
   private renderFormattedOutput(val: Value) {
     const formatter = this.field.valueFormatter;
     if (!formatter) {
-      this.assertedFieldEle.innerHTML = val === undefined ? '' : '' + val;
+      this.fieldEle.innerHTML = val === undefined ? '' : '' + val;
       return;
     }
     const { value, markups } = this.ac.formatValue(formatter, val);
-    this.assertedFieldEle.innerHTML = value;
+    this.fieldEle.innerHTML = value;
     if (markups) {
       for (const [attr, v] of markups) {
-        htmlUtil.setViewState(this.assertedFieldEle, attr as ViewState, v);
+        htmlUtil.setViewState(this.fieldEle, attr as ViewState, v);
       }
     }
   }
@@ -240,25 +237,21 @@ export class FieldElement extends BaseElement implements FieldView {
       case 'select':
         //this.requiresValidation = true;
         //need to track changing as well as changed
-        this.assertedFieldEle.addEventListener('change', () => {
-          this.valueHasChanged(
-            (this.assertedFieldEle as HTMLInputElement).value,
-          );
+        this.fieldEle.addEventListener('change', () => {
+          this.valueHasChanged((this.fieldEle as HTMLInputElement).value);
         });
 
         //for select, input does not trigger, and we are fine with that
-        this.assertedFieldEle.addEventListener('input', () => {
-          this.valueIsChanging(
-            (this.assertedFieldEle as HTMLInputElement).value,
-          );
+        this.fieldEle.addEventListener('input', () => {
+          this.valueIsChanging((this.fieldEle as HTMLInputElement).value);
         });
         return;
 
       case 'check-box':
         //we check for checked attribute and not value for check-box
-        this.assertedFieldEle.addEventListener('change', () => {
+        this.fieldEle.addEventListener('change', () => {
           this.valueHasChanged(
-            '' + (this.assertedFieldEle as HTMLInputElement).checked,
+            '' + (this.fieldEle as HTMLInputElement).checked,
           );
         });
         return;
@@ -433,7 +426,7 @@ export class FieldElement extends BaseElement implements FieldView {
   public setList(list: SimpleList): void {
     this.list = list;
 
-    htmlUtil.removeChildren(this.assertedFieldEle);
+    htmlUtil.removeChildren(this.fieldEle);
     this.setEmpty(true);
     if (!list || list.length === 0) {
       /**
@@ -452,7 +445,7 @@ export class FieldElement extends BaseElement implements FieldView {
     /**
      * render the options
      */
-    const sel = this.assertedFieldEle as HTMLSelectElement;
+    const sel = this.fieldEle as HTMLSelectElement;
     const option: HTMLOptionElement = document.createElement('option');
 
     //add an empty option if this field is optional
@@ -500,7 +493,7 @@ export class FieldElement extends BaseElement implements FieldView {
   }
 
   private setEmpty(isEmpty: boolean): void {
-    htmlUtil.setViewState(this.assertedFieldEle, 'empty', isEmpty);
+    htmlUtil.setViewState(this.fieldEle, 'empty', isEmpty);
   }
 
   public able(enabled: boolean) {
@@ -508,12 +501,12 @@ export class FieldElement extends BaseElement implements FieldView {
       return;
     }
     this.isDisabled = !this.isDisabled;
-    if (this.assertedFieldEle) {
+    if (this.fieldEle) {
       //no harm in using the attribute even if it has no meaning for that element
       if (enabled) {
-        this.assertedFieldEle.setAttribute('disabled', 'disabled');
+        this.fieldEle.setAttribute('disabled', 'disabled');
       } else {
-        this.assertedFieldEle.removeAttribute('disabled');
+        this.fieldEle.removeAttribute('disabled');
       }
     }
   }
