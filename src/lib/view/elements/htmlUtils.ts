@@ -274,6 +274,9 @@ export const htmlUtil = {
    */
   addTemplates(templates: StringMap<string>): void {
     Object.keys(templates).forEach((k) => {
+      if (allHtmls[k as HtmlName]) {
+        logger.warn(`html template '${k}' will overwrite the default one.`);
+      }
       allHtmls[k as HtmlName] = templates[k];
     });
   },

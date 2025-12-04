@@ -47,7 +47,7 @@ declare const htmls: {
     '_user-icon': string;
 };
 /**
- * All the html fragments defined in the library
+ * All the html fragment names defined in the library
  **/
 export type HtmlName = keyof typeof htmls;
 /**
@@ -56,8 +56,4 @@ export type HtmlName = keyof typeof htmls;
 export declare const allHtmls: {
     [key in HtmlName]: string;
 };
-/**
- * All CSS classes used in the HTML fragments
- */
-export declare const allClasses: string[];
 export {};

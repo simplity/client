@@ -22,7 +22,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsx ./src/utils/processHtmls.ts && tsc && npx @tailwindcss/cli -i ./src/input.css -o ./dist/styles.css",
+    "build": "npx tsx ./src/utils/preProcess.ts && tsc && npx @tailwindcss/cli -i ./src/input.css -o ./dist/stylessimplity.css --map",
     "lint": "eslint . --ext .ts"
   },
   "repository": {

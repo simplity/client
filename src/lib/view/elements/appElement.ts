@@ -30,8 +30,11 @@ export class AppElement implements AppView {
    * @param runtime
    * @param appEle container element to which the app-view is to be appended to
    */
-  constructor(appEle: HTMLElement) {
+  constructor(appEle: HTMLElement, htmls?: StringMap<string>) {
     this.root = appEle;
+    if (htmls) {
+      htmlUtil.addTemplates(htmls);
+    }
 
     this.spinnerEle = htmlUtil.newHtmlElement('disable-ux');
     if (this.spinnerEle) {

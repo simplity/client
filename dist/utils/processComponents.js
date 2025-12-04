@@ -1,3 +1,7 @@
+/**
+ * processes the application design components and generates json and ts files for server and client apps respectively
+ * to be used by the design-project of the application
+ */
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { alterPage } from './alterPage';
 import { processTemplates } from './processTemplates';

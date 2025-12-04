@@ -170,7 +170,6 @@ type BaseComponent = {
     displayStates?: StringMap<Value>;
     /**
      * an app may have app-specific view implementation. Actual parameters are left to the app implementation.
-     * If no options are relevant, an empty object should be specified to mark this component to be an app-specific plugin
      */
     pluginOptions?: StringMap<any>;
 };

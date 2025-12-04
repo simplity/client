@@ -33,7 +33,10 @@ function bootstrap(appRuntime: AppRuntime): void {
     serverUrl: appRuntime.serverUrl,
     responses: appRuntime.cachedResponses,
   });
-  const appView: AppView = new AppElement(appRuntime.appElement);
+  const appView: AppView = new AppElement(
+    appRuntime.appElement,
+    appRuntime.htmls,
+  );
   appController = new AC(appRuntime, agent, appView);
 
   appView.render(

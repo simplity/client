@@ -11,7 +11,7 @@ export type * from './list';
 export type * from './page';
 export type * from './pageAlteration';
 export type * from './record';
-export type * from './serviceSpec';
+export type * from './service';
 export type * from './sql';
 export type * from './template';
 export type * from './valueSchema';

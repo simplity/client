@@ -18,7 +18,7 @@ interface HtmlFile {
  * - only one level of subfolders is supported.
  * @param htmlDir example: './src/html/'. In this case, index.ts will be created under ./src/html/index.ts.
  */
-function processHtmls(htmlDir: string): void {
+export function processHtmls(htmlDir: string): void {
   const htmlFiles = scanHtmlFiles(htmlDir);
   writeIndexFile(htmlFiles, htmlDir);
 }
@@ -79,7 +79,7 @@ function writeIndexFile(htmlFiles: HtmlFile[], htmlDir: string): void {
     }
 
 /** 
- * All the html fragments defined in the library
+ * All the html fragment names defined in the library
  **/    
 export type HtmlName = keyof typeof htmls;
 /**
@@ -88,36 +88,10 @@ export type HtmlName = keyof typeof htmls;
 export const allHtmls: { [key in HtmlName]: string } = htmls;
 `);
 
-  const classes = getClasses(htmlFiles);
-  t.push(`
-/**
- * All CSS classes used in the HTML fragments
- */
-export const allClasses: string[] = ${JSON.stringify(classes, null, 2)};
-`);
-
   const filePath = path.join(htmlDir, 'index.ts');
 
   fs.writeFileSync(filePath, t.join(''), 'utf-8');
   console.log(`✅ Generated file: ${filePath}`);
-}
-
-function getClasses(htmlFiles: HtmlFile[]): string[] {
-  const allClasses = new Set<string>();
-  const classRegex = /class\s*=\s*["']([^"']+)["']/gi;
-  htmlFiles.forEach((htmlFile) => {
-    let match;
-    while ((match = classRegex.exec(htmlFile.content)) !== null) {
-      const classString = match[1].trim();
-      if (classString) {
-        classString
-          .split(/\s+/)
-          .filter((cls) => cls.length > 0)
-          .forEach((cls) => allClasses.add(cls));
-      }
-    }
-  });
-  return Array.from(allClasses);
 }
 
 function escapeForTypeScript(content: string): string {
@@ -126,5 +100,3 @@ function escapeForTypeScript(content: string): string {
     .replace(/`/g, '\\`') // Escape backticks
     .replace(/\$\{/g, '\\${'); // Escape template literal expressions
 }
-
-processHtmls('./src/lib/view/html/');
