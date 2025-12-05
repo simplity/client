@@ -1,12 +1,4 @@
-import {
-  BaseView,
-  FormController,
-  PageComponent,
-  PageController,
-  StringMap,
-  Value,
-  ViewComponentFactory,
-} from '@/types';
+import { StringMap, Value } from '@/types';
 import { logger } from '../../logger';
 import { allHtmls, HtmlName } from '../html';
 
@@ -167,8 +159,6 @@ export const childElementIds = [
  */
 export type ChildElementId = (typeof childElementIds)[number];
 
-const viewFactory: ViewComponentFactory | undefined = undefined;
-
 /**
  * base path for all images. This is generally set by the app at initialization time
  */
@@ -255,10 +245,6 @@ export const htmlUtil = {
    */
   getViewState,
 
-  /**
-   * returns an instance of the right view component from the app-specific factory, or undefined if the app-specific factory does not have it
-   */
-  newViewComponent,
   /**
    * Adds image-urls to the map of available images.
    * @param name name of the image
@@ -451,19 +437,6 @@ function setViewState(
   } else {
     ele.removeAttribute(attName);
   }
-}
-
-function newViewComponent(
-  pc: PageController,
-  fc: FormController | undefined,
-  comp: PageComponent,
-  maxWidth: number,
-  value?: Value,
-): BaseView | undefined {
-  if (viewFactory) {
-    return viewFactory.newViewComponent(pc, fc, comp, maxWidth, value);
-  }
-  return undefined;
 }
 
 function getImageSrc(imageName: string): string {

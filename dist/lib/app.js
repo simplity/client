@@ -27,7 +27,7 @@ function bootstrap(appRuntime) {
         serverUrl: appRuntime.serverUrl,
         responses: appRuntime.cachedResponses,
     });
-    const appView = new AppElement(appRuntime.appElement);
+    const appView = new AppElement(appRuntime.appElement, appRuntime.htmls);
     appController = new AC(appRuntime, agent, appView);
     appView.render(appController, appRuntime.startingLayout, appRuntime.startingModule);
 }

@@ -16,8 +16,11 @@ export class AppElement {
      * @param runtime
      * @param appEle container element to which the app-view is to be appended to
      */
-    constructor(appEle) {
+    constructor(appEle, htmls) {
         this.root = appEle;
+        if (htmls) {
+            htmlUtil.addTemplates(htmls);
+        }
         this.spinnerEle = htmlUtil.newHtmlElement('disable-ux');
         if (this.spinnerEle) {
             document.body.appendChild(this.spinnerEle);

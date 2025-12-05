@@ -1,6 +1,11 @@
-import { FormController, PageComponent, PageController, Value } from '@/types';
+import { FormController, PageComponent, PageController, Value, ViewComponentFactory } from '@/types';
 import { BaseElement } from './baseElement';
 export declare const elementFactory: {
+    /**
+     * Sets a custom factory to create app-specific view components
+     * @param factory custom factory
+     */
+    setCustomFactory(factory: ViewComponentFactory): void;
     /**
      * returns an instance of the right view component, or throws an error
      * @param pc

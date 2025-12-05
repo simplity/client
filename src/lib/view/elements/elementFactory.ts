@@ -13,6 +13,7 @@ import {
   TableViewer,
   Tabs,
   Value,
+  ViewComponentFactory,
 } from '@/types';
 
 import { BaseElement } from './baseElement';
@@ -26,10 +27,23 @@ import { RangeElement } from './rangeElement';
 import { TableEditorElement } from './tableEditorElement';
 import { TableViewerElement } from './tableViewerElement';
 import { TabsElement } from './tabsElement';
-import { htmlUtil } from './htmlUtils';
+import { logger } from '@/logger';
 
-//let customFactory: ViewFactory | undefined;
+let customFactory: ViewComponentFactory | undefined;
 export const elementFactory = {
+  /**
+   * Sets a custom factory to create app-specific view components
+   * @param factory custom factory
+   */
+  setCustomFactory(factory: ViewComponentFactory) {
+    if (customFactory) {
+      logger.warn('Overriding existing custom factory for view components.');
+    } else {
+      logger.info('Setting custom factory for view components.');
+    }
+    customFactory = factory;
+  },
+
   /**
    * returns an instance of the right view component, or throws an error
    * @param pc
@@ -47,18 +61,20 @@ export const elementFactory = {
     maxWidth: number,
     value?: Value,
   ): BaseElement {
-    const view = htmlUtil.newViewComponent(
-      pc,
-      fc,
-      comp,
-      maxWidth,
-      value,
-    ) as BaseElement;
-    if (view) {
-      console.info(
-        `Component '${comp.name}' created at the app-specific factory.`,
-      );
-      return view;
+    if (customFactory) {
+      const view = customFactory.newViewComponent(
+        pc,
+        fc,
+        comp,
+        maxWidth,
+        value,
+      ) as BaseElement;
+      if (view) {
+        console.info(
+          `Component '${comp.name}' created at the app-specific factory.`,
+        );
+        return view;
+      }
     }
 
     switch (comp.compType) {

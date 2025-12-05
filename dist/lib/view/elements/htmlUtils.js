@@ -136,7 +136,6 @@ export const childElementIds = [
     'title',
     'to-field',
 ];
-const viewFactory = undefined;
 /**
  * base path for all images. This is generally set by the app at initialization time
  */
@@ -215,10 +214,6 @@ export const htmlUtil = {
      */
     getViewState,
     /**
-     * returns an instance of the right view component from the app-specific factory, or undefined if the app-specific factory does not have it
-     */
-    newViewComponent,
-    /**
      * Adds image-urls to the map of available images.
      * @param name name of the image
      * @param src src of the image
@@ -232,6 +227,9 @@ export const htmlUtil = {
      */
     addTemplates(templates) {
         Object.keys(templates).forEach((k) => {
+            if (allHtmls[k]) {
+                logger.warn(`html template '${k}' will overwrite the default one.`);
+            }
             allHtmls[k] = templates[k];
         });
     },
@@ -375,12 +373,6 @@ function setViewState(ele, stateName, stateValue) {
     else {
         ele.removeAttribute(attName);
     }
-}
-function newViewComponent(pc, fc, comp, maxWidth, value) {
-    if (viewFactory) {
-        return viewFactory.newViewComponent(pc, fc, comp, maxWidth, value);
-    }
-    return undefined;
 }
 function getImageSrc(imageName) {
     let s = '' + imageName;

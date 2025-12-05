@@ -30,7 +30,8 @@ export type AppDesign = {
      */
     functions?: StringMap<FunctionType>;
     /**
-     * html fragments that are the building blocks of pages
+     * html fragments that work with view-components to render the view-components in a browser.
+     * Simplity provides the default htmls required. User apps can extend or override these.
      */
     htmls?: StringMap<string>;
     /**

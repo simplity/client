@@ -23,8 +23,6 @@ import {
   ValueSchema,
   NavigationOptions,
   Alert,
-  PageComponent,
-  FormController,
   Value,
   ValueFormatter,
   FormatterFunction,
@@ -34,8 +32,6 @@ import {
   PageController,
   PageView,
   ServiceAgent,
-  ViewComponentFactory,
-  BaseView,
 } from '@/types';
 import { utils } from './utils';
 import { parseValue, validateValue } from './validation';
@@ -44,6 +40,7 @@ import { conventions } from '../conventions';
 import { PC } from './pageController';
 import { internalFunctions } from '../function';
 import { internalResources } from '../../internalResources';
+import { elementFactory } from '..';
 
 const USER = '_user';
 const REGEXP = /\$(\{\d+\})/g;
@@ -93,7 +90,6 @@ export class AC implements AppController {
    */
   private sessionId?: string;
   private readonly context: Session;
-  private readonly viewFactory?: ViewComponentFactory; //runtime.viewComponentFactory;
 
   /**
    * access control related
@@ -108,7 +104,7 @@ export class AC implements AppController {
    * TODO: What happens when a function throws error after disabling!!!
    */
   private disableUxCount = 0;
-  private pc?: PageController; //This should be a stack/collection??
+  //private pc?: PageController; //This should be a stack/collection??
 
   /**
    * @param runtime meta-data components for this apps
@@ -157,31 +153,12 @@ export class AC implements AppController {
     this.allFormatters = runtime.valueFormatters || {};
 
     this.defaultPageSize = runtime.defaultPageSize;
-    this.viewFactory = runtime.viewComponentFactory;
+    if (runtime.viewComponentFactory) {
+      elementFactory.setCustomFactory(runtime.viewComponentFactory);
+    }
   }
   newPc(pageView: PageView): PageController {
-    const pc = new PC(this, pageView);
-    this.pc = pc;
-    return pc;
-  }
-
-  newViewComponent(
-    fc: FormController | undefined,
-    comp: PageComponent,
-    maxWidth: number,
-    value?: Value,
-  ): BaseView | undefined {
-    if (!this.pc || !this.viewFactory) {
-      return undefined;
-    }
-    const view = this.viewFactory.newViewComponent(
-      this.pc,
-      fc,
-      comp,
-      maxWidth,
-      value,
-    ) as BaseView;
-    return view;
+    return new PC(this, pageView);
   }
 
   newWindow(url: string): void {

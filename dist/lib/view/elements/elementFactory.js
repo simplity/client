@@ -8,9 +8,22 @@ import { RangeElement } from './rangeElement';
 import { TableEditorElement } from './tableEditorElement';
 import { TableViewerElement } from './tableViewerElement';
 import { TabsElement } from './tabsElement';
-import { htmlUtil } from './htmlUtils';
-//let customFactory: ViewFactory | undefined;
+import { logger } from '@/logger';
+let customFactory;
 export const elementFactory = {
+    /**
+     * Sets a custom factory to create app-specific view components
+     * @param factory custom factory
+     */
+    setCustomFactory(factory) {
+        if (customFactory) {
+            logger.warn('Overriding existing custom factory for view components.');
+        }
+        else {
+            logger.info('Setting custom factory for view components.');
+        }
+        customFactory = factory;
+    },
     /**
      * returns an instance of the right view component, or throws an error
      * @param pc
@@ -22,10 +35,12 @@ export const elementFactory = {
      * @throws Error in case the type of the supplied component is not recognized
      */
     newElement(pc, fc, comp, maxWidth, value) {
-        const view = htmlUtil.newViewComponent(pc, fc, comp, maxWidth, value);
-        if (view) {
-            console.info(`Component '${comp.name}' created at the app-specific factory.`);
-            return view;
+        if (customFactory) {
+            const view = customFactory.newViewComponent(pc, fc, comp, maxWidth, value);
+            if (view) {
+                console.info(`Component '${comp.name}' created at the app-specific factory.`);
+                return view;
+            }
         }
         switch (comp.compType) {
             case 'button':

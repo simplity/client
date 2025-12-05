@@ -13,7 +13,7 @@ export declare class AppElement implements AppView {
      * @param runtime
      * @param appEle container element to which the app-view is to be appended to
      */
-    constructor(appEle: HTMLElement);
+    constructor(appEle: HTMLElement, htmls?: StringMap<string>);
     /**
      * Renders the application view. Must be called once after the constructor
      * @param ac app controller

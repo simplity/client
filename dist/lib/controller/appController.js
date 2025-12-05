@@ -5,6 +5,7 @@ import { conventions } from '../conventions';
 import { PC } from './pageController';
 import { internalFunctions } from '../function';
 import { internalResources } from '../../internalResources';
+import { elementFactory } from '..';
 const USER = '_user';
 const REGEXP = /\$(\{\d+\})/g;
 /**
@@ -52,7 +53,6 @@ export class AC {
      */
     sessionId;
     context;
-    viewFactory; //runtime.viewComponentFactory;
     /**
      * access control related
      */
@@ -65,7 +65,7 @@ export class AC {
      * TODO: What happens when a function throws error after disabling!!!
      */
     disableUxCount = 0;
-    pc; //This should be a stack/collection??
+    //private pc?: PageController; //This should be a stack/collection??
     /**
      * @param runtime meta-data components for this apps
      * @param appView  This is the root html element for this app.
@@ -104,19 +104,12 @@ export class AC {
         };
         this.allFormatters = runtime.valueFormatters || {};
         this.defaultPageSize = runtime.defaultPageSize;
-        this.viewFactory = runtime.viewComponentFactory;
+        if (runtime.viewComponentFactory) {
+            elementFactory.setCustomFactory(runtime.viewComponentFactory);
+        }
     }
     newPc(pageView) {
-        const pc = new PC(this, pageView);
-        this.pc = pc;
-        return pc;
-    }
-    newViewComponent(fc, comp, maxWidth, value) {
-        if (!this.pc || !this.viewFactory) {
-            return undefined;
-        }
-        const view = this.viewFactory.newViewComponent(this.pc, fc, comp, maxWidth, value);
-        return view;
+        return new PC(this, pageView);
     }
     newWindow(url) {
         logger.info(`Request to open a window for url:${url} received. This feature is not yet implemented`);

@@ -1,4 +1,4 @@
-import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, ValueValidationResult, Values, Vo, AppView, PanelView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, PageComponent, FormController, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent, BaseView } from '@/types';
+import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, ValueValidationResult, Values, Vo, AppView, PanelView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from '@/types';
 export declare class AC implements AppController {
     private readonly agent;
     private readonly appView;
@@ -17,7 +17,6 @@ export declare class AC implements AppController {
     private readonly defaultPageSize?;
     private sessionId?;
     private readonly context;
-    private readonly viewFactory?;
     /**
      * access control related
      */
@@ -30,14 +29,12 @@ export declare class AC implements AppController {
      * TODO: What happens when a function throws error after disabling!!!
      */
     private disableUxCount;
-    private pc?;
     /**
      * @param runtime meta-data components for this apps
      * @param appView  This is the root html element for this app.
      */
     constructor(runtime: AppRuntime, agent: ServiceAgent, appView: AppView);
     newPc(pageView: PageView): PageController;
-    newViewComponent(fc: FormController | undefined, comp: PageComponent, maxWidth: number, value?: Value): BaseView | undefined;
     newWindow(url: string): void;
     closePopup(): void;
     newError(msg: string): Error;

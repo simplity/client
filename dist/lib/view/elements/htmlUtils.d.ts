@@ -1,4 +1,4 @@
-import { BaseView, FormController, PageComponent, PageController, StringMap, Value } from '@/types';
+import { StringMap, Value } from '@/types';
 /**
  * display states that are designed by simplity
  */
@@ -147,10 +147,6 @@ export declare const htmlUtil: {
      */
     getViewState: typeof getViewState;
     /**
-     * returns an instance of the right view component from the app-specific factory, or undefined if the app-specific factory does not have it
-     */
-    newViewComponent: typeof newViewComponent;
-    /**
      * Adds image-urls to the map of available images.
      * @param name name of the image
      * @param src src of the image
@@ -172,5 +168,4 @@ declare function appendIcon(ele: HTMLElement, icon: string, alt?: string): void;
 declare function toLabel(name: string): string;
 declare function getViewState(ele: HTMLElement, stateName: string): string | boolean | undefined;
 declare function setViewState(ele: HTMLElement, stateName: ViewState, stateValue: Value): void;
-declare function newViewComponent(pc: PageController, fc: FormController | undefined, comp: PageComponent, maxWidth: number, value?: Value): BaseView | undefined;
 export {};

@@ -9,14 +9,9 @@ import {
   FormattedValue,
 } from '../common';
 
-import {
-  FormController,
-  FunctionImpl,
-  PageController,
-  ValueValidationResult,
-} from './';
+import { FunctionImpl, PageController, ValueValidationResult } from './';
 
-import { BaseView, PageView, PanelView } from '../view';
+import { PageView, PanelView } from '../view';
 import {
   Layout,
   MenuItem,
@@ -24,7 +19,6 @@ import {
   Page,
   Form,
   ValueSchema,
-  PageComponent,
   SimpleList,
   ValueType,
   NavigationOptions,
@@ -142,23 +136,6 @@ export interface AppController {
    * @throws Error if such a function is not available, or if the function is not of the desired type
    */
   getFn(functionName: string, type?: FunctionType): FunctionImpl;
-
-  /**
-   * Get a vew instance for this component
-   * plugins are app-specific view-components corresponding to the standard view-components of simplity.
-   * simplity element-factory first checks with this, and will use its own factory if this method returns undefined
-   * @param fc
-   * @param comp
-   * @param maxWidth
-   * @param value initial value
-   * @returns undefined if this comp is not handled by the app-specific factory.
-   */
-  newViewComponent(
-    fc: FormController | undefined,
-    comp: PageComponent,
-    maxWidth: number,
-    value?: Value,
-  ): BaseView | undefined;
 
   /**
    * get the gridStyle for the named style, or the default style
