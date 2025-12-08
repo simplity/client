@@ -15,7 +15,7 @@ import {
   ListSource,
   Page,
   PageAlteration,
-  PageComponent,
+  BaseComponent,
   Panel,
   RangePanel,
   ReferredField,
@@ -394,7 +394,7 @@ function processPanel(
     }
   }
 
-  const children: PageComponent[] = [];
+  const children: BaseComponent[] = [];
   // start with fields selected from the associated form
   if (panel.fieldNames) {
     if (!form) {

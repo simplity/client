@@ -2,7 +2,7 @@ import { logger } from '../../logger';
 import { HtmlTemplateName, htmlUtil, ViewState } from './htmlUtils';
 import {
   AppController,
-  PageComponent,
+  BaseComponent,
   BaseView,
   FormController,
   PageController,
@@ -49,7 +49,7 @@ export class BaseElement implements BaseView {
   constructor(
     public readonly pc: PageController,
     public readonly fc: FormController | undefined,
-    public readonly comp: PageComponent,
+    public readonly comp: BaseComponent,
     /**
      * name by which the html template is indexed for this element.
      *  '' means a dummy template for which an empty DIV element is created.

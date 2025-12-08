@@ -1,5 +1,5 @@
 import { HtmlTemplateName } from './htmlUtils';
-import { AppController, PageComponent, BaseView, FormController, PageController, Values, StringMap } from '@/types';
+import { AppController, BaseComponent, BaseView, FormController, PageController, Values, StringMap } from '@/types';
 /**
  * Base class to be extended by all view components
  * As of now, it is NOT a WebComponent, but a controller that is bound to the root html element.
@@ -11,7 +11,7 @@ import { AppController, PageComponent, BaseView, FormController, PageController,
 export declare class BaseElement implements BaseView {
     readonly pc: PageController;
     readonly fc: FormController | undefined;
-    readonly comp: PageComponent;
+    readonly comp: BaseComponent;
     /**
      * width of the parent in number of columns.
      * 0 means this is inside a column of a row of a table
@@ -39,7 +39,7 @@ export declare class BaseElement implements BaseView {
      * @param templateName to be used to create the HTML element. ignored if root is provided
      * @param template instance to be cloned as HTML element
      */
-    constructor(pc: PageController, fc: FormController | undefined, comp: PageComponent, 
+    constructor(pc: PageController, fc: FormController | undefined, comp: BaseComponent, 
     /**
      * name by which the html template is indexed for this element.
      *  '' means a dummy template for which an empty DIV element is created.

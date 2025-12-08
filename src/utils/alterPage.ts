@@ -3,7 +3,7 @@ import {
   ContainerComponent,
   PageAlteration,
   StringMap,
-  PageComponent,
+  BaseComponent,
 } from '@/types';
 
 /**
@@ -130,7 +130,7 @@ function alterChildren(
   nbrTasks: number,
 ): number {
   const parentName = parent.name;
-  const comps: PageComponent[] = [];
+  const comps: BaseComponent[] = [];
   for (const child of parent.children!) {
     if (nbrTasks < 1) {
       comps.push(child);

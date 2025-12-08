@@ -1,4 +1,4 @@
-import { FormController, PageComponent, PageController, Value, ViewComponentFactory } from '@/types';
+import { FormController, PageController, Value, ViewComponentFactory, BaseComponent } from '@/types';
 import { BaseElement } from './baseElement';
 export declare const elementFactory: {
     /**
@@ -16,5 +16,5 @@ export declare const elementFactory: {
      * @returns view-component instance
      * @throws Error in case the type of the supplied component is not recognized
      */
-    newElement(pc: PageController, fc: FormController | undefined, comp: PageComponent, maxWidth: number, value?: Value): BaseElement;
+    newElement(pc: PageController, fc: FormController | undefined, comp: BaseComponent, maxWidth: number, value?: Value): BaseElement;
 };

@@ -9,7 +9,7 @@
  */
 import { Alert, StringMap, Value, Values } from './common';
 import { AppController, ChartController, FormController, PageController, TableViewerController } from './controller';
-import { Button, Chart, DataField, MultiReportPanel, NavigationOptions, Page, PageComponent, Panel, SimpleList, StaticComp, Tab, TableEditor, TableViewer, Tabs } from './design';
+import { Button, Chart, DataField, MultiReportPanel, NavigationOptions, Page, BaseComponent, Panel, SimpleList, StaticComp, Tab, TableEditor, TableViewer, Tabs } from './design';
 export type View = {};
 /**
  * An App-view is the outer most container component inside of which the relevant view components are laid out
@@ -124,7 +124,7 @@ export interface PageView {
  */
 export interface BaseView {
     readonly name: string;
-    readonly comp: PageComponent;
+    readonly comp: BaseComponent;
     readonly initInfo: StringMap<unknown>;
     readonly ac: AppController;
     readonly pc: PageController;
@@ -341,5 +341,5 @@ export type ViewComponentFactory = {
      * @param value
      * @returns an app-specific view component instance, or undefined
      */
-    newViewComponent(pc: PageController, fc: FormController | undefined, comp: PageComponent, maxWidth: number, value?: Value): BaseView | undefined;
+    newViewComponent(pc: PageController, fc: FormController | undefined, comp: BaseComponent, maxWidth: number, value?: Value): BaseView | undefined;
 };

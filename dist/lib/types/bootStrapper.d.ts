@@ -51,6 +51,9 @@ export type AppRuntime = AppDesign & {
      * optional for a partial app that does not render anything
      */
     viewComponentFactory?: ViewComponentFactory;
+    /**
+     * root element where the app is rendered
+     */
     appElement: HTMLElement;
 };
 export interface BootStrapper {

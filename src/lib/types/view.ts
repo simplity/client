@@ -24,7 +24,7 @@ import {
   MultiReportPanel,
   NavigationOptions,
   Page,
-  PageComponent,
+  BaseComponent,
   Panel,
   SimpleList,
   StaticComp,
@@ -203,7 +203,7 @@ export interface PageView {
  */
 export interface BaseView {
   readonly name: string;
-  readonly comp: PageComponent;
+  readonly comp: BaseComponent;
   readonly initInfo: StringMap<unknown>;
   readonly ac: AppController;
   readonly pc: PageController;
@@ -455,7 +455,7 @@ export type ViewComponentFactory = {
   newViewComponent(
     pc: PageController,
     fc: FormController | undefined,
-    comp: PageComponent,
+    comp: BaseComponent,
     maxWidth: number,
     value?: Value,
   ): BaseView | undefined;

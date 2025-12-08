@@ -135,9 +135,14 @@ export type EventAction = {
 /**
  * Common properties of any component. In a class-sense, this is the base class
  */
-type BaseComponent = {
+export type BaseComponent = {
     name: string;
-    compType: ComponentType;
+    /**
+     * it can be any of the pre-defined component types, or a custom component defined in the app
+     * To facilitate type-checking, we define compType as a union of known component types and string
+     * This approach allows user-apps to define their own component types, while still benefiting from type-checking for known component types
+     */
+    compType: ComponentType | (string & {});
     /**
      * variant may be used to choose a pre-defined variant of the component.
      * e.g. for a button, variant may be 'primary', 'secondary' etc...
@@ -177,7 +182,9 @@ export type ComponentType = 'button' | 'buttonPanel' | 'chart' | 'field' | 'mult
 /**
  * a visual component of a page
  */
-export type PageComponent = Button | ButtonPanel | Chart | DataField | MultiReportPanel | Panel | RangePanel | ReferredField | StaticComp | TableViewer | TableEditor | Tabs | Tab;
+export type PredefinedComponent = Button | ButtonPanel | Chart | DataField | MultiReportPanel | Panel | RangePanel | ReferredField | StaticComp | TableViewer | TableEditor | Tabs | Tab | (BaseComponent & {
+    compType: string & {};
+});
 /**
  * subset of page visual components that just act as containers for their child components
  */
@@ -259,7 +266,7 @@ export type Panel = BaseComponent & {
     /**
      * contents of this panel. Either this is specified, or fieldNames is specified
      */
-    children?: PageComponent[];
+    children?: BaseComponent[];
     /**
      * render these fields from the relevant form. This is an alternative to specify fields as children.
      * 'all' is a short cut to use the field names as in the form, in that order.

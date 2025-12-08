@@ -4,7 +4,6 @@ import {
   Chart,
   DataField,
   FormController,
-  PageComponent,
   PageController,
   Panel,
   RangePanel,
@@ -14,6 +13,7 @@ import {
   Tabs,
   Value,
   ViewComponentFactory,
+  BaseComponent,
 } from '@/types';
 
 import { BaseElement } from './baseElement';
@@ -57,7 +57,7 @@ export const elementFactory = {
   newElement(
     pc: PageController,
     fc: FormController | undefined,
-    comp: PageComponent,
+    comp: BaseComponent,
     maxWidth: number,
     value?: Value,
   ): BaseElement {

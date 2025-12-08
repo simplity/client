@@ -1,5 +1,5 @@
 import { StringMap } from '../common';
-import { PageAttributes, PageComponent } from '.';
+import { PageAttributes, BaseComponent } from '.';
 /**
  * alterations, enhancements to a generated page.
  * May also be used to customize a page for a specific tenant
@@ -25,5 +25,5 @@ export type ViewComponentAddition = {
      * (false, default, means add it after the component)
      */
     insertBefore?: boolean;
-    comps: PageComponent[];
+    comps: BaseComponent[];
 };
