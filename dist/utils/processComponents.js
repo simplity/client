@@ -454,17 +454,18 @@ function checkNames(objects, fileName) {
     }
     return nbrErrors;
 }
-function writeAll(comps, rootFolder, typ, allCompsName, packageName = 'simplity') {
+function writeAll(comps, rootFolder, typ, allCompsName, packageName) {
     let folderName = rootFolder + allCompsName + '/';
     mkdirSync(folderName, { recursive: true });
     /**
      * write individual files in the sub-folder
      */
+    const packageImport = packageName || 'simplity';
     const compNames = [];
     for (const [name, comp] of Object.entries(comps)) {
         compNames.push(name);
         const fileName = `${folderName}${name}.ts`;
-        writeFileSync(fileName, `import {  ${typ} } from 'simplity';
+        writeFileSync(fileName, `import {  ${typ} } from '${packageImport}';
       export const ${name}: ${typ} = ${JSON.stringify(comp)};\n`);
         done(fileName);
     }

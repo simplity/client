@@ -619,7 +619,7 @@ function writeAll(
   rootFolder: string,
   typ: string,
   allCompsName: string,
-  packageName: string = 'simplity',
+  packageName?: string,
 ) {
   let folderName = rootFolder + allCompsName + '/';
   mkdirSync(folderName, { recursive: true });
@@ -627,13 +627,14 @@ function writeAll(
   /**
    * write individual files in the sub-folder
    */
+  const packageImport = packageName || 'simplity';
   const compNames: string[] = [];
   for (const [name, comp] of Object.entries(comps)) {
     compNames.push(name);
     const fileName = `${folderName}${name}.ts`;
     writeFileSync(
       fileName,
-      `import {  ${typ} } from 'simplity';
+      `import {  ${typ} } from '${packageImport}';
       export const ${name}: ${typ} = ${JSON.stringify(comp)};\n`,
     );
     done(fileName);
