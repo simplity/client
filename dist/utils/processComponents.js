@@ -133,8 +133,9 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
     alterPages(alters, pages);
     /**
      * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
+     * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
      */
-    writeAll(pages, tsFolder, 'Page', 'pages');
+    writeAll(pages, tsFolder, 'AppPage', 'pages', '@types');
     /**
      * 11. write collection files for pages and forms
      */
@@ -453,7 +454,7 @@ function checkNames(objects, fileName) {
     }
     return nbrErrors;
 }
-function writeAll(comps, rootFolder, typ, allCompsName) {
+function writeAll(comps, rootFolder, typ, allCompsName, packageName = 'simplity') {
     let folderName = rootFolder + allCompsName + '/';
     mkdirSync(folderName, { recursive: true });
     /**

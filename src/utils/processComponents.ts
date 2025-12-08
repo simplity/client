@@ -209,8 +209,9 @@ export function processComponents(
 
   /**
    * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
+   * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
    */
-  writeAll(pages, tsFolder, 'Page', 'pages');
+  writeAll(pages, tsFolder, 'AppPage', 'pages', '@types');
 
   /**
    * 11. write collection files for pages and forms
@@ -618,6 +619,7 @@ function writeAll(
   rootFolder: string,
   typ: string,
   allCompsName: string,
+  packageName: string = 'simplity',
 ) {
   let folderName = rootFolder + allCompsName + '/';
   mkdirSync(folderName, { recursive: true });
