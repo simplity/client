@@ -44,16 +44,16 @@ const DATE_ERROR: ValueValidationResult = {
  */
 export function parseValue(
   textValue: string,
-  valueType: ValueType,
+  valueType: ValueType
 ): Value | undefined {
   const text = textValue.trim();
-
+  let d: Date | undefined;
   switch (valueType) {
     case 'boolean':
       return parseBoolean(text);
 
     case 'date':
-      const d = parseDate(text);
+      d = parseDate(text);
       if (d) {
         return d.toISOString().substring(0, 10);
       }
@@ -85,7 +85,7 @@ export function parseValue(
  */
 export function validateValue(
   schema: ValueSchema,
-  value: string,
+  value: string
 ): ValueValidationResult {
   switch (schema.valueType) {
     case 'text':
@@ -114,7 +114,7 @@ export function validateValue(
 
     default:
       throw new Error(
-        `${(schema as any).valueType} is not a valid value type. Can not process this value-schema`,
+        `${(schema as ValueSchema).valueType} is not a valid value type. Can not process this value-schema`
       );
   }
 }
@@ -124,7 +124,7 @@ export function validateValue(
  */
 function validateText(
   schema: TextSchema,
-  value: string,
+  value: string
 ): ValueValidationResult {
   const min = schema.minLength || 0;
   const max = schema.maxLength || DEFAULT_MAX_CHARS;
@@ -174,7 +174,7 @@ function validateText(
 
 function validateNumber(
   schema: IntegerSchema | DecimalSchema,
-  value: string,
+  value: string
 ): ValueValidationResult {
   let nbr = parseNumber(value);
   if (nbr === undefined) {
@@ -235,7 +235,7 @@ function validateBoolean(value: string): ValueValidationResult {
 
 function validateDate(
   schema: DateSchema | TimestampSchema,
-  value: string,
+  value: string
 ): ValueValidationResult {
   /**
    * Design Note:
@@ -326,9 +326,9 @@ function parseDate(text: string): Date | undefined {
     if (text !== '.') {
       nbr = Number.parseInt(text, 10);
     }
-    let date = new Date();
+    const date = new Date();
     return new Date(
-      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate() + nbr),
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate() + nbr)
     );
   }
 
@@ -357,7 +357,7 @@ function parseTimestamp(text: string): Date | undefined {
     return undefined;
   }
 
-  let date = parseDate(valueStr.substring(0, 10));
+  const date = parseDate(valueStr.substring(0, 10));
   if (date === undefined) {
     return undefined;
   }

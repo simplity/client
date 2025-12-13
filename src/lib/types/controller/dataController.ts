@@ -186,7 +186,7 @@ export interface TableEditorController extends DataController {
   setColumnDisplayState(
     columnName: string,
     stateName: string,
-    stateValue: string | number | boolean,
+    stateValue: string | number | boolean
   ): void;
 
   /**
@@ -200,7 +200,7 @@ export interface TableEditorController extends DataController {
     columnName: string,
     stateName: string,
     stateValue: string | number | boolean,
-    rowId?: number,
+    rowId?: number
   ): void;
   /**
    *
@@ -297,7 +297,7 @@ export interface FormController extends DataController {
     /**
      * can be either an action-name or a call-back function
      */
-    eventFn: EventHandler | string,
+    eventFn: EventHandler | string
   ): void;
 
   //methods for manipulating data. (MVC aspects)
@@ -309,7 +309,7 @@ export interface FormController extends DataController {
    */
   extractData(
     params: StringMap<boolean>,
-    messages: DetailedMessage[],
+    messages: DetailedMessage[]
   ): Vo | undefined;
 
   /**
@@ -367,7 +367,7 @@ export interface FormController extends DataController {
   valueHasChanged(
     fieldName: string,
     newValue: Value,
-    newValidity?: boolean,
+    newValidity?: boolean
   ): void;
 
   /**
@@ -380,7 +380,7 @@ export interface FormController extends DataController {
   valueIsChanging(
     fieldName: string,
     newValue: Value,
-    newValidity?: boolean,
+    newValidity?: boolean
   ): void;
 
   //////////////////// methods to change how view components are rendered
@@ -390,7 +390,7 @@ export interface FormController extends DataController {
    * @param actionName
    * @param params depends on the type of action and the context.
    */
-  act(actionName: string, params?: StringMap<any>): void;
+  act(actionName: string, params?: StringMap<unknown>): void;
 
   /**
    * a child is reporting an event. any handler that was added using addEventLister will be called for this event

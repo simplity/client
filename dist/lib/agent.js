@@ -63,7 +63,7 @@ class SA {
             logger.debug(`Service Agent:  ${service}: Local service refused to serve. Looking for server..`);
         }
         //send a request to the server
-        let req = { service };
+        const req = { service };
         if (sessionId) {
             req.sessionId = sessionId;
         }
@@ -91,7 +91,7 @@ class SA {
             logger.debug(`Service Agent: ${service}: Requested server at ${this.serverUrl}`);
             return (await response.json());
         }
-        catch (err) {
+        catch {
             status = 'communicationError';
             description = `Error while communicating with server URL: ${this.serverUrl}`;
             logger.error(`Service Agent:communicationError.  ${description}`);

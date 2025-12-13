@@ -60,7 +60,7 @@ export class BaseElement implements BaseView {
      * width of the parent in number of columns.
      * 0 means this is inside a column of a row of a table
      */
-    protected maxWidth: number,
+    protected maxWidth: number
   ) {
     this.name = comp.name;
     this.ac = pc.ac;
@@ -92,7 +92,7 @@ export class BaseElement implements BaseView {
         this.labelEle.innerText = comp.label;
       } else {
         logger.info(
-          `node ${comp.name} has a label value of "${comp.label}" but the html has no element with data-id="label"`,
+          `node ${comp.name} has a label value of "${comp.label}" but the html has no element with data-id="label"`
         );
       }
     }
@@ -152,7 +152,7 @@ export class BaseElement implements BaseView {
    */
   public setError(msg: unknown): void {
     logger.warn(
-      `component type ${this.comp.compType} has not implemented setError(), but a request is received with value="${msg}"`,
+      `component type ${this.comp.compType} has not implemented setError(), but a request is received with value="${msg}"`
     );
     htmlUtil.setViewState(this.root, 'invalid', msg !== undefined);
   }
@@ -182,6 +182,11 @@ export class BaseElement implements BaseView {
         view: this,
         fc: this.fc,
       });
+    }
+  }
+  public dispose(): void {
+    if (this.root) {
+      this.root.remove();
     }
   }
 }

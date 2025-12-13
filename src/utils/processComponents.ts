@@ -52,13 +52,13 @@ type AppJson = {
  */
 type NamedObject = {
   name: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export function processComponents(
   appDesign: GeneratorInput,
   jsonFolder: string,
-  tsFolder: string,
+  tsFolder: string
 ) {
   let nbrErrors = 0;
   /**
@@ -114,7 +114,7 @@ export function processComponents(
         ...internalResources.valueLists,
         ...appDesign.valueLists,
       },
-    }),
+    })
   );
   done(fileName);
 
@@ -126,7 +126,7 @@ export function processComponents(
     fileName,
     JSON.stringify({
       messages: { ...internalResources.messages, ...appDesign.messages },
-    }),
+    })
   );
   done(fileName);
 
@@ -142,7 +142,7 @@ export function processComponents(
         ...internalResources.valueSchemas,
         ...appDesign.valueSchemas,
       },
-    }),
+    })
   );
   done(fileName);
 
@@ -152,7 +152,7 @@ export function processComponents(
    *
    * Note: framework requires some records. These are defined in systemResources.records
    */
-  let [processedRecords, n] = processRecords({
+  const [processedRecords, n] = processRecords({
     ...internalResources.records,
     ...records,
   });
@@ -228,7 +228,7 @@ export function processComponents(
   }
 
   console.error(
-    `${nbrErrors} errors found. Files are still generated for debugging purposes. They may not be usable!!`,
+    `${nbrErrors} errors found. Files are still generated for debugging purposes. They may not be usable!!`
   );
   process.exit(1);
 }
@@ -236,12 +236,12 @@ export function processComponents(
 function processTable(
   table: TableEditor | TableViewer,
   form: Form | undefined,
-  pageName: string,
+  pageName: string
 ): number {
   if (!table.editable && table.columns) {
     if (table.children?.length) {
       console.error(
-        `Error: Page: ${pageName} Table '${table.name}': Both children and columns are specified. Columns ignored.`,
+        `Error: Page: ${pageName} Table '${table.name}': Both children and columns are specified. Columns ignored.`
       );
       return 1;
     }
@@ -265,12 +265,12 @@ function processTable(
   } else {
     if (table.editable) {
       console.error(
-        `Error:  Page: ${pageName} Table '${table.name}' is editable. Editable table should either specify child-components or a form`,
+        `Error:  Page: ${pageName} Table '${table.name}' is editable. Editable table should either specify child-components or a form`
       );
       return 1;
     }
     console.warn(
-      `Warn: Page: ${pageName} Table '${table.name}': Data will be rendered dynamically based on the columns received at run time.`,
+      `Warn: Page: ${pageName} Table '${table.name}': Data will be rendered dynamically based on the columns received at run time.`
     );
     return 0;
   }
@@ -338,7 +338,7 @@ function fieldToCol(field: Field | DataField): ColumnDetails | undefined {
  */
 function alterPages(
   alterations: StringMap<PageAlteration>,
-  pages: StringMap<Page>,
+  pages: StringMap<Page>
 ) {
   for (const [name, alts] of Object.entries(alterations)) {
     const page = pages[name];
@@ -347,7 +347,7 @@ function alterPages(
       //console.info(`page ${name} altered`);
     } else {
       console.error(
-        `Error: Alteration for Page ${name}:  Alterations specified, but that page is not defined`,
+        `Error: Alteration for Page ${name}:  Alterations specified, but that page is not defined`
       );
     }
   }
@@ -367,7 +367,7 @@ function processPages(pages: StringMap<Page>, forms: StringMap<Form>): number {
       form = forms[page.formName];
       if (!form) {
         console.error(
-          `Error: Page '${page.name}: Form ${page.formName} is not a valid form name`,
+          `Error: Page '${page.name}: Form ${page.formName} is not a valid form name`
         );
         n++;
       }
@@ -381,7 +381,7 @@ function processPanel(
   panel: Panel,
   form: Form | undefined,
   forms: StringMap<Form>,
-  pageName: string,
+  pageName: string
 ): number {
   let n = 0;
 
@@ -389,7 +389,7 @@ function processPanel(
     form = forms[panel.formName];
     if (!form) {
       console.error(
-        `Error: Page '${pageName}': Panel ${panel.name} refers to form '${panel.formName}' but that form is not defined`,
+        `Error: Page '${pageName}': Panel ${panel.name} refers to form '${panel.formName}' but that form is not defined`
       );
       n++;
     }
@@ -400,7 +400,7 @@ function processPanel(
   if (panel.fieldNames) {
     if (!form) {
       console.error(
-        `Error: Page '${pageName}': Panel ${panel.name} defines fieldName, but no form is associated with this page.`,
+        `Error: Page '${pageName}': Panel ${panel.name} defines fieldName, but no form is associated with this page.`
       );
       return 1;
     }
@@ -412,7 +412,7 @@ function processPanel(
         children.push(f);
       } else {
         console.error(
-          `Error: Page ${pageName}: Panel ${panel.name} specifies '${fieldName}' as one of the fields but that field is not defined in the associated form '${form!.name}' `,
+          `Error: Page ${pageName}: Panel ${panel.name} specifies '${fieldName}' as one of the fields but that field is not defined in the associated form '${form!.name}' `
         );
         n++;
       }
@@ -439,7 +439,7 @@ function processPanel(
           | 'fromField'
           | 'toField'
         )[]) {
-          let field = range[leftOrRight];
+          const field = range[leftOrRight];
           if (field.compType === 'referred') {
             const f = processRefField(field, form);
             if (f) {
@@ -470,11 +470,11 @@ function processPanel(
 
 function processRefField(
   field: ReferredField,
-  form?: Form,
+  form?: Form
 ): DataField | undefined {
   if (!form) {
     console.error(
-      `Error: Field: ${field.name}: This is a referred field, but there is no applicable form.`,
+      `Error: Field: ${field.name}: This is a referred field, but there is no applicable form.`
     );
     return undefined;
   }
@@ -484,7 +484,7 @@ function processRefField(
     return { ...f, ...field, compType: 'field' };
   }
   console.error(
-    `Error: Field: ${field.name}: This is a referred field, but the applicable form '${form.name}' has no such field.`,
+    `Error: Field: ${field.name}: This is a referred field, but the applicable form '${form.name}' has no such field.`
   );
   return undefined;
 }
@@ -500,7 +500,7 @@ function toMap(arr: SimpleList): StringMap<string> {
 function processFields(
   children: LeafComponent[],
   form: Form | undefined,
-  pageName: string,
+  pageName: string
 ): number {
   /**
    * take care of any referred fields
@@ -513,20 +513,20 @@ function processFields(
     }
     if (!form) {
       console.error(
-        `Error: Page: ${pageName} Field ${child.name} is a referred field, but the page or the enclosing panel does not specify a form`,
+        `Error: Page: ${pageName} Field ${child.name} is a referred field, but the page or the enclosing panel does not specify a form`
       );
       n++;
       continue;
     }
 
-    let f = form.fields[child.name];
+    const f = form.fields[child.name];
     if (f) {
       children[i] = { ...f, ...child, compType: 'field' };
       continue;
     }
 
     console.error(
-      `Error: Page: ${pageName} Field ${child.name} is a referred field, but the form ${form.name} has no field with that name`,
+      `Error: Page: ${pageName} Field ${child.name} is a referred field, but the form ${form.name} has no field with that name`
     );
     n++;
   }
@@ -536,14 +536,14 @@ function processFields(
 function writeJsons(
   jsonFolder: string,
   typ: string,
-  comps: { [key: string]: any },
+  comps: { [key: string]: { name: string } }
 ) {
   const folder = jsonFolder + typ + '/';
   mkdirSync(folder);
   for (const [name, comp] of Object.entries(comps)) {
     if (name !== comp.name!) {
       console.error(
-        `Error: Component with name='${comp.name}' is indexed with key='${name}. This is incorrect. Name should match the indexed-key to ensure that the name is unique across all records\n json NOT created for this record`,
+        `Error: Component with name='${comp.name}' is indexed with key='${name}. This is incorrect. Name should match the indexed-key to ensure that the name is unique across all records\n json NOT created for this record`
       );
       continue;
     }
@@ -606,7 +606,7 @@ function checkNames(objects: StringMap<NamedObject>, fileName: string): number {
 
     if (name !== obj.name) {
       console.error(
-        `Error: name='${obj.name}' but it is indexed as '${name}' in the file ${fileName}. Value list must be indexed as its name`,
+        `Error: name='${obj.name}' but it is indexed as '${name}' in the file ${fileName}. Value list must be indexed as its name`
       );
       nbrErrors++;
     }
@@ -615,13 +615,13 @@ function checkNames(objects: StringMap<NamedObject>, fileName: string): number {
 }
 
 function writeAll(
-  comps: StringMap<any>,
+  comps: StringMap<unknown>,
   rootFolder: string,
   typ: string,
   allCompsName: string,
-  packageName?: string,
+  packageName?: string
 ) {
-  let folderName = rootFolder + allCompsName + '/';
+  const folderName = rootFolder + allCompsName + '/';
   mkdirSync(folderName, { recursive: true });
 
   /**
@@ -635,7 +635,7 @@ function writeAll(
     writeFileSync(
       fileName,
       `import {  ${typ} } from '${packageImport}';
-      export const ${name}: ${typ} = ${JSON.stringify(comp)};\n`,
+      export const ${name}: ${typ} = ${JSON.stringify(comp)};\n`
     );
     done(fileName);
   }
@@ -645,7 +645,7 @@ function toCollectionFile(
   names: string[],
   compName: string,
   compType: string,
-  nameType: string,
+  nameType: string
 ): string {
   const imports = names
     .map((name) => `import { ${name} } from './${name}';`)

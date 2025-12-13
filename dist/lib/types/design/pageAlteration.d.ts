@@ -17,7 +17,7 @@ export type PageAlteration = PageAttributes & {
      * change attribute values of any component.
      * we have kept this free-form to accommodate all types of components
      */
-    changes?: StringMap<any>;
+    changes?: StringMap<unknown>;
 };
 export type ViewComponentAddition = {
     /**

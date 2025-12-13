@@ -13,7 +13,7 @@ export type AppRuntime = AppDesign & {
   /**
    *  app-specific configuration parameters that may be used by app-specific functions
    */
-  appParams?: StringMap<any>;
+  appParams?: StringMap<unknown>;
   /**
    * e.g. ./assets/images/
    */

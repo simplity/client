@@ -171,7 +171,7 @@ class Gen {
         /**
          * all fields are rendered in a Panel, unless we have tabs
          */
-        let hiddenOnes = null;
+        let hiddenOnes = undefined;
         if (t.hideFields && t.hideFields.length) {
             hiddenOnes = {};
             for (const n of t.hideFields) {
@@ -380,7 +380,7 @@ class Gen {
                 enableWhen: 'valid',
             },
         ];
-        let hiddenOnes = null;
+        let hiddenOnes = undefined;
         if (t.hideFields && t.hideFields.length) {
             hiddenOnes = {};
             for (const n of t.hideFields) {

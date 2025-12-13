@@ -33,7 +33,7 @@ import {
 export function processTemplates(
   templates: StringMap<PageTemplate>,
   forms: StringMap<Form>,
-  pages: StringMap<Page>,
+  pages: StringMap<Page>
 ): number {
   let nbrErrors = 0;
   for (const [name, template] of Object.entries(templates)) {
@@ -43,7 +43,7 @@ export function processTemplates(
       //console.info(`page template ${name} processed to generate ${n} page/s`);
     } else {
       console.error(
-        `Error: Template ${name}:  Form ${template.formName} is not defined`,
+        `Error: Template ${name}:  Form ${template.formName} is not defined`
       );
       nbrErrors++;
     }
@@ -54,7 +54,7 @@ export function processTemplates(
 function templateToPages(
   template: PageTemplate,
   form: Form,
-  pages: StringMap<Page>,
+  pages: StringMap<Page>
 ): number {
   const templateName = template.name;
   let nbrErrors = 0;
@@ -67,7 +67,7 @@ function templateToPages(
     } else {
       [pages[pageName], nbrErrors] = new Gen(
         toListPage(template as MasterPage),
-        form,
+        form
       ).generate();
     }
 
@@ -77,7 +77,7 @@ function templateToPages(
     } else {
       [pages[pageName], nbrErrors] = new Gen(
         toViewPage(template as MasterPage),
-        form,
+        form
       ).generate();
     }
 
@@ -87,7 +87,7 @@ function templateToPages(
     } else {
       [pages[pageName], nbrErrors] = new Gen(
         toSavePage(template as MasterPage),
-        form,
+        form
       ).generate();
     }
 
@@ -108,7 +108,7 @@ function templateToPages(
 function pageExists(
   name: string,
   pages: StringMap<Page>,
-  masterName?: string,
+  masterName?: string
 ): boolean {
   if (!pages[name]) {
     return false;
@@ -155,7 +155,7 @@ class Gen {
 
   constructor(
     private template: PageTemplate,
-    private form: Form,
+    private form: Form
   ) {}
   generate(): [Page, number] {
     this.inputParams = {};
@@ -198,7 +198,7 @@ class Gen {
         break;
       default:
         throw new Error(
-          `Page template ${this.template.name} is of type ${this.template.type}.  No page generator is designed for this type.`,
+          `Page template ${this.template.name} is of type ${this.template.type}.  No page generator is designed for this type.`
         );
     }
     return [page, this.nbrErrors];
@@ -235,7 +235,7 @@ class Gen {
     /**
      * all fields are rendered in a Panel, unless we have tabs
      */
-    let hiddenOnes: any = null;
+    let hiddenOnes: { [key: string]: true } | undefined = undefined;
     if (t.hideFields && t.hideFields.length) {
       hiddenOnes = {};
       for (const n of t.hideFields) {
@@ -289,7 +289,7 @@ class Gen {
   private addButtonAndAction(
     btn: MenuButton | undefined,
     actionName: string,
-    params: Values,
+    params: Values
   ) {
     if (!btn) {
       return;
@@ -316,7 +316,7 @@ class Gen {
   private getChildArray(
     names: string[] | undefined,
     hiddenFields: { [key: string]: true } | undefined,
-    isEditable?: boolean,
+    isEditable?: boolean
   ): DataField[] {
     const children: DataField[] = [];
     if (names === undefined) {
@@ -330,7 +330,7 @@ class Gen {
       const ff = this.form.fields[nam];
       if (!ff) {
         console.error(
-          `Error: ${nam} is declared as a field but it is not found in the form`,
+          `Error: ${nam} is declared as a field but it is not found in the form`
         );
         this.nbrErrors++;
         continue;
@@ -354,7 +354,7 @@ class Gen {
 
   private getColumnDetails(
     names: string[] | undefined,
-    hiddenFields?: { [key: string]: true },
+    hiddenFields?: { [key: string]: true }
   ): ColumnDetails[] {
     const details: ColumnDetails[] = [];
     if (names === undefined || names.length == 0) {
@@ -368,7 +368,7 @@ class Gen {
       const ff = this.form.fields[name];
       if (!ff) {
         console.error(
-          `Error: ${name} is declared as a field but it is not found in the form`,
+          `Error: ${name} is declared as a field but it is not found in the form`
         );
         this.nbrErrors++;
         continue;
@@ -475,7 +475,7 @@ class Gen {
         enableWhen: 'valid',
       },
     ];
-    let hiddenOnes: any = null;
+    let hiddenOnes: { [key: string]: true } | undefined = undefined;
     if (t.hideFields && t.hideFields.length) {
       hiddenOnes = {};
       for (const n of t.hideFields) {

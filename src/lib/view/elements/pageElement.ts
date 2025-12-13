@@ -11,6 +11,7 @@ import {
 import { htmlUtil } from './htmlUtils';
 import { PanelElement } from './panelElement';
 import { elementFactory } from './elementFactory';
+import { logger } from '@/logger';
 const NBR_COLS_IN_GRID = 12;
 
 export class PageElement implements PageView {
@@ -23,7 +24,7 @@ export class PageElement implements PageView {
   constructor(
     public readonly ac: AppController,
     public readonly page: Page,
-    public readonly inputs: Values,
+    public readonly inputs: Values
   ) {
     this.root = htmlUtil.newHtmlElement('page');
 
@@ -46,7 +47,7 @@ export class PageElement implements PageView {
       this.pc,
       this.pc.fc,
       this.page.dataPanel,
-      NBR_COLS_IN_GRID,
+      NBR_COLS_IN_GRID
     );
     /**
      * dataPanel is the main container that defines the width units
@@ -76,7 +77,7 @@ export class PageElement implements PageView {
         this.pc,
         this.fc,
         buttonPanel,
-        NBR_COLS_IN_GRID,
+        NBR_COLS_IN_GRID
       );
       buttonsEle.appendChild(ele.root);
     }
@@ -89,15 +90,21 @@ export class PageElement implements PageView {
   pageLoaded(): void {
     this.pc.pageLoaded();
   }
+
   showButtons(toShow: boolean): void {
-    toShow;
+    logger.error(
+      `showButton() invoked with ${toShow}. showButtons is not implemented yet`
+    );
   }
 
   alert(alerts: Alert[]): void {
     console.info(alerts);
     window.alert(
       'alert from the Page (We are working on a better alert. Please bear with us):\n' +
-        JSON.stringify(alerts),
+        JSON.stringify(alerts)
     );
+  }
+  dispose(): void {
+    this.root.remove();
   }
 }

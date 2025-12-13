@@ -34,11 +34,9 @@ import {
   Tabs,
 } from './design';
 
-export type View = {};
+export type View = object;
 /**
  * An App-view is the outer most container component inside of which the relevant view components are laid out
- * When an AppView instance is created, it should not have any child layouts in that.
- * a LayoutView will be added later by the app controller
  */
 export interface AppView {
   /**
@@ -50,14 +48,15 @@ export interface AppView {
   render(
     ac: AppController,
     startinglayout: string,
-    startingModule: string,
+    startingModule: string
   ): void;
   /**
    * disable user interaction.
    * Typically used during page loads/updates
    * Caller MUST ensure that a subsequent call is made to enableUx()
+   * @param displayText optional text to be shown to the user while UX is disabled
    */
-  disableUx(): void;
+  disableUx(displayText?: string): void;
 
   /**
    * enable user interaction. Caller should have invoked  disable() earlier
@@ -81,21 +80,6 @@ export interface AppView {
   getUserChoice(text: string, choices: string[]): Promise<number>;
 
   /**
-   * render a panel as pop-up. the panel should not be part of the dom.
-   * this method adds the panel to the dom.
-   * Note that this method is for a panel, and NOT for a page. a popup page is handled through regular navigation action
-   * @param panel to be rendered. It should not be part of the DOM.
-   */
-  renderAsPopup(panel: PanelView): void;
-
-  /**
-   * closes the panel by removing it from dom.
-   * This method is to be called after a call to renderAsPopup.
-   * no error is thrown if there was no panel was rendered as a popup
-   */
-  closePopup(): void;
-
-  /**
    * navigate to the desired page based on the details in this action
    * @param options page and other details
    */
@@ -117,45 +101,6 @@ export interface AppView {
    * @param values
    */
   renderContextValues(values: StringMap<string>): void;
-}
-
-/**
- * this is typically the only child of an AppView that would render all other components in a pre-defined layout.
- */
-export interface LayoutView {
-  // readonly layout: Layout;
-  /**
-   * html root should have the desired child elements like header,footer, modules, pageTitle etc.. with the right ID
-   * layout View
-   */
-  //readonly root: HTMLElement;
-  /**
-   * render this module or the default/first module if module name is not specified.
-   * the default page associated with the selected module should also be rendered (as if renderPage() is called)
-   * @param moduleName to be selected and rendered. default module is used if this is skipped
-   */
-  //render(moduleName?: string): void;
-  /**
-   * render this page. It should first create an instance of the PageView, create a PageController using app.newPc() and then render the page contents
-   * @param pageName
-   */
-  //renderPage(pageName: string, pageParams?: Values): void;
-  /**
-   * navigate to the desired page based on the details in this action
-   * @param action page and other details
-   */
-  //navigate(action: NavigationAction): void;
-  /**
-   * It is possible that a layout shows the page title outside of the page area.
-   * this method is to be called to set the title. Note that this is NOT the title of the window
-   * @param title
-   */
-  //  renderPageTitle(title: string): void;
-  /**
-   * layout may display some details like logged-in user etc..
-   * @param values
-   */
-  //  renderContextValues(values: StringMap<string>): void;
 }
 
 /**
@@ -196,6 +141,11 @@ export interface PageView {
    * e.g. in html, this is called after the view is appended to the DOM.
    */
   pageLoaded(): void;
+
+  /**
+   * release any resources held by this page view
+   */
+  dispose(): void;
 }
 
 /**
@@ -225,8 +175,11 @@ export interface BaseView {
    * @param settings name-value pairs of setting values
    */
   setDisplayState(settings: Values): void;
+  /**
+   * release any resources held by this view component
+   */
+  dispose(): void;
 }
-
 /**
  * controls that do not contain other controls
  */
@@ -336,7 +289,7 @@ export interface MultiReportPanelView extends BaseView {
   renderData(
     reportName: string,
     data: Values[],
-    selectedNames?: string[],
+    selectedNames?: string[]
   ): void;
 }
 
@@ -457,6 +410,6 @@ export type ViewComponentFactory = {
     fc: FormController | undefined,
     comp: BaseComponent,
     maxWidth: number,
-    value?: Value,
+    value?: Value
   ): BaseView | undefined;
 };

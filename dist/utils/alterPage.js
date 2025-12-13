@@ -95,7 +95,7 @@ export function alterPage(page, alts) {
         nbrTasks += Object.keys(updates).length;
     }
     //step-6: deletions
-    let deletes = alts.deletions;
+    const deletes = alts.deletions;
     if (deletes) {
         nbrTasks += Object.keys(deletes).length;
     }

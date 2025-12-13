@@ -84,7 +84,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      *
      * Note: framework requires some records. These are defined in systemResources.records
      */
-    let [processedRecords, n] = processRecords({
+    const [processedRecords, n] = processRecords({
         ...internalResources.records,
         ...records,
     });
@@ -315,7 +315,7 @@ function processPanel(panel, form, forms, pageName) {
             if (child.compType === 'range') {
                 const range = child;
                 for (const leftOrRight of ['fromField', 'toField']) {
-                    let field = range[leftOrRight];
+                    const field = range[leftOrRight];
                     if (field.compType === 'referred') {
                         const f = processRefField(field, form);
                         if (f) {
@@ -376,7 +376,7 @@ function processFields(children, form, pageName) {
             n++;
             continue;
         }
-        let f = form.fields[child.name];
+        const f = form.fields[child.name];
         if (f) {
             children[i] = { ...f, ...child, compType: 'field' };
             continue;
@@ -455,7 +455,7 @@ function checkNames(objects, fileName) {
     return nbrErrors;
 }
 function writeAll(comps, rootFolder, typ, allCompsName, packageName) {
-    let folderName = rootFolder + allCompsName + '/';
+    const folderName = rootFolder + allCompsName + '/';
     mkdirSync(folderName, { recursive: true });
     /**
      * write individual files in the sub-folder

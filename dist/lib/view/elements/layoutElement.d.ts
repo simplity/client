@@ -1,19 +1,13 @@
 import { AppController, Layout, NavigationOptions, StringMap } from '@/types';
 /**
- * Only child of AppElement. Defines the over-all layout
+ * Used exclusively by AppElement to manage non-page related view componnets in a layout
+ *
  */
 export declare class LayoutElement {
     readonly ac: AppController;
     readonly layout: Layout;
     readonly root: HTMLElement;
-    private readonly pageEle;
     private readonly menuBarEle?;
-    /**
-     * if a modal page is active
-     */
-    private readonly modalContainerEle;
-    private readonly modalPageParent;
-    private modalPageView?;
     /**
      * html elements for any context-value being rendered in the layout
      */
@@ -24,28 +18,18 @@ export declare class LayoutElement {
      */
     private readonly moduleMap;
     private readonly moduleElements;
-    /**
-     * keeps track of active pages. Current one is on the top.
-     */
-    private readonly pageStack;
-    constructor(ac: AppController, layout: Layout, options: NavigationOptions);
+    constructor(ac: AppController, layout: Layout);
     private initColorTheme;
     private setColorTheme;
-    /**
-     *
-     */
-    renderModule(options: NavigationOptions): void;
-    renderPage(pageName: string, options: NavigationOptions): void;
+    renderModule(options: NavigationOptions): string;
+    displayMenuBar(toShow: boolean): void;
     /**
      * to be called if the page was opened after retaining the earlier page
      */
-    closeCurrentPage(): void;
-    private closeModalPage;
-    private purgeStack;
+    renderContextValues(values: StringMap<string>): void;
+    dispose(): void;
     private getInitialModule;
     private getInitialMenu;
-    renderPageTitle(title: string): void;
-    renderContextValues(values: StringMap<string>): void;
     private renderMenuBar;
     private reportError;
 }

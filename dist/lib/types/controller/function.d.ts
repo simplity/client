@@ -8,7 +8,7 @@ import { BaseView } from '../view';
  * @param ac: the app controller
  * @param params: additional parameters passed to the function
  * @param msgs array to which the function can add messages that may be passed on to the UX
- * @returns any. In some situations the return value may also be checked for truthy/falsy to trigger events like onsuccess etc..
+ * @returns unknown. In some situations the return value may also be checked for truthy/falsy to trigger events like onsuccess etc..
  */
 export type GlobalFunction = (ac: AppController, params: unknown, msgs: DetailedMessage[]) => unknown;
 /**
@@ -18,7 +18,7 @@ export type GlobalFunction = (ac: AppController, params: unknown, msgs: Detailed
  * @param params: optional parameters for this function. If used, this is typically an object with name-value pairs.
  * onChange and OnChanging event call-back functions receive an object with {fieldName, value, event} attributes
  * @param msgs array to which the function can add messages that may be passed on to the UX
- * @returns any. In some situations the return value may also be checked for truthy/falsy to trigger evens like onsuccess etc..
+ * @returns unknown. In some situations the return value may also be checked for truthy/falsy to trigger evens like onsuccess etc..
  */
 export type PageFunction = (pc: PageController, params: unknown, msgs: DetailedMessage[]) => unknown;
 /**
@@ -29,7 +29,7 @@ export type PageFunction = (pc: PageController, params: unknown, msgs: DetailedM
  * @param fc controller for this field
  * @param params   onChange and OnChanging event call-back functions receive an object with {fieldName, value, event} attributes
  * @param msgs array to which the function can add messages that may be passed on to the UX
- * @returns any. In some situations the return value may also be checked for truthy/falsy to trigger evens like onsuccess etc..
+ * @returns unknown. In some situations the return value may also be checked for truthy/falsy to trigger evens like onsuccess etc..
  */
 export type FormFunction = (fc: FormController, param: unknown, msgs: DetailedMessage[]) => unknown;
 /**

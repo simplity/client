@@ -27,11 +27,12 @@ const DATE_ERROR = {
  */
 export function parseValue(textValue, valueType) {
     const text = textValue.trim();
+    let d;
     switch (valueType) {
         case 'boolean':
             return parseBoolean(text);
         case 'date':
-            const d = parseDate(text);
+            d = parseDate(text);
             if (d) {
                 return d.toISOString().substring(0, 10);
             }
@@ -265,7 +266,7 @@ function parseDate(text) {
         if (text !== '.') {
             nbr = Number.parseInt(text, 10);
         }
-        let date = new Date();
+        const date = new Date();
         return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate() + nbr));
     }
     if (!DATE_REGEX.test(str)) {
@@ -287,7 +288,7 @@ function parseTimestamp(text) {
     if (valueStr.length !== 24) {
         return undefined;
     }
-    let date = parseDate(valueStr.substring(0, 10));
+    const date = parseDate(valueStr.substring(0, 10));
     if (date === undefined) {
         return undefined;
     }

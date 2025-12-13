@@ -23,22 +23,22 @@ export type Logger = {
      * log some information
      * @param args
      */
-    info(...args: any[]): void;
+    info(...args: unknown[]): void;
     /**
      * log some error
      * @param args
      */
-    error(...args: any[]): void;
+    error(...args: unknown[]): void;
     /**
      * log some warning
      * @param args
      */
-    warn(...args: any[]): void;
+    warn(...args: unknown[]): void;
     /**
      * log some debug information
      * @param args
      */
-    debug(...args: any[]): void;
+    debug(...args: unknown[]): void;
 };
 export type FunctionType = 'global' | 'page' | 'form' | 'field' | 'request' | 'response' | 'format' | 'init';
 /**

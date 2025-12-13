@@ -17,7 +17,7 @@ const fn = (view) => {
     const schemaName = field.valueSchema;
     if (schemaName) {
         const vs = view.ac.getValueSchema(schemaName);
-        let date = new Date();
+        const date = new Date();
         if (vs.maxFutureDays) {
             date.setDate(date.getDate() + vs.maxFutureDays);
             options.maxDate = date.toISOString().substring(0, 10);

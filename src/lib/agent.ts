@@ -67,7 +67,7 @@ class SA implements ServiceAgent {
   public async serve(
     service: string,
     sessionId?: string,
-    data?: Vo,
+    data?: Vo
   ): Promise<ServerResponse> {
     let r = this.responses[service];
     if (r !== undefined) {
@@ -86,12 +86,12 @@ class SA implements ServiceAgent {
         return JSON.parse(JSON.stringify(r));
       }
       logger.debug(
-        `Service Agent:  ${service}: Local service refused to serve. Looking for server..`,
+        `Service Agent:  ${service}: Local service refused to serve. Looking for server..`
       );
     }
 
     //send a request to the server
-    let req: ServerRequest = { service };
+    const req: ServerRequest = { service };
     if (sessionId) {
       req.sessionId = sessionId;
     }
@@ -105,7 +105,7 @@ class SA implements ServiceAgent {
 
     if (!this.serverUrl) {
       logger.debug(
-        `Service Agent: No server is configured.  ${service} could not be served`,
+        `Service Agent: No server is configured.  ${service} could not be served`
       );
       return {
         status,
@@ -124,10 +124,10 @@ class SA implements ServiceAgent {
     try {
       const response = await fetch(this.serverUrl, options);
       logger.debug(
-        `Service Agent: ${service}: Requested server at ${this.serverUrl}`,
+        `Service Agent: ${service}: Requested server at ${this.serverUrl}`
       );
       return (await response.json()) as ServerResponse;
-    } catch (err) {
+    } catch {
       status = 'communicationError';
       description = `Error while communicating with server URL: ${this.serverUrl}`;
       logger.error(`Service Agent:communicationError.  ${description}`);

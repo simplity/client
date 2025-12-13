@@ -11,4 +11,5 @@ export declare class PageElement implements PageView {
     pageLoaded(): void;
     showButtons(toShow: boolean): void;
     alert(alerts: Alert[]): void;
+    dispose(): void;
 }

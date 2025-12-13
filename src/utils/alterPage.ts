@@ -51,7 +51,7 @@ export function alterPage(page: Page, alts: PageAlteration): void {
   for (const attr of simpleAttributes) {
     const val = alts[attr];
     if (val !== undefined) {
-      (page[attr] as any) = val;
+      (page[attr] as unknown) = val;
     }
   }
 
@@ -82,7 +82,7 @@ export function alterPage(page: Page, alts: PageAlteration): void {
     let target = page[attr] as unknown[];
     if (target === undefined) {
       target = [];
-      (page[attr] as any[]) = target;
+      (page[attr] as unknown[]) = target;
     }
 
     for (const a of src) {
@@ -114,7 +114,7 @@ export function alterPage(page: Page, alts: PageAlteration): void {
   }
 
   //step-6: deletions
-  let deletes = alts.deletions;
+  const deletes = alts.deletions;
   if (deletes) {
     nbrTasks += Object.keys(deletes).length;
   }
@@ -127,7 +127,7 @@ export function alterPage(page: Page, alts: PageAlteration): void {
 function alterChildren(
   parent: ContainerComponent,
   alts: PageAlteration,
-  nbrTasks: number,
+  nbrTasks: number
 ): number {
   const parentName = parent.name;
   const comps: BaseComponent[] = [];
@@ -144,7 +144,7 @@ function alterChildren(
     if (toDelete) {
       if (anUpdate) {
         console.warn(
-          `Warning: Element ${parentName} specifies that its child element ${childName} be altered, but it also specifies that it should be deleted. deletion command ignored.`,
+          `Warning: Element ${parentName} specifies that its child element ${childName} be altered, but it also specifies that it should be deleted. deletion command ignored.`
         );
         nbrTasks--;
       } else {
@@ -155,7 +155,7 @@ function alterChildren(
 
     if (anUpdate) {
       for (const [attName, value] of Object.entries(anUpdate)) {
-        (child as StringMap<any>)[attName] = value;
+        (child as StringMap<unknown>)[attName] = value;
       }
       nbrTasks--;
     }
@@ -195,7 +195,7 @@ function alterChildren(
 }
 
 function copyOf(field: object): object {
-  const obj = {} as any;
+  const obj = {} as StringMap<unknown>;
   for (const [name, value] of Object.entries(field)) {
     obj[name] = value;
   }

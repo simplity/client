@@ -61,7 +61,7 @@ export class PC {
         }
         this.name = this.page.name;
         let form = undefined;
-        let formName = this.page.formName;
+        const formName = this.page.formName;
         if (formName) {
             form = this.ac.getForm(formName);
         }
@@ -146,7 +146,7 @@ export class PC {
             return;
         }
         const alerts = [];
-        for (let msg of messages) {
+        for (const msg of messages) {
             const text = this.ac.getMessage(msg.id, msg.params, msg.text);
             alerts.push({ type: msg.type, text: text });
         }
@@ -158,7 +158,7 @@ export class PC {
             logger.warn(`Control ${control.name} does not have listName, but a list is requested for it. Request ignored`);
             return;
         }
-        let localList = this.lists[listName];
+        const localList = this.lists[listName];
         if (localList) {
             const isSimple = Array.isArray(localList);
             let list = [];
@@ -454,13 +454,14 @@ export class PC {
         if (action.toDisableUx) {
             this.ac.disableUx();
         }
+        let fc;
         switch (actionType) {
             case 'close':
                 //todo: any checks and balances?'
                 this.ac.closePage();
                 break;
             case 'reset':
-                let fc = this.fc;
+                fc = this.fc;
                 if (action.panelToReset) {
                     fc = this.fc.getController(action.panelToReset);
                     if (!fc) {
@@ -476,29 +477,7 @@ export class PC {
                 }
                 break;
             case 'function':
-                const functionName = action.functionName;
-                /**
-                 * is it a dynamic function added at run time for this page?
-                 */
-                const fn = this.functions[functionName];
-                if (fn) {
-                    fn();
-                    break;
-                }
-                let params;
-                if (action.additionalParams) {
-                    if (p.additionalParams) {
-                        params = { ...p.additionalParams, ...action.additionalParams };
-                    }
-                    else {
-                        params = action.additionalParams;
-                    }
-                }
-                else if (p.additionalParams) {
-                    params = p.additionalParams;
-                }
-                const status = this.callFunction(functionName, params, p.msgs, controller);
-                errorFound = !status.allOk;
+                errorFound = this.doFn(action, p, controller);
                 break;
             case 'form':
                 //request the form action as an async, chain the call back, and return.
@@ -510,51 +489,10 @@ export class PC {
                 errorFound = this.navigate(action, p) === false;
                 break;
             case 'service':
-                const a = action;
-                let values;
-                if (a.submitAll || a.panelToSubmit) {
-                    let controllerToUse;
-                    if (a.submitAll) {
-                        controllerToUse = this.fc;
-                    }
-                    else {
-                        controllerToUse = this.fc.getController(a.panelToSubmit);
-                    }
-                    if (!controllerToUse) {
-                        throw new Error(`Design Error. Action '${a.name}' on page '${this.name}' specifies panelToSubmit='${a.panelToSubmit}' but that form is not used on this page `);
-                    }
-                    //let us validate the form again
-                    if (controllerToUse.validate()) {
-                        values = controllerToUse.getData();
-                    }
-                    else {
-                        addMessage('Please fix the errors on this page', p.msgs);
-                        errorFound = true;
-                    }
-                }
-                else if (a.fieldsToSubmit) {
-                    const n = p.msgs.length;
-                    values = controller.extractData(a.fieldsToSubmit, p.msgs);
-                    errorFound = n !== p.msgs.length;
-                }
-                /**
-                 * do we have an intercept?
-                 */
-                if (!errorFound && a.fnBeforeRequest) {
-                    const fnd = this.ac.getFn(a.fnBeforeRequest, 'request');
-                    const fn = fnd.fn;
-                    const ok = fn(controller, values, p.msgs);
-                    errorFound = !ok;
-                }
+                errorFound = this.tryToServe(action, p, controller);
                 if (errorFound) {
                     break;
                 }
-                /**
-                 * ok. ask for the service.
-                 */
-                this.serve(a.serviceName, controller, values, a.targetPanelName, a.fnAfterResponse).then((ok) => {
-                    this.actionReturned(action, ok, p);
-                });
                 return;
             default:
                 addMessage(`${actionType} is an invalid action-type specified in action ${actionName}`, p.msgs);
@@ -563,6 +501,78 @@ export class PC {
                 break;
         }
         this.actionReturned(action, !errorFound, p);
+    }
+    doFn(action, p, controller) {
+        const functionName = action.functionName;
+        /**
+         * is it a dynamic function added at run time for this page?
+         */
+        const fn = this.functions[functionName];
+        if (fn) {
+            fn();
+            return false;
+        }
+        let params;
+        if (action.additionalParams) {
+            if (p.additionalParams) {
+                params = { ...p.additionalParams, ...action.additionalParams };
+            }
+            else {
+                params = action.additionalParams;
+            }
+        }
+        else if (p.additionalParams) {
+            params = p.additionalParams;
+        }
+        const status = this.callFunction(functionName, params, p.msgs, controller);
+        return !status.allOk;
+    }
+    tryToServe(action, p, controller) {
+        let values;
+        let errorFound = false;
+        if (action.submitAll || action.panelToSubmit) {
+            let controllerToUse;
+            if (action.submitAll) {
+                controllerToUse = this.fc;
+            }
+            else {
+                controllerToUse = this.fc.getController(action.panelToSubmit);
+            }
+            if (!controllerToUse) {
+                throw new Error(`Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${action.panelToSubmit}' but that form is not used on this page `);
+            }
+            //let us validate the form again
+            if (controllerToUse.validate()) {
+                values = controllerToUse.getData();
+            }
+            else {
+                addMessage('Please fix the errors on this page', p.msgs);
+                errorFound = true;
+            }
+        }
+        else if (action.fieldsToSubmit) {
+            const n = p.msgs.length;
+            values = controller.extractData(action.fieldsToSubmit, p.msgs);
+            errorFound = n !== p.msgs.length;
+        }
+        /**
+         * do we have an intercept?
+         */
+        if (!errorFound && action.fnBeforeRequest) {
+            const fnd = this.ac.getFn(action.fnBeforeRequest, 'request');
+            const fn = fnd.fn;
+            const ok = fn(controller, values, p.msgs);
+            errorFound = !ok;
+        }
+        if (!errorFound) {
+            /**
+             * ok. ask for the service.
+             */
+            this.serve(action.serviceName, controller, values, action.targetPanelName, action.fnAfterResponse).then((ok) => {
+                this.actionReturned(action, ok, p);
+            });
+        }
+        return errorFound;
     }
     /**
      *
@@ -624,7 +634,7 @@ export class PC {
     }
     navigate(action, p) {
         //NavigationOptions is a subset of NavigationAction
-        let navOptions = action;
+        const navOptions = action;
         if (action.pageParameters) {
             const values = {};
             for (const [name, v] of Object.entries(action.pageParameters)) {
@@ -703,12 +713,13 @@ export class PC {
         }
         let data;
         let targetChild;
+        let fa;
         switch (action.formOperation) {
             case 'get':
                 data = fc.extractKeys(messages);
                 break;
             case 'filter':
-                const fa = action;
+                fa = action;
                 data = this.getFilterData(fc, fa, messages);
                 targetChild = fa.targetTableName;
                 break;

@@ -87,14 +87,16 @@ export const predefinedHtmlTemplates = [
     'module',
     'menu-item',
     'message',
+    'modal-panel',
+    'nav-bar',
     'output',
     'page',
     'panel',
     'panel-flex',
     'panel-grid',
-    'panel-modal',
     'range-wrapper',
     'password',
+    'popup',
     'select-output',
     'select',
     'snack-bar',
@@ -111,9 +113,10 @@ export const childElementIds = [
     'arrow-icon',
     'buttons',
     'chart',
+    'close-button',
     'color-theme',
-    'data',
     'container',
+    'data',
     'description',
     'field',
     'from-field',
@@ -375,7 +378,7 @@ function setViewState(ele, stateName, stateValue) {
     }
 }
 function getImageSrc(imageName) {
-    let s = '' + imageName;
+    const s = '' + imageName;
     if (s.length > 4) {
         const st = s.substring(0, 6).toLowerCase();
         if (st.startsWith('http:') || st.startsWith('https:')) {

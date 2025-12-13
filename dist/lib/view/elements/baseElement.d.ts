@@ -58,4 +58,5 @@ export declare class BaseElement implements BaseView {
     setError(msg: unknown): void;
     setDisplayState(settings: Values): void;
     clicked(): void;
+    dispose(): void;
 }

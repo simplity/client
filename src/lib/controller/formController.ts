@@ -91,7 +91,7 @@ export class FC implements FormController {
     public readonly name: string,
     public readonly pc: PageController,
     private readonly form?: Form,
-    data?: Vo,
+    data?: Vo
   ) {
     this.ac = pc.ac;
     if (data) {
@@ -107,7 +107,7 @@ export class FC implements FormController {
     const name = view.name;
     if (this.children[name]) {
       logger.error(
-        `${name} is a duplicate child-name for the form "${this.name}. This may create unexpected behavior"`,
+        `${name} is a duplicate child-name for the form "${this.name}. This may create unexpected behavior"`
       );
       return;
     }
@@ -132,7 +132,7 @@ export class FC implements FormController {
   private beginTabGroup(panelName: string) {
     if (this.currentGroupArray) {
       throw new Error(
-        `Tabs group ${panelName} is inside another tab group. Embedded tabs are not supported.`,
+        `Tabs group ${panelName} is inside another tab group. Embedded tabs are not supported.`
       );
     }
 
@@ -154,13 +154,13 @@ export class FC implements FormController {
   private beginTab(panelName: string) {
     if (!this.currentGroupArray) {
       throw new Error(
-        `${panelName} is a tab-child, but it is not inside a tab-group panel`,
+        `${panelName} is a tab-child, but it is not inside a tab-group panel`
       );
     }
 
     if (this.currentTabArray) {
       throw new Error(
-        `${panelName} is a tab-child, but it is inside of another tab-child. tab-child can only be direct children of child-group`,
+        `${panelName} is a tab-child, but it is inside of another tab-child. tab-child can only be direct children of child-group`
       );
     }
     /**
@@ -188,7 +188,7 @@ export class FC implements FormController {
 
       if (field.listOptions) {
         logger.info(
-          `Select-field ${field.name} has its listOptions set as well as listName. List name is ignored as the options are already made available `,
+          `Select-field ${field.name} has its listOptions set as well as listName. List name is ignored as the options are already made available `
         );
         continue;
       }
@@ -214,7 +214,7 @@ export class FC implements FormController {
       const keyControl = this.fieldViews[field.listKeyFieldName];
       if (!keyControl) {
         logger.error(
-          `field ${field.name} uses ${field.listKeyFieldName} as its key-field for getting list of valid values. However the key field is not valid`,
+          `field ${field.name} uses ${field.listKeyFieldName} as its key-field for getting list of valid values. However the key field is not valid`
         );
         continue;
       }
@@ -307,7 +307,7 @@ export class FC implements FormController {
   public addEventListener(
     viewName: string,
     eventName: EventName,
-    eventFn: EventHandler,
+    eventFn: EventHandler
   ): void {
     let viewListeners = this.listeners[viewName];
     if (!viewListeners) {
@@ -326,7 +326,7 @@ export class FC implements FormController {
   receiveData(vo: Vo | Vo[], childName?: string): void {
     if (Array.isArray(vo)) {
       logger.error(
-        `Form named ${this.name} should be receiving an object as data, but an array is received. Data ignored.`,
+        `Form named ${this.name} should be receiving an object as data, but an array is received. Data ignored.`
       );
       return;
     }
@@ -336,7 +336,7 @@ export class FC implements FormController {
 
       if (!controller) {
         logger.error(
-          `Form named ${this.name}:  ${childName} is not a child of this form, but data is received for the same. data ignored.`,
+          `Form named ${this.name}:  ${childName} is not a child of this form, but data is received for the same. data ignored.`
         );
         return;
       }
@@ -355,7 +355,7 @@ export class FC implements FormController {
       const rows = data[childName] || data.list;
       if (!rows) {
         logger.error(
-          `Data is received for the child "${childName}" but no data found with memberName="${childName}" or "list". Data ignored.`,
+          `Data is received for the child "${childName}" but no data found with memberName="${childName}" or "list". Data ignored.`
         );
         return;
       }
@@ -366,7 +366,7 @@ export class FC implements FormController {
       }
 
       logger.error(
-        `Data for child "${childName}" should be an array, but data received is of type ${typeof rows}. Data ignored.`,
+        `Data for child "${childName}" should be an array, but data received is of type ${typeof rows}. Data ignored.`
       );
       return;
     }
@@ -376,7 +376,7 @@ export class FC implements FormController {
      */
     if (Array.isArray(data)) {
       logger.error(
-        `An Array is being received as data for the form ${this.name}. It should be a Vo`,
+        `An Array is being received as data for the form ${this.name}. It should be a Vo`
       );
       return;
     }
@@ -392,7 +392,7 @@ export class FC implements FormController {
         value = '';
       } else if (typeof value === 'object') {
         logger.error(
-          `${name} is a field inside the form ${this.name} but an object is being set as its value. Ignored.`,
+          `${name} is a field inside the form ${this.name} but an object is being set as its value. Ignored.`
         );
         continue;
       }
@@ -414,12 +414,10 @@ export class FC implements FormController {
   }
 
   setData(data: Vo): void {
-    for (let [name, value] of Object.entries(data)) {
-      if (value === undefined) {
-        value = '';
-      }
-      this.data[name] = value;
-      this.setValueToChild(name, value);
+    for (const [name, value] of Object.entries(data)) {
+      const val = value === undefined ? '' : value;
+      this.data[name] = val;
+      this.setValueToChild(name, val);
     }
   }
 
@@ -439,7 +437,7 @@ export class FC implements FormController {
 
   extractData(
     params: StringMap<boolean>,
-    messages: DetailedMessage[],
+    messages: DetailedMessage[]
   ): Vo | undefined {
     let names: string[] = [];
     let reqNames: string[] = [];
@@ -476,7 +474,7 @@ export class FC implements FormController {
     const keys = this.form && this.form.keyFields;
     if (!keys) {
       logger.info(
-        `Panel "${this.name}" has no form, or the form has no keys. An empty object is returned as key-values, with no error`,
+        `Panel "${this.name}" has no form, or the form has no keys. An empty object is returned as key-values, with no error`
       );
       return data;
     }
@@ -509,7 +507,7 @@ export class FC implements FormController {
         controller.setData(value as Vo | Vo[]);
       } else {
         logger.error(
-          `${name} is a child-controller in the from "${this.name} but a primitive value of ${value} is being set. Value ignored"`,
+          `${name} is a child-controller in the from "${this.name} but a primitive value of ${value} is being set. Value ignored"`
         );
       }
       return;
@@ -523,7 +521,7 @@ export class FC implements FormController {
 
     if (typeof value === 'object') {
       logger.error(
-        `${name} is a field but a non-primitive value is being set.`,
+        `${name} is a field but a non-primitive value is being set.`
       );
       return;
     }
@@ -599,7 +597,7 @@ export class FC implements FormController {
       const fd = this.ac.getFn(this.form.validationFn, 'form');
       if (!fd) {
         throw new Error(
-          `${this.form.validationFn} is declared as the validationFn for form ${this.form.name} but it is not defined for the runtime`,
+          `${this.form.validationFn} is declared as the validationFn for form ${this.form.name} but it is not defined for the runtime`
         );
       }
       const fn = fd.fn as FormValidationFunction;
@@ -640,7 +638,7 @@ export class FC implements FormController {
   valueIsChanging(
     _fieldName: string,
     _newValue: Value,
-    _newValidity?: boolean,
+    _newValidity?: boolean
   ): void {
     // feature not yet designed
   }
@@ -680,12 +678,12 @@ export class FC implements FormController {
     }
   }
 
-  act(actionName: string, params?: StringMap<any>): void {
+  act(actionName: string, params?: StringMap<unknown>): void {
     this.pc.act(actionName, this, params);
   }
 
   private reportFieldErrors(
-    msgs: { fieldName: string; message: string }[],
+    msgs: { fieldName: string; message: string }[]
   ): void {
     for (const msg of msgs) {
       const fieldView = this.fieldViews[msg.fieldName];
@@ -693,7 +691,7 @@ export class FC implements FormController {
         fieldView.setError(msg.message);
       } else {
         logger.error(
-          `${msg.fieldName} is not a valid field, but it is reported with a validation error: "${msg.message}"`,
+          `${msg.fieldName} is not a valid field, but it is reported with a validation error: "${msg.message}"`
         );
       }
     }
@@ -754,7 +752,7 @@ export class FC implements FormController {
 
       default:
         throw new Error(
-          `validation type ${v.validationType} is not handled by the data controller`,
+          `validation type ${v.validationType} is not handled by the data controller`
         );
     }
   }

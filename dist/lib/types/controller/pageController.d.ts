@@ -104,14 +104,14 @@ export interface PageController {
      * @param fc undefined if this action is not associated with a specific data controller
      * @param params depends on the type of action and the context.
      */
-    act(actionName: string, fc?: FormController, params?: StringMap<any>): void;
+    act(actionName: string, fc?: FormController, params?: StringMap<unknown>): void;
     /**
      * execute an action with form-data/form-controller as the context
      * @param actionName
      * @param fc undefined if this action is not associated with a specific data controller
      * @param params depends on the type of action and the context.
      */
-    takeAction(action: Action, fc?: FormController, params?: StringMap<any>): void;
+    takeAction(action: Action, fc?: FormController, params?: StringMap<unknown>): void;
     /**
      * feature to add drop-down list at run time as a local list. (not going to the server)
      * e.g. the field-list in list-configuration panel
@@ -143,7 +143,7 @@ export interface PageController {
      * @param msgs array of messages to which messages could be added while locating and executing the function
      * @returns status of function call.
      */
-    callFunction(nam: string, additionalParams?: StringMap<any>, msgs?: DetailedMessage[]): FnStatus;
+    callFunction(nam: string, additionalParams?: StringMap<unknown>, msgs?: DetailedMessage[]): FnStatus;
     /**
      * set/change display state of a component
      * @param compName field/component name

@@ -65,7 +65,6 @@ export class AC {
      * TODO: What happens when a function throws error after disabling!!!
      */
     disableUxCount = 0;
-    //private pc?: PageController; //This should be a stack/collection??
     /**
      * @param runtime meta-data components for this apps
      * @param appView  This is the root html element for this app.
@@ -114,9 +113,6 @@ export class AC {
     newWindow(url) {
         logger.info(`Request to open a window for url:${url} received. This feature is not yet implemented`);
     }
-    closePopup() {
-        this.appView.closePopup();
-    }
     newError(msg) {
         logger.error(msg);
         return new Error(msg);
@@ -134,15 +130,15 @@ export class AC {
         };
         this.navigate(options);
     }
-    closePage() {
-        this.appView.closePage();
-    }
     /**
      * request coming from the controller side to navigate to another page
      * @param options
      */
     navigate(options) {
         this.appView.navigate(options);
+    }
+    closePage() {
+        this.appView.closePage();
     }
     selectModule(name) {
         this.appView.navigate({
@@ -151,9 +147,6 @@ export class AC {
     }
     getUserChoice(text, choices) {
         return this.appView.getUserChoice(text, choices);
-    }
-    renderAsPopup(panel) {
-        this.appView.renderAsPopup(panel);
     }
     setPageTitle(title) {
         this.appView.renderPageTitle(title);
@@ -305,7 +298,7 @@ export class AC {
              *  setItem() is using JSON.stringify() hence we should never have exception.
              */
         }
-        catch (e) {
+        catch {
             return s;
         }
     }
@@ -362,10 +355,10 @@ export class AC {
             this.allowAllMenus = true;
             return;
         }
-        for (let id of ids.split(',')) {
+        for (const id of ids.split(',')) {
             this.allowedMenus[id.trim()] = true;
         }
-        for (let [key, mod] of Object.entries(this.allModules)) {
+        for (const [key, mod] of Object.entries(this.allModules)) {
             if (this.atLeastOneAllowed(mod.menuItems)) {
                 this.allowedModules[key] = true;
             }
@@ -391,7 +384,7 @@ export class AC {
             }
         }
         else {
-            let msgs = resp.messages;
+            const msgs = resp.messages;
             if (msgs && msgs.length) {
                 //error message is sent by the server
             }
@@ -577,7 +570,7 @@ export class AC {
                 ],
             };
         }
-        let result = validateValue(schema, value);
+        const result = validateValue(schema, value);
         if (result.messages || !schema.validationFn) {
             return result;
         }

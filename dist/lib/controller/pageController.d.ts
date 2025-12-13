@@ -68,12 +68,12 @@ export declare class PC implements PageController {
      * A child-form-controller may be passed in case some field values are to be taken from that form as part of this action.
      * @param params
      */
-    takeAction(action: Action, controller?: FormController, additionalParams?: StringMap<any>): void;
-    act(actionName: string, controller?: FormController, additionalParams?: StringMap<any>): void;
+    takeAction(action: Action, controller?: FormController, additionalParams?: StringMap<unknown>): void;
+    act(actionName: string, controller?: FormController, additionalParams?: StringMap<unknown>): void;
     addList(name: string, list: SimpleList | KeyedList): void;
     addFunction(name: string, fn: () => unknown): void;
     getFieldValue(qualifiedName: string): Value | undefined;
-    callFunction(name: string, params?: StringMap<any>, msgs?: DetailedMessage[], controller?: FormController): FnStatus;
+    callFunction(name: string, params?: StringMap<unknown>, msgs?: DetailedMessage[], controller?: FormController): FnStatus;
     private setButtonDisplays;
     private checkTitle;
     private serve;
@@ -84,6 +84,8 @@ export declare class PC implements PageController {
      * This is designed to detect any such loop and throw error, rather than getting a activeActions-over-flow
      */
     private doAct;
+    private doFn;
+    private tryToServe;
     /**
      *
      * @param name may be of the form ${run-time-name}

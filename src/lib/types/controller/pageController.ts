@@ -116,7 +116,11 @@ export interface PageController {
    * @param fc undefined if this action is not associated with a specific data controller
    * @param params depends on the type of action and the context.
    */
-  act(actionName: string, fc?: FormController, params?: StringMap<any>): void;
+  act(
+    actionName: string,
+    fc?: FormController,
+    params?: StringMap<unknown>
+  ): void;
 
   /**
    * execute an action with form-data/form-controller as the context
@@ -127,7 +131,7 @@ export interface PageController {
   takeAction(
     action: Action,
     fc?: FormController,
-    params?: StringMap<any>,
+    params?: StringMap<unknown>
   ): void;
 
   /**
@@ -156,7 +160,7 @@ export interface PageController {
   getServiceName(
     formName: string,
     operation: FormOperation,
-    messages: DetailedMessage[],
+    messages: DetailedMessage[]
   ): string;
 
   /**
@@ -170,8 +174,8 @@ export interface PageController {
    */
   callFunction(
     nam: string,
-    additionalParams?: StringMap<any>,
-    msgs?: DetailedMessage[],
+    additionalParams?: StringMap<unknown>,
+    msgs?: DetailedMessage[]
   ): FnStatus;
 
   /**

@@ -1,4 +1,4 @@
-import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, ValueValidationResult, Values, Vo, AppView, PanelView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from '@/types';
+import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from '@/types';
 export declare class AC implements AppController {
     private readonly agent;
     private readonly appView;
@@ -36,22 +36,20 @@ export declare class AC implements AppController {
     constructor(runtime: AppRuntime, agent: ServiceAgent, appView: AppView);
     newPc(pageView: PageView): PageController;
     newWindow(url: string): void;
-    closePopup(): void;
     newError(msg: string): Error;
     /**
      * use has selected a menu item (outside of page buttons etc.. like from a menu)
      * @param menu
      */
     menuSelected(module: string, menuItem: string): void;
-    closePage(): void;
     /**
      * request coming from the controller side to navigate to another page
      * @param options
      */
     navigate(options: NavigationOptions): void;
+    closePage(): void;
     selectModule(name: string): void;
     getUserChoice(text: string, choices: string[]): Promise<number>;
-    renderAsPopup(panel: PanelView): void;
     setPageTitle(title: string): void;
     disableUx(): void;
     enableUx(force?: boolean): void;
@@ -69,7 +67,7 @@ export declare class AC implements AppController {
     getFn(nam: string, type?: FunctionType): FunctionImpl;
     getMessage(id: string, params?: string[], fallbackText?: string): string;
     getPermittedPages(): string[];
-    setContextValue(key: string, value: any): void;
+    setContextValue(key: string, value: unknown): void;
     removeContextValue(key: string): void;
     clearContext(): void;
     getContextValue(key: string): any;

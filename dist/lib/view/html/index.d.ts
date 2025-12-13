@@ -31,6 +31,7 @@ declare const htmls: {
     '_panel-outline': string;
     _panel: string;
     _password: string;
+    _popup: string;
     _reports: string;
     '_select-output': string;
     _select: string;

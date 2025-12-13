@@ -1,6 +1,7 @@
 import { htmlUtil } from './htmlUtils';
 import { PanelElement } from './panelElement';
 import { elementFactory } from './elementFactory';
+import { logger } from '@/logger';
 const NBR_COLS_IN_GRID = 12;
 export class PageElement {
     ac;
@@ -63,12 +64,15 @@ export class PageElement {
         this.pc.pageLoaded();
     }
     showButtons(toShow) {
-        toShow;
+        logger.error(`showButton() invoked with ${toShow}. showButtons is not implemented yet`);
     }
     alert(alerts) {
         console.info(alerts);
         window.alert('alert from the Page (We are working on a better alert. Please bear with us):\n' +
             JSON.stringify(alerts));
+    }
+    dispose() {
+        this.root.remove();
     }
 }
 //# sourceMappingURL=pageElement.js.map

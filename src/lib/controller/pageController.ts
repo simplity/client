@@ -49,7 +49,7 @@ type ActionParameters = {
   /**
    * additional parameters for a function passed at run time
    */
-  additionalParams?: StringMap<any>;
+  additionalParams?: StringMap<unknown>;
 };
 
 const FORM_NAME = 'ROOT';
@@ -114,7 +114,7 @@ export class PC implements PageController {
 
   public constructor(
     public readonly ac: AppController,
-    pageView: PageView,
+    pageView: PageView
   ) {
     this.pageView = pageView;
     this.page = pageView.page;
@@ -127,7 +127,7 @@ export class PC implements PageController {
     this.name = this.page.name;
 
     let form: Form | undefined = undefined;
-    let formName = this.page.formName;
+    const formName = this.page.formName;
     if (formName) {
       form = this.ac.getForm(formName);
     }
@@ -165,7 +165,7 @@ export class PC implements PageController {
           inputNames.push(key);
         } else if (isRequired && !this.page.inputIsForUpdate) {
           throw new Error(
-            `Input value missing for parameter ${key} for page ${this.name}`,
+            `Input value missing for parameter ${key} for page ${this.name}`
           );
         }
       }
@@ -226,7 +226,7 @@ export class PC implements PageController {
     }
 
     const alerts: Alert[] = [];
-    for (let msg of messages) {
+    for (const msg of messages) {
       const text = this.ac.getMessage(msg.id, msg.params, msg.text);
       alerts.push({ type: msg.type, text: text! });
     }
@@ -237,12 +237,12 @@ export class PC implements PageController {
     const listName = control.field.listName;
     if (!listName) {
       logger.warn(
-        `Control ${control.name} does not have listName, but a list is requested for it. Request ignored`,
+        `Control ${control.name} does not have listName, but a list is requested for it. Request ignored`
       );
       return;
     }
 
-    let localList = this.lists[listName];
+    const localList = this.lists[listName];
     if (localList) {
       const isSimple = Array.isArray(localList);
 
@@ -254,7 +254,7 @@ export class PC implements PageController {
           list = (localList as KeyedList)[key] || [];
         } else {
           logger.error(
-            `List ${listName} is a keyed list but no key value is specified while requesting this list for control "${control.name}" `,
+            `List ${listName} is a keyed list but no key value is specified while requesting this list for control "${control.name}" `
           );
         }
       }
@@ -270,12 +270,12 @@ export class PC implements PageController {
   getServiceName(
     formName: string | undefined,
     operation: FormOperation,
-    messages: DetailedMessage[],
+    messages: DetailedMessage[]
   ): string {
     if (!formName) {
       addMessage(
         `Form controller ${this.name} is not associated with a form. Can not do form based service`,
-        messages,
+        messages
       );
       return '';
     }
@@ -285,7 +285,7 @@ export class PC implements PageController {
     if (!ops) {
       addMessage(
         `Form ${form.name} is not designed for any form operation. Can not do form based service`,
-        messages,
+        messages
       );
       return '';
     }
@@ -300,7 +300,7 @@ export class PC implements PageController {
     if (!ops[operation]) {
       addMessage(
         `operation '${operation}' is not allowed on the form ${this.name}`,
-        messages,
+        messages
       );
       return '';
     }
@@ -343,7 +343,7 @@ export class PC implements PageController {
   takeAction(
     action: Action,
     controller?: FormController,
-    additionalParams?: StringMap<any>,
+    additionalParams?: StringMap<unknown>
   ): void {
     const ap: ActionParameters = {
       msgs: [],
@@ -362,7 +362,7 @@ export class PC implements PageController {
   act(
     actionName: string,
     controller?: FormController,
-    additionalParams?: StringMap<any>,
+    additionalParams?: StringMap<unknown>
   ): void {
     /**
      * run time functions override design time actions.
@@ -404,13 +404,13 @@ export class PC implements PageController {
         const c = fc.getController(part);
         if (!c) {
           logger.error(
-            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' does not exist `,
+            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' does not exist `
           );
           return undefined;
         }
         if (c.type !== 'form') {
           logger.error(
-            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' is of type '${c.type}'. Sub forms must be of type 'form'`,
+            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' is of type '${c.type}'. Sub forms must be of type 'form'`
           );
           return undefined;
         }
@@ -426,9 +426,9 @@ export class PC implements PageController {
 
   callFunction(
     name: string,
-    params?: StringMap<any>,
+    params?: StringMap<unknown>,
     msgs?: DetailedMessage[],
-    controller?: FormController,
+    controller?: FormController
   ): FnStatus {
     const entry = this.ac.getFn(name);
     const status: FnStatus = { allOk: false };
@@ -438,7 +438,7 @@ export class PC implements PageController {
     if (!entry) {
       addMessage(
         `function ${name} is not defined but is being requested`,
-        msgs,
+        msgs
       );
       return status;
     }
@@ -453,7 +453,7 @@ export class PC implements PageController {
             ret = (entry.fn as FormFunction)(controller, params, msgs);
           } else {
             logger.warn(
-              `function ${name} is of type "form" but is invoked with no data-controller. Root dc is assumed.`,
+              `function ${name} is of type "form" but is invoked with no data-controller. Root dc is assumed.`
             );
             ret = (entry.fn as FormFunction)(this.fc, params, msgs);
           }
@@ -469,7 +469,7 @@ export class PC implements PageController {
 
         case 'field':
           logger.warn(
-            `function ${name} is a validation function, but is being called in a non-validation context in page ${this.name}`,
+            `function ${name} is a validation function, but is being called in a non-validation context in page ${this.name}`
           );
           ret = (entry.fn as FieldValidationFn)(params as { value: string });
           break;
@@ -478,14 +478,14 @@ export class PC implements PageController {
         case 'response':
           addMessage(
             `function ${name} is defined with type="${fnType}".  It should not be invoked on its own. (It is used internally by the page controller with a serviceAction with which this function may be associated.)`,
-            msgs,
+            msgs
           );
           break;
 
         default:
           addMessage(
             `function ${name} is defined with type="${fnType}", but this type of function is not yet implemented.`,
-            msgs,
+            msgs
           );
           break;
       }
@@ -548,7 +548,7 @@ export class PC implements PageController {
     fc: FormController,
     data?: Vo,
     targetChild?: string,
-    onResponseFn?: string,
+    onResponseFn?: string
   ): Promise<boolean> {
     if (targetChild) {
       if (!this.fc.getController(targetChild)) {
@@ -564,7 +564,7 @@ export class PC implements PageController {
     const respAt = new Date().getTime();
     logger.info(
       `Service '${serviceName}' returned after  ${respAt - reqAt}ms`,
-      resp,
+      resp
     );
 
     if (onResponseFn) {
@@ -587,7 +587,7 @@ export class PC implements PageController {
 
       const completedAt = new Date().getTime();
       logger.info(
-        `It took ${completedAt - respAt}ms to render the data received from the service '${serviceName}' `,
+        `It took ${completedAt - respAt}ms to render the data received from the service '${serviceName}' `
       );
     }
     return ok;
@@ -602,7 +602,7 @@ export class PC implements PageController {
   private doAct(
     actionName: string,
     p: ActionParameters,
-    action?: Action,
+    action?: Action
   ): void {
     if (!action) {
       action = this.getAction(actionName, p.fc);
@@ -613,14 +613,14 @@ export class PC implements PageController {
     if (!action) {
       addMessage(
         `${actionName} is not defined as an action on this page but is requested by a component.`,
-        p.msgs,
+        p.msgs
       );
       errorFound = true;
     } else if (p.activeActions[actionName]) {
       addMessage(
         `Action ${actionName} has onSuccess and/or onFailure that is resulting in a circular relationship.
             This may result in an infinite loop,and hence is not allowed`,
-        p.msgs,
+        p.msgs
       );
       errorFound = true;
     }
@@ -636,6 +636,7 @@ export class PC implements PageController {
       this.ac.disableUx();
     }
 
+    let fc: DataController | undefined;
     switch (actionType) {
       case 'close':
         //todo: any checks and balances?'
@@ -643,12 +644,12 @@ export class PC implements PageController {
         break;
 
       case 'reset':
-        let fc: DataController | undefined = this.fc;
+        fc = this.fc;
         if (action.panelToReset) {
           fc = this.fc.getController(action.panelToReset);
           if (!fc) {
             logger.error(
-              `No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`,
+              `No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`
             );
             break;
           }
@@ -658,40 +659,14 @@ export class PC implements PageController {
 
       case 'display':
         for (const [compName, settings] of Object.entries(
-          (action as DisplayAction).displaySettings,
+          (action as DisplayAction).displaySettings
         )) {
           this.setDisplayState(compName, settings as Values);
         }
         break;
 
       case 'function':
-        const functionName = (action as FunctionAction).functionName;
-        /**
-         * is it a dynamic function added at run time for this page?
-         */
-        const fn = this.functions[functionName];
-        if (fn) {
-          fn();
-          break;
-        }
-
-        let params: StringMap<any> | undefined;
-        if (action.additionalParams) {
-          if (p.additionalParams) {
-            params = { ...p.additionalParams, ...action.additionalParams };
-          } else {
-            params = action.additionalParams;
-          }
-        } else if (p.additionalParams) {
-          params = p.additionalParams;
-        }
-        const status = this.callFunction(
-          functionName,
-          params,
-          p.msgs,
-          controller,
-        );
-        errorFound = !status.allOk;
+        errorFound = this.doFn(action as FunctionAction, p, controller);
         break;
 
       case 'form':
@@ -706,66 +681,16 @@ export class PC implements PageController {
         break;
 
       case 'service':
-        const a = action as ServiceAction;
-        let values: Vo | undefined;
-        if (a.submitAll || a.panelToSubmit) {
-          let controllerToUse: DataController | undefined;
-          if (a.submitAll) {
-            controllerToUse = this.fc;
-          } else {
-            controllerToUse = this.fc.getController(a.panelToSubmit!);
-          }
-          if (!controllerToUse) {
-            throw new Error(
-              `Design Error. Action '${a.name}' on page '${this.name}' specifies panelToSubmit='${a.panelToSubmit}' but that form is not used on this page `,
-            );
-          }
-
-          //let us validate the form again
-          if (controllerToUse.validate()) {
-            values = controllerToUse.getData() as Vo;
-          } else {
-            addMessage('Please fix the errors on this page', p.msgs);
-            errorFound = true;
-          }
-        } else if (a.fieldsToSubmit) {
-          const n = p.msgs.length;
-          values = controller.extractData(a.fieldsToSubmit, p.msgs);
-          errorFound = n !== p.msgs.length;
-        }
-
-        /**
-         * do we have an intercept?
-         */
-        if (!errorFound && a.fnBeforeRequest) {
-          const fnd = this.ac.getFn(a.fnBeforeRequest, 'request');
-          const fn = fnd.fn as RequestFunction;
-          const ok = fn(controller, values, p.msgs);
-          errorFound = !ok;
-        }
+        errorFound = this.tryToServe(action as ServiceAction, p, controller);
         if (errorFound) {
           break;
         }
-
-        /**
-         * ok. ask for the service.
-         */
-
-        this.serve(
-          a.serviceName,
-          controller,
-          values,
-          a.targetPanelName,
-          a.fnAfterResponse,
-        ).then((ok: boolean) => {
-          this.actionReturned(action, ok, p);
-        });
         return;
 
       default:
         addMessage(
           `${actionType} is an invalid action-type specified in action ${actionName}`,
-          p.msgs,
+          p.msgs
         );
         action = undefined; //so that we stop this chain..
         errorFound = true;
@@ -775,6 +700,94 @@ export class PC implements PageController {
     this.actionReturned(action, !errorFound, p);
   }
 
+  private doFn(
+    action: FunctionAction,
+    p: ActionParameters,
+    controller: FormController
+  ): boolean {
+    const functionName = action.functionName;
+    /**
+     * is it a dynamic function added at run time for this page?
+     */
+    const fn = this.functions[functionName];
+    if (fn) {
+      fn();
+      return false;
+    }
+
+    let params: StringMap<unknown> | undefined;
+    if (action.additionalParams) {
+      if (p.additionalParams) {
+        params = { ...p.additionalParams, ...action.additionalParams };
+      } else {
+        params = action.additionalParams;
+      }
+    } else if (p.additionalParams) {
+      params = p.additionalParams;
+    }
+    const status = this.callFunction(functionName, params, p.msgs, controller);
+
+    return !status.allOk;
+  }
+  private tryToServe(
+    action: ServiceAction,
+    p: ActionParameters,
+    controller: FormController
+  ): boolean {
+    let values: Vo | undefined;
+    let errorFound = false;
+    if (action.submitAll || action.panelToSubmit) {
+      let controllerToUse: DataController | undefined;
+      if (action.submitAll) {
+        controllerToUse = this.fc;
+      } else {
+        controllerToUse = this.fc.getController(action.panelToSubmit!);
+      }
+      if (!controllerToUse) {
+        throw new Error(
+          `Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${action.panelToSubmit}' but that form is not used on this page `
+        );
+      }
+
+      //let us validate the form again
+      if (controllerToUse.validate()) {
+        values = controllerToUse.getData() as Vo;
+      } else {
+        addMessage('Please fix the errors on this page', p.msgs);
+        errorFound = true;
+      }
+    } else if (action.fieldsToSubmit) {
+      const n = p.msgs.length;
+      values = controller.extractData(action.fieldsToSubmit, p.msgs);
+      errorFound = n !== p.msgs.length;
+    }
+
+    /**
+     * do we have an intercept?
+     */
+    if (!errorFound && action.fnBeforeRequest) {
+      const fnd = this.ac.getFn(action.fnBeforeRequest, 'request');
+      const fn = fnd.fn as RequestFunction;
+      const ok = fn(controller, values, p.msgs);
+      errorFound = !ok;
+    }
+    if (!errorFound) {
+      /**
+       * ok. ask for the service.
+       */
+
+      this.serve(
+        action.serviceName,
+        controller,
+        values,
+        action.targetPanelName,
+        action.fnAfterResponse
+      ).then((ok: boolean) => {
+        this.actionReturned(action, ok, p);
+      });
+    }
+    return errorFound;
+  }
   /**
    *
    * @param name may be of the form ${run-time-name}
@@ -789,7 +802,7 @@ export class PC implements PageController {
     }
     if (an === undefined) {
       logger.error(
-        `Action '${name}' could not be translated because a value for that field was not found`,
+        `Action '${name}' could not be translated because a value for that field was not found`
       );
       return undefined;
     }
@@ -809,7 +822,7 @@ export class PC implements PageController {
   private actionReturned(
     action: Action | undefined,
     ok: boolean,
-    p: ActionParameters,
+    p: ActionParameters
   ): void {
     this.showMessages(p.msgs);
     if (!action) {
@@ -840,14 +853,14 @@ export class PC implements PageController {
 
   toMessage(
     id: string,
-    type: 'error' | 'warning' | 'info' | 'success',
+    type: 'error' | 'warning' | 'info' | 'success'
   ): DetailedMessage {
     return { id, type, text: this.ac.getMessage(id) };
   }
 
   private navigate(action: NavigationAction, p: ActionParameters): boolean {
     //NavigationOptions is a subset of NavigationAction
-    let navOptions = action as NavigationOptions;
+    const navOptions = action as NavigationOptions;
     if (action.pageParameters) {
       const values: Values = {};
       for (const [name, v] of Object.entries(action.pageParameters)) {
@@ -869,7 +882,7 @@ export class PC implements PageController {
         addMessage(
           `Action ${action.name} requires that the current page be retained,
             but does not specify the menu item to be used to open a new page`,
-          p.msgs,
+          p.msgs
         );
         return false;
       }
@@ -878,7 +891,7 @@ export class PC implements PageController {
         addMessage(
           `Action ${action.name} requires that the current page be retained.
             It should not specify moduleName in this case.`,
-          p.msgs,
+          p.msgs
         );
         return false;
       }
@@ -894,7 +907,7 @@ export class PC implements PageController {
        */
       if (
         window.confirm(
-          'Click on Okay to abandon any changes you would have made. Cancel to get back to editing ',
+          'Click on Okay to abandon any changes you would have made. Cancel to get back to editing '
         )
       ) {
         return true;
@@ -912,7 +925,7 @@ export class PC implements PageController {
       addMessage(
         `${closeAction} is specified as close-action for this page.
           This action is not defined, or it is defined as a navigation action.`,
-        p.msgs,
+        p.msgs
       );
       return false;
     }
@@ -928,7 +941,7 @@ export class PC implements PageController {
   private doFormAction(
     action: FormAction | FilterAction,
     actionParams: ActionParameters,
-    callback: (ok: boolean) => void,
+    callback: (ok: boolean) => void
   ): void {
     const fc = actionParams.fc || this.fc;
     const messages: DetailedMessage[] = [];
@@ -945,7 +958,7 @@ export class PC implements PageController {
     const serviceName = this.getServiceName(
       action.formName || fc.getFormName(),
       action.formOperation,
-      messages,
+      messages
     );
 
     if (messages.length) {
@@ -956,13 +969,14 @@ export class PC implements PageController {
 
     let data: Vo | undefined;
     let targetChild: string | undefined;
+    let fa: FilterAction;
     switch (action.formOperation) {
       case 'get':
         data = fc.extractKeys(messages) as Vo;
         break;
 
       case 'filter':
-        const fa = action as FilterAction;
+        fa = action as FilterAction;
 
         data = this.getFilterData(fc, fa, messages);
         targetChild = fa.targetTableName;
@@ -981,8 +995,8 @@ export class PC implements PageController {
 
       default:
         addMessage(
-          `Form operation ${(action as any).formOperation} is not valid`,
-          actionParams.msgs,
+          `Form operation ${(action as FormAction).formOperation} is not valid`,
+          actionParams.msgs
         );
         callback(false);
         return;
@@ -1003,7 +1017,7 @@ export class PC implements PageController {
   private getFilterData(
     fc: FormController,
     action: FilterAction,
-    messages: DetailedMessage[],
+    messages: DetailedMessage[]
   ): Vo {
     const vo: Vo = {};
     if (action.sortBy) {
@@ -1136,7 +1150,7 @@ function addMessage(text: string, msgs: DetailedMessage[]) {
 function getConditions(
   fc: FormController,
   conditions: FilterCondition[],
-  msgs: DetailedMessage[],
+  msgs: DetailedMessage[]
 ): FilterCondition[] | undefined {
   const filters: FilterCondition[] = [];
   if (!conditions || !conditions.length) {
@@ -1157,7 +1171,7 @@ function getConditions(
       }
       addMessage(
         `value is missing for the field '${con.field}'. Action will abort.`,
-        msgs,
+        msgs
       );
       return undefined;
     }
@@ -1183,7 +1197,7 @@ function getConditions(
 
     addMessage(
       `value is missing for the field '${con.field}'. Action will abort.`,
-      msgs,
+      msgs
     );
     return undefined;
   }
@@ -1203,7 +1217,7 @@ function getConditions(
 function getFilterValue(
   fieldName: string | undefined,
   value: Value | undefined,
-  fc: FormController,
+  fc: FormController
 ): Value {
   let nameToUse = fieldName;
 
@@ -1226,7 +1240,7 @@ function getFilterValue(
   }
 
   logger.warn(
-    `Parameter ${fieldName} has no value while invoking an action that uses this parameter`,
+    `Parameter ${fieldName} has no value while invoking an action that uses this parameter`
   );
   return '';
 }
@@ -1248,7 +1262,7 @@ function substituteValue(value: string, fc: FormController): Value | undefined {
   const val = fc.getFieldValue(name);
   if (val === undefined) {
     logger.warn(
-      `${value}: No value found for run-time-field ${name} in the form-controller`,
+      `${value}: No value found for run-time-field ${name} in the form-controller`
     );
   }
 

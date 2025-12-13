@@ -102,14 +102,16 @@ export const predefinedHtmlTemplates = [
   'module',
   'menu-item',
   'message',
+  'modal-panel',
+  'nav-bar',
   'output',
   'page',
   'panel',
   'panel-flex',
   'panel-grid',
-  'panel-modal',
   'range-wrapper',
   'password',
+  'popup',
   'select-output',
   'select',
   'snack-bar',
@@ -129,9 +131,10 @@ export const childElementIds = [
   'arrow-icon',
   'buttons',
   'chart',
+  'close-button',
   'color-theme',
-  'data',
   'container',
+  'data',
   'description',
   'field',
   'from-field',
@@ -270,7 +273,7 @@ export const htmlUtil = {
 
 function getOptionalElement(
   rootEle: HTMLElement,
-  id: ChildElementId,
+  id: ChildElementId
 ): HTMLElement | undefined {
   const ele = rootEle.querySelector(`[data-id="${id}"]`) as HTMLElement;
   if (ele) {
@@ -286,7 +289,7 @@ function getOptionalElement(
 
 function getChildElement(
   rootEle: HTMLElement,
-  id: ChildElementId,
+  id: ChildElementId
 ): HTMLElement {
   const ele = getOptionalElement(rootEle, id as ChildElementId);
   if (ele) {
@@ -294,7 +297,7 @@ function getChildElement(
   }
   console.info(rootEle);
   throw new Error(
-    `HTML Template does not contain a child element with data-id="${id}". This is required as a container to render a child component`,
+    `HTML Template does not contain a child element with data-id="${id}". This is required as a container to render a child component`
   );
 }
 
@@ -308,7 +311,7 @@ function newElement(name: string): HTMLElement {
     let html = allHtmls[name as HtmlName];
     if (!html) {
       logger.warn(
-        `A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`,
+        `A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`
       );
       html = `<div><!-- html source ${name} not found --></div>`;
     }
@@ -346,7 +349,7 @@ function appendIcon(ele: HTMLElement, icon: string, alt?: string): void {
       return;
     }
     logger.error(
-      `an icon named ${icon} could not be created because no html is available with name = ${s}`,
+      `an icon named ${icon} could not be created because no html is available with name = ${s}`
     );
     return;
   }
@@ -395,7 +398,7 @@ function toLabel(name: string): string {
 
 function getViewState(
   ele: HTMLElement,
-  stateName: string,
+  stateName: string
 ): string | boolean | undefined {
   const attr = 'data-' + stateName;
   const val = ele.getAttribute(attr);
@@ -412,7 +415,7 @@ function getViewState(
 function setViewState(
   ele: HTMLElement,
   stateName: ViewState,
-  stateValue: Value,
+  stateValue: Value
 ): void {
   const vt = typeof stateValue;
   const knownOne = viewStates[stateName as ViewState];
@@ -440,7 +443,7 @@ function setViewState(
 }
 
 function getImageSrc(imageName: string): string {
-  let s = '' + imageName;
+  const s = '' + imageName;
   if (s.length > 4) {
     const st = s.substring(0, 6).toLowerCase();
     if (st.startsWith('http:') || st.startsWith('https:')) {

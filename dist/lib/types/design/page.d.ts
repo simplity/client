@@ -176,7 +176,7 @@ export type BaseComponent = {
     /**
      * an app may have app-specific view implementation. Actual parameters are left to the app implementation.
      */
-    pluginOptions?: StringMap<any>;
+    pluginOptions?: StringMap<unknown>;
 };
 export type ComponentType = 'button' | 'buttonPanel' | 'chart' | 'field' | 'multi-report' | 'panel' | 'range' | 'referred' | 'static' | 'tabs' | 'table';
 /**
@@ -585,7 +585,7 @@ export type FunctionAction = BaseAction & {
      * This is all design-time determined constants.
      * No feature is provided to pass run-time-determined parameters.
      */
-    additionalParams?: StringMap<any>;
+    additionalParams?: StringMap<unknown>;
 };
 /**
  * form related action, like fetching and saving form data

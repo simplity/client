@@ -315,7 +315,7 @@ export interface FormController extends DataController {
      * @param actionName
      * @param params depends on the type of action and the context.
      */
-    act(actionName: string, params?: StringMap<any>): void;
+    act(actionName: string, params?: StringMap<unknown>): void;
     /**
      * a child is reporting an event. any handler that was added using addEventLister will be called for this event
      * @param eventDetails

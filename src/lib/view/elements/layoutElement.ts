@@ -7,29 +7,23 @@ import {
   StringMap,
 } from '@/types';
 import { logger } from '../../logger';
-import { PageElement } from './pageElement';
 import { ChildElementId, htmlUtil } from './htmlUtils';
 import { ModuleElement } from './moduleElement';
 
 type Theme = 'light' | 'dark' | 'system';
-type PageOnStack = { ele: PageElement; scrollTop: number };
 const PAGE_TITLE = 'page-title';
 /**
- * Only child of AppElement. Defines the over-all layout
+ * Used exclusively by AppElement to manage non-page related view componnets in a layout
+ *
  */
 export class LayoutElement {
   public readonly root: HTMLElement;
   /*
    * handle to the child elements
    */
-  private readonly pageEle: HTMLElement;
   private readonly menuBarEle?: HTMLElement;
-  /**
-   * if a modal page is active
-   */
-  private readonly modalContainerEle: HTMLElement;
-  private readonly modalPageParent: HTMLElement;
-  private modalPageView?: PageElement;
+  //private readonly pageEle: HTMLElement;
+
   /**
    * html elements for any context-value being rendered in the layout
    */
@@ -43,26 +37,11 @@ export class LayoutElement {
   private readonly moduleMap: { [key: string]: number } = {};
   private readonly moduleElements: StringMap<ModuleElement> = {};
 
-  /**
-   * keeps track of active pages. Current one is on the top.
-   */
-  private readonly pageStack: PageOnStack[] = [];
-
   constructor(
     public readonly ac: AppController,
-    public readonly layout: Layout,
-    options: NavigationOptions,
+    public readonly layout: Layout
   ) {
     this.root = htmlUtil.newHtmlElement('layout');
-    /**
-     * keep the modal container ready;
-     */
-    this.modalContainerEle = htmlUtil.newHtmlElement('panel-modal');
-    this.modalPageParent = htmlUtil.getChildElement(
-      this.modalContainerEle,
-      'page',
-    );
-    document.body.appendChild(this.modalContainerEle);
 
     /*
      * modules are mandatory. however, during development, it could be an empty array
@@ -86,7 +65,7 @@ export class LayoutElement {
     for (const nam of names) {
       const ele = htmlUtil.getOptionalElement(
         this.root,
-        nam as ChildElementId,
+        nam as ChildElementId
       ) as HTMLElement;
       if (ele) {
         this.contextEles[nam] = ele;
@@ -94,14 +73,12 @@ export class LayoutElement {
     }
 
     this.initColorTheme();
-    this.pageEle = htmlUtil.getChildElement(this.root, 'page');
-    this.renderModule(options);
   }
 
   private initColorTheme() {
     const colorTheme = htmlUtil.getOptionalElement(
       this.root,
-      'color-theme',
+      'color-theme'
     ) as HTMLInputElement | null;
     if (!colorTheme) {
       logger.warn(`Layout ${this.layout.name} has no color theme element.`);
@@ -110,20 +87,20 @@ export class LayoutElement {
     //check for user preference from local storage
     logger.info(
       'local storage color-theme=',
-      localStorage.getItem('color-theme'),
+      localStorage.getItem('color-theme')
     );
     let pref = (localStorage.getItem('color-theme') || 'system') as Theme;
     if (!pref) {
-      pref == 'system';
+      pref = 'system';
     }
 
     this.setColorTheme(pref);
     const checkedEle = colorTheme.querySelector<HTMLInputElement>(
-      'input[value="' + pref + '"]',
+      'input[value="' + pref + '"]'
     );
     if (!checkedEle) {
       logger.error(
-        `Layout ${this.layout.name} has an invalid color theme element. radio button for preference ${pref} not found.`,
+        `Layout ${this.layout.name} has an invalid color theme element. radio button for preference ${pref} not found.`
       );
       return;
     }
@@ -153,10 +130,7 @@ export class LayoutElement {
     }
   }
 
-  /**
-   *
-   */
-  renderModule(options: NavigationOptions): void {
+  public renderModule(options: NavigationOptions): string {
     const mn = options.module || this.layout.modules[0];
     const module = this.getInitialModule(mn);
     const moduleEle = this.moduleElements[module.name];
@@ -169,118 +143,40 @@ export class LayoutElement {
     this.currentModule = moduleEle;
 
     const menu = this.getInitialMenu(module, options.menuItem);
-    if (menu.pageName) {
-      this.renderPage(menu.pageName, options);
-    } else {
+    if (!menu.pageName) {
       throw new Error(
         this.reportError(
-          `Menu ${menu.name} has no associated page. Initial page can not be rendered`,
-        ),
+          `Menu ${menu.name} has no associated page. Initial page can not be rendered`
+        )
       );
     }
+    return menu.pageName;
   }
 
-  renderPage(pageName: string, options: NavigationOptions): void {
-    const page = this.ac.getPage(pageName);
-
-    if (options.erasePagesOnTheStack) {
-      this.purgeStack();
+  public displayMenuBar(toShow: boolean): void {
+    if (!this.menuBarEle) {
+      return;
     }
-
-    /**
-     * if the old page was modal, we just close that
-     */
-    if (this.modalPageView) {
-      this.closeModalPage();
-    } else {
-      const lastEntry = this.pageStack.pop();
-      if (lastEntry) {
-        if (options.asModal || options.retainCurrentPage) {
-          //save the scroll position for us to get back to
-          lastEntry.scrollTop = document.documentElement.scrollTop;
-          this.pageStack.push(lastEntry); //retain the current page.
-
-          if (!options.asModal) {
-            //hide it if not modal
-            htmlUtil.setViewState(lastEntry.ele.root, 'hidden', true);
-          }
-        } else {
-          //old page is gone
-          lastEntry.ele.root.remove();
-        }
-      }
-    }
-
-    const pageView = new PageElement(
-      this.ac,
-      page,
-      options.pageParameters || {},
-    );
-    if (options.asModal && this.modalContainerEle) {
-      this.modalPageView = pageView;
-      this.modalPageParent.appendChild(pageView.root);
-      htmlUtil.setViewState(this.modalContainerEle, 'hidden', false);
-    } else {
-      this.pageStack.push({
-        ele: pageView,
-        scrollTop: 0,
-      });
-      this.pageEle.appendChild(pageView.root);
-    }
-
     if (this.menuBarEle) {
-      const toHide = this.modalPageView === undefined && !!page.hideModules;
-      htmlUtil.setViewState(this.menuBarEle, 'hidden', toHide);
+      htmlUtil.setViewState(this.menuBarEle, 'hidden', !toShow);
     }
   }
 
   /**
    * to be called if the page was opened after retaining the earlier page
    */
-  public closeCurrentPage(): void {
-    if (this.modalPageView) {
-      this.closeModalPage();
-      return;
-    }
 
-    let entry = this.pageStack.pop();
-    if (!entry) {
-      logger.error(
-        `layout.closeCurrentPage() invoked but there is no page open!!`,
-      );
-      return;
+  public renderContextValues(values: StringMap<string>): void {
+    for (const [key, value] of Object.entries(values)) {
+      const ele = this.contextEles[key];
+      if (ele) {
+        ele.textContent = value;
+      }
     }
-    if (this.pageStack.length === 0) {
-      logger.error(
-        `page '${entry.ele.page.name}' cannot be closed because there is no active page to render. Error in page navigation design`,
-      );
-      return;
-    }
-    entry.ele.root.remove();
-
-    //show the last page
-    entry = this.pageStack[this.pageStack.length - 1];
-    htmlUtil.setViewState(entry.ele.root, 'hidden', false);
-    if (this.menuBarEle) {
-      const toHide = !!entry.ele.page.hideModules;
-      htmlUtil.setViewState(this.menuBarEle, 'hidden', toHide);
-    }
-    window.scrollTo({ top: entry.scrollTop, behavior: 'instant' });
   }
 
-  private closeModalPage() {
-    htmlUtil.setViewState(this.modalContainerEle!, 'hidden', true);
-    this.modalPageView!.root.remove();
-    this.modalPageView = undefined;
-  }
-
-  private purgeStack() {
-    if (this.modalPageView) {
-      this.modalPageView.root.remove;
-    }
-    for (const entry of this.pageStack) {
-      entry.ele.root.remove();
-    }
+  public dispose(): void {
+    this.root.remove();
   }
 
   private getInitialModule(startWith?: string): Module {
@@ -303,8 +199,8 @@ export class LayoutElement {
     //we have to clash a message and go login etc???
     throw new Error(
       this.reportError(
-        `Either no modules are set in this layout, or the logged-in user has no access to any module`,
-      ),
+        `Either no modules are set in this layout, or the logged-in user has no access to any module`
+      )
     );
   }
 
@@ -315,7 +211,7 @@ export class LayoutElement {
         return item;
       }
       logger.error(
-        `menuItem ${menuItem} is invalid, or is not accessible. navigating to the next possible menu item instead`,
+        `menuItem ${menuItem} is invalid, or is not accessible. navigating to the next possible menu item instead`
       );
     }
 
@@ -328,36 +224,16 @@ export class LayoutElement {
 
     throw new Error(
       this.reportError(
-        `Either no menu items are set in this module, or the logged-in user has no access to any menu items`,
-      ),
+        `Either no menu items are set in this module, or the logged-in user has no access to any menu items`
+      )
     );
-  }
-
-  renderPageTitle(title: string): void {
-    const ele = this.contextEles[PAGE_TITLE];
-    if (ele) {
-      ele.textContent = title;
-    } else {
-      logger.warn(
-        'Current layout is not designed to render page title. Page title not rendered',
-      );
-    }
-  }
-
-  renderContextValues(values: StringMap<string>): void {
-    for (const [key, value] of Object.entries(values)) {
-      const ele = this.contextEles[key];
-      if (ele) {
-        ele.textContent = value;
-      }
-    }
   }
 
   private renderMenuBar(): HTMLElement | undefined {
     const menubar = htmlUtil.getOptionalElement(this.root, 'menu-bar');
     if (!menubar) {
       logger.info(
-        `Layout ${this.layout.name} has no child element with data-id="menu-bar". Menu not rendered`,
+        `Layout ${this.layout.name} has no child element with data-id="menu-bar". Menu not rendered`
       );
       return;
     }

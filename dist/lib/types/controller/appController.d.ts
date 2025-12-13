@@ -1,6 +1,6 @@
 import { Values, Vo, StringMap, FunctionType, Alert, Value, ValueFormatter, FormattedValue } from '../common';
 import { FunctionImpl, PageController, ValueValidationResult } from './';
-import { PageView, PanelView } from '../view';
+import { PageView } from '../view';
 import { Layout, MenuItem, Module, Page, Form, ValueSchema, SimpleList, ValueType, NavigationOptions } from '../design';
 import { ServiceResponse } from '../agent';
 /**
@@ -126,7 +126,7 @@ export interface AppController {
      * @param key
      * @param value
      */
-    setContextValue(key: string, value: any): void;
+    setContextValue(key: string, value: unknown): void;
     /**
      * remove this entry
      * @param key
@@ -141,7 +141,7 @@ export interface AppController {
      * @param key
      * @returns context-scoped value for this ke. undefined if such key is found
      */
-    getContextValue(key: string): any;
+    getContextValue(key: string): unknown;
     /**
      * @returns details of logged-in user. undefined if a user-session is not active
      */
@@ -264,19 +264,6 @@ export interface AppController {
      * called when user has clicked on a module icon
      */
     selectModule(name: string): void;
-    /**
-     * render a panel as pop-up. the panel should not be part of the dom.
-     * this method adds the panel to the dom.
-     * Note that this method is for a panel, and NOT for a page. a popup page is handled through regular navigation action
-     * @param panel to be rendered. It should not be part of the DOM.
-     */
-    renderAsPopup(panel: PanelView): void;
-    /**
-     * closes the panel by removing it from dom.
-     * This method is to be called after a call to renderAsPopup.
-     * no error is thrown if there was no panel was rendered as a popup
-     */
-    closePopup(): void;
     /**
      * returns an error to be thrown. Takes care of logging/reporting this error before returning the Error object
      * @param msg error message

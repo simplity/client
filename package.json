@@ -22,7 +22,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsx ./src/utils/preProcess.ts && tsc && npx @tailwindcss/cli -i ./src/input.css -o ./dist/stylessimplity.css --map",
+    "build": "npx tsx ./src/utils/preProcess.ts && tsc && npx @tailwindcss/cli -i ./src/input.css -o ./dist/simplity.css --map",
     "lint": "eslint . --ext .ts"
   },
   "repository": {
@@ -36,17 +36,18 @@
   },
   "homepage": "https://github.com/simplity/simplity-client#readme",
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@tailwindcss/cli": "^4.1.14",
     "@tailwindcss/forms": "^0.5.10",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.9.1",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
-    "eslint": "^9.38.0",
+    "@typescript-eslint/eslint-plugin": "^8.49.0",
+    "@typescript-eslint/parser": "^8.49.0",
+    "eslint": "^9.39.1",
     "jsdom": "^27.0.1",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.7.1",
-    "typescript": "^5.9.3"
+    "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "typescript-eslint": "^8.49.0"
   },
   "dependencies": {
     "chart.js": "^4.5.1",

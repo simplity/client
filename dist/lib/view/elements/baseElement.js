@@ -162,5 +162,10 @@ export class BaseElement {
             });
         }
     }
+    dispose() {
+        if (this.root) {
+            this.root.remove();
+        }
+    }
 }
 //# sourceMappingURL=baseElement.js.map

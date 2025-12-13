@@ -27,7 +27,7 @@ export function processRecords(records) {
     for (const record of Object.values(allRecords.all)) {
         if (record.recordType === 'extended') {
             //convert it to simple and add it to records collection
-            let [, n] = toSimpleRecord(record, allRecords, []);
+            const [, n] = toSimpleRecord(record, allRecords, []);
             nbrErrors += n;
         }
     }

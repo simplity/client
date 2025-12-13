@@ -319,12 +319,10 @@ export class FC {
         }
     }
     setData(data) {
-        for (let [name, value] of Object.entries(data)) {
-            if (value === undefined) {
-                value = '';
-            }
-            this.data[name] = value;
-            this.setValueToChild(name, value);
+        for (const [name, value] of Object.entries(data)) {
+            const val = value === undefined ? '' : value;
+            this.data[name] = val;
+            this.setValueToChild(name, val);
         }
     }
     getData(names) {
