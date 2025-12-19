@@ -1,7 +1,7 @@
 {
   "name": "simplity",
   "version": "0.0.1",
-  "description": "low code platform to build web and mobile apps rapidly",
+  "description": "low code platform to rapidly build web and mobile apps",
   "main": "./dist/lib/index.js",
   "exports": {
     ".": {
