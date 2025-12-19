@@ -10,6 +10,10 @@ export type FieldRendering = 'hidden' | 'output' | 'image' | 'text-field' | 'tex
  */
 export type RecordFieldAndDataField = {
     /**
+     * visible to the client side as help text etc..
+     */
+    description?: string;
+    /**
      * if specified, it should be a valid value for the specified valueType.
      * the view component simulates as if the user has entered this value.
      */
@@ -225,11 +229,6 @@ type BaseRecord = {
      */
     uniqueFields?: UniqueFields[];
     /**
-     * Other records to on which this records depends on. For example a parent record.
-     * Note that the parent is to be specified as a linked record to the child record, and not the other way round.
-     */
-    linkedRecords?: LinkedRecord[];
-    /**
      * fields by which the records are sorted
      */
     sortBy?: SortBy[];
@@ -253,23 +252,6 @@ export type UniqueFields = {
      * One or more fields that are to be unique in combination across all rows
      */
     fields: string[];
-};
-export type LinkedRecord = {
-    /**
-     * description of the foreign key constraint
-     */
-    description?: string;
-    /**
-     * name of the record that this is a foreign key to
-     */
-    recordName: string;
-    /**
-     * fields in this record that are linked to the other record
-     */
-    links: {
-        field: string;
-        linkedField: string;
-    }[];
 };
 /**
  * a record that hs fields from another record and possibly some more fields
@@ -298,6 +280,10 @@ export type CompositeRecord = BaseRecord & {
     mainRecordName: string;
     childRecords: ChildRecord[];
 };
+/**
+ * Field in a record.
+ * If a field is optional, then either a defaultValue or textWhenNotProvided must be specified.
+ */
 export type Field = RecordFieldAndDataField & {
     /**
      * name is to be unique within a record
@@ -317,14 +303,17 @@ export type Field = RecordFieldAndDataField & {
      */
     demoValue?: string;
     /**
-     * visible to the client side as help text etc..
+     * Required if the field is optional, and has no default value.
+     * This is the text field to be displayed on the client-side if the field is not provided. (NULL in the database)
      */
-    description?: string;
+    textWhenNotProvided?: string;
     /**
-     * what should be the type of column in the dbDesign.
-     * defaults to the type determined based on the dbTypes specified at the app-level
+     * is this a primary key in a linked record?
      */
-    dbType?: string;
+    foreignKey?: {
+        recordName: string;
+        fieldName: string;
+    };
 };
 /**
  * validate a pair-of related fields
