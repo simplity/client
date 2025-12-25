@@ -58,12 +58,7 @@ export class BaseElement {
             this.root = document.createElement('div');
             return;
         }
-        if (comp.templateName) {
-            this.root = htmlUtil.newCustomElement(comp.templateName);
-        }
-        else {
-            this.root = htmlUtil.newHtmlElement(templateName);
-        }
+        this.root = htmlUtil.newHtmlElement(templateName, comp);
         if (fc) {
             fc.registerChild(this);
             this.root.addEventListener('click', () => {
@@ -97,7 +92,7 @@ export class BaseElement {
             fn.fn(this);
         }
         /**
-         * initial display states
+         * any display states to be set?
          */
         if (comp.displayStates) {
             this.setDisplayState(comp.displayStates);

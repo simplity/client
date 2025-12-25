@@ -1,5 +1,5 @@
-// Auto-generated HTML collection
-const htmls = {
+// Auto-generated HTML collection. Do not edit manually.
+export const predefinedHtmls = {
     '_button-panel': `<!--
     this is an item of the parent grid. we need to set col-span.
     data-full is the signal to the html-utl to set cal-span to get the full row
@@ -1036,8 +1036,4 @@ const htmls = {
 </svg>
 `,
 };
-/**
- * all the html fragments defined in the library
- */
-export const allHtmls = htmls;
 //# sourceMappingURL=index.js.map

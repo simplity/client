@@ -1,7 +1,6 @@
-// Auto-generated HTML collection
-
-    const htmls = {
-      '_button-panel': `<!--
+// Auto-generated HTML collection. Do not edit manually.
+export const predefinedHtmls = {
+  '_button-panel': `<!--
     this is an item of the parent grid. we need to set col-span.
     data-full is the signal to the html-utl to set cal-span to get the full row
 
@@ -1036,14 +1035,4 @@
   />
 </svg>
 `,
-
-    }
-
-/** 
- * All the html fragment names defined in the library
- **/    
-export type HtmlName = keyof typeof htmls;
-/**
- * all the html fragments defined in the library
- */
-export const allHtmls: { [key in HtmlName]: string } = htmls;
+};

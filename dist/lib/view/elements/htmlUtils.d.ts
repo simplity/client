@@ -1,6 +1,8 @@
-import { StringMap, Value } from '@/types';
+import { BaseComponent, StringMap, Value } from '@/types';
 /**
- * display states that are designed by simplity
+ * display states that are designed by simplity.
+ * each view-state has a type associated with it, that is used for first-pevel of validation.
+ * 'enum' is used to have a list of pre-defined values for that state, in which case the named enum is defined in the viewStateEnums constant.
  */
 declare const viewStates: {
     /**
@@ -20,11 +22,6 @@ declare const viewStates: {
      * used by the template to mark that the element would like to set its width to all it can
      */
     readonly full: "boolean";
-    /**
-     * id is meant for the template to identify sub-elements
-     * e.g. data-id="row" for a tr element etc..
-     */
-    readonly id: "string";
     /**
      * generally meant for input field, but may be used for a wrapper that contain input fields
      */
@@ -49,9 +46,18 @@ declare const viewStates: {
      */
     readonly init: "string";
     /**
-     * change alignment at run time. like right-align for numbers in a table-column
+     * change alignment at run time. like right-align for numbers in a table-column.
+     * valid values are as per 'left', 'center', 'right'
      */
     readonly align: "string";
+    /**
+     * Height in number of rows of text. Generally not required, but may be useful for certain components like spacer, text etc..
+     */
+    /**
+     * change vertical alignment at run time. like middle-align for items in a nav-bar
+     * valid values are as per 'top', 'middle', 'bottom'
+     */
+    readonly vAlign: "string";
     /**
      * how a column in a table is sorted.
      * 'asc' or 'desc'
@@ -87,11 +93,6 @@ export declare const htmlUtil: {
      * @param name template name
      */
     newHtmlElement: typeof newHtmlElement;
-    /**
-     * create a new instance of an app-specific custom element that is not part of standard simplity library
-     * @param name template name
-     */
-    newCustomElement: typeof newElement;
     /**
      * templates are designed to have unique values for data-id within their innerHTML.
      * this function gets the element within the template with the specified id
@@ -160,8 +161,7 @@ export declare const htmlUtil: {
 };
 declare function getOptionalElement(rootEle: HTMLElement, id: ChildElementId): HTMLElement | undefined;
 declare function getChildElement(rootEle: HTMLElement, id: ChildElementId): HTMLElement;
-declare function newHtmlElement(name: HtmlTemplateName): HTMLElement;
-declare function newElement(name: string): HTMLElement;
+declare function newHtmlElement(name: HtmlTemplateName, comp?: BaseComponent): HTMLElement;
 declare function removeChildren(ele: HTMLElement): void;
 declare function appendText(ele: HTMLElement, text: string): void;
 declare function appendIcon(ele: HTMLElement, icon: string, alt?: string): void;

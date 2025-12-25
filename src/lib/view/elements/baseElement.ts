@@ -70,11 +70,7 @@ export class BaseElement implements BaseView {
       return;
     }
 
-    if (comp.templateName) {
-      this.root = htmlUtil.newCustomElement(comp.templateName);
-    } else {
-      this.root = htmlUtil.newHtmlElement(templateName);
-    }
+    this.root = htmlUtil.newHtmlElement(templateName, comp);
 
     if (fc) {
       fc.registerChild(this);
@@ -115,11 +111,12 @@ export class BaseElement implements BaseView {
     }
 
     /**
-     * initial display states
+     * any display states to be set?
      */
     if (comp.displayStates) {
       this.setDisplayState(comp.displayStates);
     }
+
     /**
      * set colSpan to maxWidth if parent has specified it
      */

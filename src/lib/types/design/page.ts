@@ -162,12 +162,29 @@ export type BaseComponent = {
    * e.g. for a button, variant may be 'primary', 'secondary' etc...
    * for a panel, variant may be 'outline', 'flex' etc...
    * Each component defines its own set of variants.
+   * Also, apps can define their own variants by providing appropriate html templates
    */
   variant?: string;
   /**
-   * parent may use this to assign appropriate style based on this width
+   * parent may use this to assign appropriate style based on this width.
+   * By default, this is the number of columns (out of 12) that this component is expected to occupy
    */
   width?: VisualWidth;
+  /**
+   * Height in number of rows of text. Generally not required, but may be useful for certain components like spacer, text etc..
+   */
+  //height?: number;
+
+  /**
+   * alignment of text or child elements within an element
+   */
+  //align?: 'left' | 'center' | 'right';
+
+  /**
+   * vertical alignment of text or child elements within an element
+   */
+  //vAlign?: 'top' | 'middle' | 'bottom';
+
   /**
    * label may have different meaning for different elements
    */

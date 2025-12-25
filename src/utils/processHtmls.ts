@@ -64,29 +64,17 @@ function scanHtmlFiles(htmlDir: string): HtmlFile[] {
 }
 
 function writeIndexFile(htmlFiles: HtmlFile[], htmlDir: string): void {
-  let t: string[] = [];
-  t.push(`// Auto-generated HTML collection
-
-    const htmls = {
-    `);
+  const t: string[] = [];
+  t.push(
+    '// Auto-generated HTML collection. Do not edit manually.\nexport const predefinedHtmls = {\n'
+  );
 
   for (const htmlFile of htmlFiles) {
     const escapedContent = escapeForTypeScript(htmlFile.content);
     t.push(`  '${htmlFile.key}': \`${escapedContent}\`,\n`);
   }
 
-  t.push(`
-    }
-
-/** 
- * All the html fragment names defined in the library
- **/    
-export type HtmlName = keyof typeof htmls;
-/**
- * all the html fragments defined in the library
- */
-export const allHtmls: { [key in HtmlName]: string } = htmls;
-`);
+  t.push('};');
 
   const filePath = path.join(htmlDir, 'index.ts');
 

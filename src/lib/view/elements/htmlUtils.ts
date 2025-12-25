@@ -1,9 +1,18 @@
-import { StringMap, Value } from '@/types';
+import { BaseComponent, StringMap, Value } from '@/types';
 import { logger } from '../../logger';
-import { allHtmls, HtmlName } from '../html';
+import { predefinedHtmls } from '../html';
+
+const allHtmls: StringMap<string> = { ...predefinedHtmls };
+const viewStateEnums: Record<string, readonly string[]> = {
+  align: ['left', 'center', 'right'],
+  vAlign: ['top', 'middle', 'bottom'],
+  sorted: ['asc', 'desc'],
+} as const;
 
 /**
- * display states that are designed by simplity
+ * display states that are designed by simplity.
+ * each view-state has a type associated with it, that is used for first-pevel of validation.
+ * 'enum' is used to have a list of pre-defined values for that state, in which case the named enum is defined in the viewStateEnums constant.
  */
 const viewStates = {
   /**
@@ -25,12 +34,6 @@ const viewStates = {
    * used by the template to mark that the element would like to set its width to all it can
    */
   full: 'boolean',
-
-  /**
-   * id is meant for the template to identify sub-elements
-   * e.g. data-id="row" for a tr element etc..
-   */
-  id: 'string',
 
   /**
    * generally meant for input field, but may be used for a wrapper that contain input fields
@@ -61,9 +64,21 @@ const viewStates = {
   init: 'string',
 
   /**
-   * change alignment at run time. like right-align for numbers in a table-column
+   * change alignment at run time. like right-align for numbers in a table-column.
+   * valid values are as per 'left', 'center', 'right'
    */
   align: 'string',
+
+  /**
+   * Height in number of rows of text. Generally not required, but may be useful for certain components like spacer, text etc..
+   */
+  //height: 'number',
+
+  /**
+   * change vertical alignment at run time. like middle-align for items in a nav-bar
+   * valid values are as per 'top', 'middle', 'bottom'
+   */
+  vAlign: 'string',
 
   /**
    * how a column in a table is sorted.
@@ -184,11 +199,6 @@ export const htmlUtil = {
   newHtmlElement,
 
   /**
-   * create a new instance of an app-specific custom element that is not part of standard simplity library
-   * @param name template name
-   */
-  newCustomElement: newElement,
-  /**
    * templates are designed to have unique values for data-id within their innerHTML.
    * this function gets the element within the template with the specified id
    * for example in a text-field template, label element has data-id="label" while input element has data-id="input"
@@ -263,10 +273,10 @@ export const htmlUtil = {
    */
   addTemplates(templates: StringMap<string>): void {
     Object.keys(templates).forEach((k) => {
-      if (allHtmls[k as HtmlName]) {
+      if (allHtmls[k]) {
         logger.warn(`html template '${k}' will overwrite the default one.`);
       }
-      allHtmls[k as HtmlName] = templates[k];
+      allHtmls[k] = templates[k];
     });
   },
 };
@@ -301,28 +311,64 @@ function getChildElement(
   );
 }
 
-function newHtmlElement(name: HtmlTemplateName): HTMLElement {
-  return newElement('_' + name);
+function newHtmlElement(
+  name: HtmlTemplateName,
+  comp?: BaseComponent
+): HTMLElement {
+  let ele: HTMLElement | undefined;
+
+  //template name specified in the component overrides the name passed here
+  if (comp && comp.templateName) {
+    ele = locateEle(comp.templateName);
+  } else {
+    ele = locateEle(name);
+    if (!ele) {
+      //try with simplity-provided prefix
+      ele = locateEle('_' + name);
+    }
+  }
+
+  if (!ele) {
+    //template not found. create a dummy one
+    const n = comp && comp.templateName ? comp.templateName : name;
+    ele = createUndefinedEle(n);
+    cachedElements[n] = ele;
+  }
+
+  return ele.cloneNode(true) as HTMLElement;
 }
 
-function newElement(name: string): HTMLElement {
+function locateEle(name: string): HTMLElement | undefined {
   let ele = cachedElements[name];
-  if (!ele) {
-    let html = allHtmls[name as HtmlName];
+  if (ele) {
+    return ele;
+  }
+  const internalName = '_' + name;
+  ele = cachedElements[internalName];
+  if (ele) {
+    return ele;
+  }
+
+  let indexedName = name;
+  let html = allHtmls[name];
+  if (!html) {
+    html = allHtmls[internalName];
     if (!html) {
-      logger.warn(
-        `A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`
-      );
-      html = `<div><!-- html source ${name} not found --></div>`;
+      return undefined;
     }
-    ele = toEle(html);
-    cachedElements[name] = ele;
+    indexedName = internalName;
   }
-  if (!ele) {
-    console.error(`ele is null when name=${name}`);
-    return toEle(`<div><!-- html source ${name} not found --></div>`);
-  }
-  return ele.cloneNode(true) as HTMLElement;
+  cachedElements[indexedName] = ele;
+  return ele;
+}
+
+function createUndefinedEle(name: string): HTMLElement {
+  logger.error(
+    `A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`
+  );
+  const ele = toEle(`<div><!-- html source ${name} not found --></div>`);
+  cachedElements[name] = ele;
+  return ele;
 }
 
 function toEle(html: string): HTMLElement {
@@ -341,7 +387,7 @@ function appendText(ele: HTMLElement, text: string): void {
 
 function appendIcon(ele: HTMLElement, icon: string, alt?: string): void {
   if (icon.endsWith('.html')) {
-    const s = icon.substring(0, icon.length - 5) as HtmlName;
+    const s = icon.substring(0, icon.length - 5);
     const html = allHtmls[s];
 
     if (html) {
@@ -417,12 +463,9 @@ function setViewState(
   stateName: ViewState,
   stateValue: Value
 ): void {
+  // we set the value after a warning if the value is not as per design
+  validateViewState(stateName, stateValue);
   const vt = typeof stateValue;
-  const knownOne = viewStates[stateName as ViewState];
-  if (knownOne && knownOne !== vt) {
-    logger.warn(`displayState '${stateName}' takes a ${knownOne} value but ${stateValue} is being set.
-      state value not set to the view-component`);
-  }
 
   const attName = 'data-' + stateName;
   if (vt === 'boolean') {
@@ -440,6 +483,35 @@ function setViewState(
   } else {
     ele.removeAttribute(attName);
   }
+}
+
+function validateViewState(stateName: ViewState, stateValue: Value): boolean {
+  //is it an enum?
+  const enumValues = viewStateEnums[stateName as string];
+  if (enumValues) {
+    //is the value one of these?
+    if (enumValues.indexOf(stateValue + '') >= 0) {
+      return true;
+    }
+    logger.warn(
+      `'${stateValue}' is not a pre-defined value for the displayState '${stateName}'. Expected values are: ${enumValues.join(', ')}.`
+    );
+    return false;
+  }
+
+  const expectedType = viewStates[stateName as ViewState];
+  if (!expectedType) {
+    logger.warn(`displayState '${stateName}' is not a known display state.`);
+    return true;
+  }
+  const receivedType = typeof stateValue;
+  if (expectedType !== receivedType) {
+    logger.warn(
+      `displayState '${stateName}' takes a ${expectedType} value but a value of type '${receivedType}' is being set.`
+    );
+    return false;
+  }
+  return true;
 }
 
 function getImageSrc(imageName: string): string {

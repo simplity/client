@@ -1,4 +1,4 @@
-declare const htmls: {
+export declare const predefinedHtmls: {
     '_button-panel': string;
     _button: string;
     _calendar: string;
@@ -47,14 +47,3 @@ declare const htmls: {
     '_text-field': string;
     '_user-icon': string;
 };
-/**
- * All the html fragment names defined in the library
- **/
-export type HtmlName = keyof typeof htmls;
-/**
- * all the html fragments defined in the library
- */
-export declare const allHtmls: {
-    [key in HtmlName]: string;
-};
-export {};
