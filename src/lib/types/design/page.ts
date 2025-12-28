@@ -254,18 +254,13 @@ export type LeafComponent =
   | ReferredField
   | RangePanel;
 
-export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'navigation'
-  | 'custom'
-  | 'submit';
+export type ButtonVariant = 'primary' | 'secondary' | 'navigation' | 'submit';
 /**
  * meta data for a button
  */
 export type Button = BaseComponent & {
   compType: 'button';
-  variant: ButtonVariant;
+  variant: ButtonVariant | (string & {});
   label?: string;
   icon?: string;
   tooltip?: string;

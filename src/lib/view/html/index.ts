@@ -1,5 +1,14 @@
 // Auto-generated HTML collection. Do not edit manually.
 export const predefinedHtmls = {
+  '_button-navigation': `<!--
+  This is a button styled like a link for navigation purposes.
+-->
+<button
+  data-id="label"
+  type="button"
+  class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
+></button>
+`,
   '_button-panel': `<!--
     this is an item of the parent grid. we need to set col-span.
     data-full is the signal to the html-utl to set cal-span to get the full row
@@ -12,6 +21,41 @@ export const predefinedHtmls = {
   <div data-id="middle" class="flex flex-row justify-center basis-1/3"></div>
   <div data-id="right" class="flex flex-row justify-end basis-1/3"></div>
 </div>
+`,
+  '_button-primary': `<button
+  data-id="label"
+  type="button"
+  class="
+    rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm 
+    hover:bg-indigo-500
+    focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
+></button>
+<!-- w-auto -->
+
+`,
+  '_button-secondary': `<button
+  data-id="label"
+  type="button"
+  class="rounded-md bg-slate-800 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:[outline-2 outline-offset-2 outline-slate-600]"
+></button>
+<!-- w-auto -->
+<button
+  type="button"
+  class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 text-sm px-4 py-2.5 focus:outline-none"
+>
+  Secondary
+</button>
+`,
+  '_button-submit': `<button
+  data-id="label"
+  type="button"
+  class="
+    rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm 
+    hover:bg-indigo-500
+    focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
+></button>
+<!-- w-auto -->
+
 `,
   '_button': `<button
   data-id="label"

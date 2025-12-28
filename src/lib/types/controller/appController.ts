@@ -71,11 +71,12 @@ export interface AppController {
 
   /**
    *
-   * @param id unique id for this menu item
+   * @param module module name
+   * @param menu menu item name within this module
    * @returns menu item
    * @throws Error in case the menu does not exist
    */
-  getMenu(id: string): MenuItem;
+  getMenu(module: string, menu: string): MenuItem;
 
   /**
    *
@@ -94,12 +95,12 @@ export interface AppController {
   getValueFormatter(name: string): ValueFormatter;
 
   /**
-   *
-   * @param id unique id for this menu item
+   * @param module module name
+   * @param nam menu item name within this module
    * @returns menu if the logged in user has access to this menu. undefined otherwise
    * @throws Error in case the menu does not exist
    */
-  getMenuIfAccessible(id: string): MenuItem | undefined;
+  getMenuIfAccessible(module: string, nam: string): MenuItem | undefined;
 
   /**
    *
@@ -305,17 +306,14 @@ export interface AppController {
   formatValue(formatterName: string, value: Value): FormattedValue;
 
   /**
-   * designed specifically for a module. Returns true if at least one of the menu-items in a module is allowed
-   * @param ids
+   * grant access to all menus
    */
-  atLeastOneAllowed(ids: string[]): boolean;
-
+  grantAccessToAllMenus(): void;
   /**
    *
-   * @param ids comma separated list of menu ids that the logged-in user has access to.
-   * '*' to allow all
+   * @param menus module.menu -> true
    */
-  setAccessControls(ids: string): void;
+  grantAccess(menus: StringMap<StringMap<true>>): void;
 
   /////// UX related
   /**

@@ -26,7 +26,7 @@ export class PanelElement extends BaseElement implements PanelView {
     pc: PageController,
     fc: FormController | undefined,
     public readonly panel: Panel,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, panel, getTemplateName(panel), maxWidth);
 
@@ -42,7 +42,7 @@ export class PanelElement extends BaseElement implements PanelView {
         fcForChildren = fc.newFormController(this.name, form);
       } else {
         logger.warn(
-          `panel "${this.name}" has a formName, but this panel itself is not controlled by a form. The child form-controller will be made a child of the root-form-controller fo this page`,
+          `panel "${this.name}" has a formName, but this panel itself is not controlled by a form. The child form-controller will be made a child of the root-form-controller fo this page`
         );
         fcForChildren = this.pc
           .getFormController()
@@ -66,7 +66,7 @@ export class PanelElement extends BaseElement implements PanelView {
         this.pc,
         fcForChildren,
         child,
-        maxWidth,
+        maxWidth
       );
       container.appendChild(ele.root);
     }

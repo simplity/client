@@ -1,5 +1,9 @@
 export declare const predefinedHtmls: {
+    '_button-navigation': string;
     '_button-panel': string;
+    '_button-primary': string;
+    '_button-secondary': string;
+    '_button-submit': string;
     _button: string;
     _calendar: string;
     _chart: string;

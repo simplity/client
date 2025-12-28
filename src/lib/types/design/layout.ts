@@ -50,16 +50,19 @@ export type Module = {
   /**
    * must include all menu items, including the hidden one's that are not rendered, but used as target for navigation action.
    */
-  menuItems: string[];
+  menuItems: MenuItem[];
 };
 
 /**
- * a menu-item is mapped to a page. It is possible that more than one menu-item may point to the same page
+ * a menu-item is mapped to a page. It is possible that more than one menu-item may point to the same page.
+ * it is also possible that a menu-item is hidden, i.e. not rendered in the menu, but is a valid target for navigation action.
  */
 export type MenuItem = {
   /**
-   * unique across all modules.
-   * such a naming conventions allows modules to be just a grouping. A menu may be part of more than one module
+   * used as target in navigation actions. unique within a module.
+   * it is possible that two different modules may have the same menu-item. However, this relatively rare.
+   * hence we have made menu-items as child-components of modules, rather than top-level components.
+   * this may result in a few duplicate menu-items across modules, but makes the overall design simpler.
    */
   name: string;
 
@@ -86,7 +89,7 @@ export type MenuItem = {
    */
   params?: Values;
   /**
-   * som emenu items, like login should be allowed always
+   * some menu items, like login should be allowed always
    */
   guestAccess?: boolean;
 };

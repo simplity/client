@@ -201,13 +201,13 @@ export type PredefinedComponent = Button | ButtonPanel | Chart | DataField | Mul
  */
 export type ContainerComponent = MultiReportPanel | Panel | Tabs | Tab;
 export type LeafComponent = DataField | Button | StaticComp | ReferredField | RangePanel;
-export type ButtonVariant = 'primary' | 'secondary' | 'navigation' | 'custom' | 'submit';
+export type ButtonVariant = 'primary' | 'secondary' | 'navigation' | 'submit';
 /**
  * meta data for a button
  */
 export type Button = BaseComponent & {
     compType: 'button';
-    variant: ButtonVariant;
+    variant: ButtonVariant | (string & {});
     label?: string;
     icon?: string;
     tooltip?: string;
