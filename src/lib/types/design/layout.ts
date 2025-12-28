@@ -83,7 +83,7 @@ export type MenuItem = {
   /**
    * page to be opened for this menu. used only for sub-menu and not for module
    */
-  pageName?: string;
+  pageName: string;
   /**
    * optional parameters to be passed to the page
    */

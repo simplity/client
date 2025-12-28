@@ -1,4 +1,4 @@
-import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from '@/types';
+import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, StringMap, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from '@/types';
 export declare class AC implements AppController {
     private readonly agent;
     private readonly appView;
@@ -8,7 +8,7 @@ export declare class AC implements AppController {
     private readonly functionImpls;
     private readonly allLayouts;
     private readonly allModules;
-    private readonly allMenus;
+    private readonly allMenuItems;
     private readonly allMessages;
     private readonly allValueSchemas;
     private readonly allFormatters;
@@ -22,7 +22,9 @@ export declare class AC implements AppController {
      */
     private validPagesArray;
     private allowAllMenus;
-    private allowedModules;
+    /**
+     * module.menuItem -> true
+     */
     private allowedMenus;
     /**
      * fragile design to manage multiple requests to disable/enable UX involving async calls
@@ -57,11 +59,11 @@ export declare class AC implements AppController {
     isPageValid(page: string): boolean;
     getLayout(nam: string): Layout;
     getModule(nam: string): Module;
-    getMenu(nam: string): MenuItem;
+    getMenu(module: string, menu: string): MenuItem;
     getValueSchema(nam: string): ValueSchema;
     getValueFormatter(nam: string): ValueFormatter;
     getModuleIfAccessible(nam: string): Module | undefined;
-    getMenuIfAccessible(nam: string): MenuItem | undefined;
+    getMenuIfAccessible(module: string, nam: string): MenuItem | undefined;
     getPage(nam: string): Page;
     getForm(nam: string): Form;
     getFn(nam: string, type?: FunctionType): FunctionImpl;
@@ -74,13 +76,14 @@ export declare class AC implements AppController {
     getUser(): Vo | undefined;
     login(credentials: Values): Promise<boolean>;
     logout(): void;
-    atLeastOneAllowed(ids: string[]): boolean;
-    setAccessControls(ids: string): void;
+    grantAccessToAllMenus(): void;
+    grantAccess(menus: StringMap<StringMap<true>>): void;
     serve(serviceName: string, data?: Vo): Promise<ServiceResponse>;
     downloadServiceResponse(fileName: string, serviceName: string, data: Vo | undefined): Promise<boolean>;
     getList(listName: string, forceRefresh: boolean, key?: number | string): Promise<SimpleList>;
     getKeyedList(listName: string, forceRefresh: boolean): Promise<KeyedList>;
     formatValue(name: string, value: Value): FormattedValue;
+    private createMenuItemMap;
     private formatBoolean;
     private formatUnknown;
     private formatCustom;

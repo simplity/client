@@ -40,7 +40,7 @@ export class AC {
     functionImpls;
     allLayouts;
     allModules;
-    allMenus;
+    allMenuItems;
     allMessages;
     allValueSchemas;
     allFormatters;
@@ -58,7 +58,9 @@ export class AC {
      */
     validPagesArray = [];
     allowAllMenus = false;
-    allowedModules = {};
+    /**
+     * module.menuItem -> true
+     */
     allowedMenus = {};
     /**
      * fragile design to manage multiple requests to disable/enable UX involving async calls
@@ -96,7 +98,8 @@ export class AC {
         this.allForms = runtime.forms || {};
         this.allLayouts = runtime.layouts || {};
         this.allModules = runtime.modules || {};
-        this.allMenus = runtime.menuItems || {};
+        this.allMenuItems = this.createMenuItemMap(this.allModules);
+        //prepare valid pages array
         this.allValueSchemas = {
             ...internalResources.valueSchemas,
             ...(runtime.valueSchemas || {}),
@@ -194,9 +197,11 @@ export class AC {
         this.shouldExist(obj, nam, 'module');
         return obj;
     }
-    getMenu(nam) {
-        const obj = this.allMenus[nam];
-        this.shouldExist(obj, nam, 'menu item');
+    getMenu(module, menu) {
+        const moduleObj = this.allMenuItems[module];
+        this.shouldExist(moduleObj, module, 'module');
+        const obj = moduleObj[menu];
+        this.shouldExist(obj, menu, 'menu item');
         return obj;
     }
     getValueSchema(nam) {
@@ -214,21 +219,20 @@ export class AC {
         if (!module) {
             return undefined;
         }
-        const hasAccess = this.allowAllMenus || this.allowedModules[nam];
+        const hasAccess = this.allowAllMenus || this.allowedMenus[nam];
         if (hasAccess) {
             return module;
         }
-        for (const item of module.menuItems) {
-            const menu = this.allMenus[item];
-            if (menu && menu.guestAccess) {
+        for (const menu of Object.values(module.menuItems)) {
+            if (menu.guestAccess) {
                 return module;
             }
         }
-        logger.info(`logged in user has no access to the module named ${nam}`);
+        logger.info(`logged in user has no access to the module '${nam}'`);
         return undefined;
     }
-    getMenuIfAccessible(nam) {
-        const menu = this.getMenu(nam);
+    getMenuIfAccessible(module, nam) {
+        const menu = this.getMenu(module, nam);
         const hasAccess = menu.guestAccess || this.allowAllMenus || this.allowedMenus[nam];
         if (hasAccess) {
             return menu;
@@ -312,57 +316,22 @@ export class AC {
         }
         //remove existing user first
         this.removeContextValue(USER);
-        this.setAccessControls('');
+        this.grantAccess({});
         const data = await this.serve(this.loginServiceName, credentials);
         this.afterLogin(data);
         return !!data;
     }
     logout() {
         this.removeContextValue(USER);
-        this.setAccessControls('');
+        this.grantAccess({});
         this.serve(this.logoutServiceName).then();
     }
-    atLeastOneAllowed(ids) {
-        if (this.allowAllMenus) {
-            return true;
-        }
-        for (const id of ids) {
-            if (this.allowedMenus[id]) {
-                const item = this.allMenus[id];
-                if (item && !item.isHidden) {
-                    return true;
-                }
-            }
-            else {
-                const menu = this.allMenus[id];
-                if (menu && menu.guestAccess) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    grantAccessToAllMenus() {
+        this.allowAllMenus = true;
     }
-    setAccessControls(ids) {
-        this.allowedMenus = {};
-        this.allowedModules = {};
+    grantAccess(menus) {
+        this.allowedMenus = menus;
         this.allowAllMenus = false;
-        if (!ids) {
-            // no access
-            return;
-        }
-        if (ids === '*') {
-            //super user
-            this.allowAllMenus = true;
-            return;
-        }
-        for (const id of ids.split(',')) {
-            this.allowedMenus[id.trim()] = true;
-        }
-        for (const [key, mod] of Object.entries(this.allModules)) {
-            if (this.atLeastOneAllowed(mod.menuItems)) {
-                this.allowedModules[key] = true;
-            }
-        }
     }
     //server-related
     async serve(serviceName, data) {
@@ -534,6 +503,17 @@ export class AC {
                 return this.formatUnknown(value, formatter);
         }
     }
+    createMenuItemMap(modules) {
+        const menuItemMap = {};
+        for (const [moduleName, module] of Object.entries(modules)) {
+            const moduleMenuMap = {};
+            for (const menuItem of Object.values(module.menuItems)) {
+                moduleMenuMap[menuItem.name] = menuItem;
+            }
+            menuItemMap[moduleName] = moduleMenuMap;
+        }
+        return menuItemMap;
+    }
     formatBoolean(v, formatter) {
         let value = formatter.unknownValue;
         if (v !== undefined) {
@@ -601,23 +581,26 @@ export class AC {
      * it is better to call login() of this service instead.
      */
     afterLogin(user) {
-        let ids = ''; //no access
-        if (user) {
-            console.info('User context being created', user);
-            this.setContextValue(USER, user);
-            const txt = user[conventions.allowedMenuIds];
-            if (txt === undefined) {
-                ids = '*'; //no restrictions
-            }
-            else {
-                ids = txt.toString();
-            }
-        }
-        else {
-            console.info('Login service probably failed, as no data is returned');
+        if (!user) {
+            console.info('No user data returned after login');
             this.removeContextValue(USER);
+            this.grantAccess({});
+            return;
         }
-        this.setAccessControls(ids.trim());
+        console.info('User context being created', user);
+        this.setContextValue(USER, user);
+        if (user[conventions.grantAllAccess]) {
+            this.grantAccessToAllMenus();
+            return;
+        }
+        const menus = user[conventions.accesibleMenus];
+        if (menus && typeof menus === 'object') {
+            this.grantAccess(menus);
+            return;
+        }
+        console.info('Login service has not returned access control info. No menu access granted');
+        this.grantAccess({});
+        this.removeContextValue(USER);
     }
     shouldExist(obj, nam, desc) {
         if (!obj) {

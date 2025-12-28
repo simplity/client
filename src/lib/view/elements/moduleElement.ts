@@ -8,7 +8,7 @@ export class ModuleElement {
   private readonly menuEle: HTMLElement;
   constructor(
     private readonly ac: AppController,
-    private readonly module: Module,
+    private readonly module: Module
   ) {
     this.root = htmlUtil.newHtmlElement('module');
     this.menuEle = htmlUtil.getChildElement(this.root, 'menu-item');
@@ -24,20 +24,20 @@ export class ModuleElement {
         htmlUtil.setViewState(this.root, 'empty', true);
       }
       this.root.addEventListener('click', () => {
-        this.ac.menuSelected(this.module.name, items[0]);
+        this.ac.menuSelected(this.module.name, items[0].name);
       });
       return;
     }
-
-    for (const name of this.module.menuItems) {
-      const menu = this.ac.getMenu(name);
-      const item = new MenuItemElement(menu);
-      this.menuItems[name] = item;
-      item.root.addEventListener('click', () => {
-        this.ac.menuSelected(this.module.name, name);
+    const moduleName = this.module.name;
+    for (const item of this.module.menuItems) {
+      const menu = this.ac.getMenu(moduleName, item.name);
+      const menuItemElement = new MenuItemElement(menu);
+      this.menuItems[item.name] = menuItemElement;
+      menuItemElement.root.addEventListener('click', () => {
+        this.ac.menuSelected(this.module.name, item.name);
       });
 
-      this.menuEle.appendChild(item.root);
+      this.menuEle.appendChild(menuItemElement.root);
     }
   }
 }

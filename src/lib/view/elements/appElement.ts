@@ -154,22 +154,8 @@ export class AppElement implements AppView {
         );
       }
       pageName = this.renderLayout(options.layout, options);
-    } else if (options.module) {
-      pageName = this.layoutEle.renderModule(options);
     } else {
-      if (!options.menuItem) {
-        throw this.ac.newError(
-          `Navigation action has no layout/module/menu specified. navigation aborted`
-        );
-      }
-
-      const menu = this.ac.getMenu(options.menuItem);
-      if (!menu.pageName) {
-        throw this.ac.newError(
-          `Menu item ${options.menuItem} has no pageName. But is requested for navigation. Navigation aborted`
-        );
-      }
-      pageName = menu.pageName;
+      pageName = this.layoutEle.renderModule(options);
     }
 
     const lastEntry = this.pageStack[this.pageStack.length - 1];

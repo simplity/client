@@ -26,8 +26,12 @@ export const conventions = {
      */
     reportServiceName: '_getReportSettings',
     /**
+     * user attribute that has the module.menu -> true map of allowed menus
+     */
+    accesibleMenus: 'accessibleMenus',
+    /**
      * user attribute that has the list of allowed menu ids
      */
-    allowedMenuIds: 'allowedMenuIds',
+    grantAllAccess: 'grantAllAccess',
 };
 //# sourceMappingURL=conventions.js.map

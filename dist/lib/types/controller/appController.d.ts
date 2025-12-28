@@ -44,11 +44,12 @@ export interface AppController {
     getModule(name: string): Module;
     /**
      *
-     * @param id unique id for this menu item
+     * @param module module name
+     * @param menu menu item name within this module
      * @returns menu item
      * @throws Error in case the menu does not exist
      */
-    getMenu(id: string): MenuItem;
+    getMenu(module: string, menu: string): MenuItem;
     /**
      *
      * @param name unique name of  the value schema
@@ -64,12 +65,12 @@ export interface AppController {
      */
     getValueFormatter(name: string): ValueFormatter;
     /**
-     *
-     * @param id unique id for this menu item
+     * @param module module name
+     * @param nam menu item name within this module
      * @returns menu if the logged in user has access to this menu. undefined otherwise
      * @throws Error in case the menu does not exist
      */
-    getMenuIfAccessible(id: string): MenuItem | undefined;
+    getMenuIfAccessible(module: string, nam: string): MenuItem | undefined;
     /**
      *
      * @param pageName unique name of this page.
@@ -230,16 +231,14 @@ export interface AppController {
      */
     formatValue(formatterName: string, value: Value): FormattedValue;
     /**
-     * designed specifically for a module. Returns true if at least one of the menu-items in a module is allowed
-     * @param ids
+     * grant access to all menus
      */
-    atLeastOneAllowed(ids: string[]): boolean;
+    grantAccessToAllMenus(): void;
     /**
      *
-     * @param ids comma separated list of menu ids that the logged-in user has access to.
-     * '*' to allow all
+     * @param menus module.menu -> true
      */
-    setAccessControls(ids: string): void;
+    grantAccess(menus: StringMap<StringMap<true>>): void;
     /**
      * navigate to a page based on layout/module/menu.
      * This is initiated from the controller side

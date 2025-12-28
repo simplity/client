@@ -205,8 +205,9 @@ export class LayoutElement {
   }
 
   private getInitialMenu(module: Module, menuItem?: string): MenuItem {
+    const moduleName = module.name;
     if (menuItem) {
-      const item = this.ac.getMenuIfAccessible(menuItem);
+      const item = this.ac.getMenuIfAccessible(moduleName, menuItem);
       if (item) {
         return item;
       }
@@ -215,9 +216,9 @@ export class LayoutElement {
       );
     }
 
-    for (const nam of module.menuItems) {
-      const item = this.ac.getMenuIfAccessible(nam);
-      if (item) {
+    for (const item of Object.values(module.menuItems)) {
+      const menuItem = this.ac.getMenuIfAccessible(moduleName, item.name);
+      if (menuItem) {
         return item;
       }
     }

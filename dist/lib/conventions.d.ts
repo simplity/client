@@ -26,7 +26,11 @@ export declare const conventions: {
      */
     reportServiceName: string;
     /**
+     * user attribute that has the module.menu -> true map of allowed menus
+     */
+    accesibleMenus: string;
+    /**
      * user attribute that has the list of allowed menu ids
      */
-    allowedMenuIds: string;
+    grantAllAccess: string;
 };

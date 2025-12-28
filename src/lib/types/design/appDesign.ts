@@ -1,7 +1,6 @@
 import { FunctionType, StringMap, ValueFormatter } from '../common';
 import {
   Layout,
-  MenuItem,
   Module,
   Page,
   Service,
@@ -65,10 +64,6 @@ export type AppDesign = {
    * how to get list of valid values for a field
    */
   listSources: StringMap<ListSource>;
-  /**
-   * how the visual components are laid out on the canvas
-   */
-  menuItems?: StringMap<MenuItem>;
 
   /**
    * run-time messages

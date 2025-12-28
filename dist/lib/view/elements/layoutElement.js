@@ -152,16 +152,17 @@ export class LayoutElement {
         throw new Error(this.reportError(`Either no modules are set in this layout, or the logged-in user has no access to any module`));
     }
     getInitialMenu(module, menuItem) {
+        const moduleName = module.name;
         if (menuItem) {
-            const item = this.ac.getMenuIfAccessible(menuItem);
+            const item = this.ac.getMenuIfAccessible(moduleName, menuItem);
             if (item) {
                 return item;
             }
             logger.error(`menuItem ${menuItem} is invalid, or is not accessible. navigating to the next possible menu item instead`);
         }
-        for (const nam of module.menuItems) {
-            const item = this.ac.getMenuIfAccessible(nam);
-            if (item) {
+        for (const item of Object.values(module.menuItems)) {
+            const menuItem = this.ac.getMenuIfAccessible(moduleName, item.name);
+            if (menuItem) {
                 return item;
             }
         }

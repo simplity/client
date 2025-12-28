@@ -299,8 +299,8 @@ export class AC implements AppController {
       return module;
     }
 
-    for (const menu of module.menuItems) {
-      if (menu && menu.guestAccess) {
+    for (const menu of Object.values(module.menuItems)) {
+      if (menu.guestAccess) {
         return module;
       }
     }
@@ -648,7 +648,7 @@ export class AC implements AppController {
     const menuItemMap: StringMap<StringMap<MenuItem>> = {};
     for (const [moduleName, module] of Object.entries(modules)) {
       const moduleMenuMap: StringMap<MenuItem> = {};
-      for (const menuItem of module.menuItems) {
+      for (const menuItem of Object.values(module.menuItems)) {
         moduleMenuMap[menuItem.name] = menuItem;
       }
       menuItemMap[moduleName] = moduleMenuMap;
