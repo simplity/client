@@ -10,7 +10,7 @@ import {
   StaticComp,
   Button,
   PageController,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../../logger';
 import { BaseElement } from './baseElement';
 import { htmlUtil, ViewState } from './htmlUtils';
@@ -76,7 +76,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
     pc: PageController,
     public readonly fc: FormController,
     public readonly table: TableViewer,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, table, 'table', maxWidth);
 
@@ -106,12 +106,12 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
 
     this.searchEle = htmlUtil.getOptionalElement(
       this.root,
-      'search',
+      'search'
     ) as HTMLElement;
 
     this.configEle = htmlUtil.getOptionalElement(
       this.root,
-      'list-config',
+      'list-config'
     ) as HTMLElement;
 
     /**
@@ -157,7 +157,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
       this.renderHeaders(table.columns);
     } else {
       logger.info(
-        `Table '${this.name}' has no design-time columns. It will be rendered based on the first row of the data received at run time`,
+        `Table '${this.name}' has no design-time columns. It will be rendered based on the first row of the data received at run time`
       );
     }
   }
@@ -226,7 +226,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
     row: Values,
     rowEle: HTMLElement,
     searchRow: string[],
-    idx: number,
+    idx: number
   ): HTMLElement {
     const td = this.dataCellEle.cloneNode(true) as HTMLElement;
     const val = row[cd.name];
@@ -271,7 +271,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
 
   private addTdForComp(
     leafComp: StaticComp | Button,
-    rowEle: HTMLElement,
+    rowEle: HTMLElement
   ): void {
     const td = this.dataCellEle.cloneNode(true) as HTMLElement;
     const ele = new LeafElement(this.pc, undefined, leafComp, 0);
@@ -381,7 +381,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
     if (!this.configEle) {
       if (this.configurable) {
         logger.error(
-          'HTML template for table-view does not have a container with data-id="list-config" but the table is marked for dynamic configuration',
+          'HTML template for table-view does not have a container with data-id="list-config" but the table is marked for dynamic configuration'
         );
         this.configurable = false;
       }
@@ -398,7 +398,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
       this.pc,
       fc,
       panel,
-      this.maxWidth,
+      this.maxWidth
     );
     this.configEle.appendChild(configEle.root);
     this.twc.configRendered();
@@ -429,7 +429,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
       input = this.searchEle.querySelector('input') as HTMLElement;
       if (!input) {
         logger.error(
-          `html template for table-viewer has no input element in its search element`,
+          `html template for table-viewer has no input element in its search element`
         );
         this.searchable = false;
         return;
@@ -514,7 +514,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
     const th = this.columnHeaders[column];
     if (!th) {
       logger.error(
-        `This table has no column named ${column}. sort command ignored`,
+        `This table has no column named ${column}. sort command ignored`
       );
       return;
     }
@@ -525,7 +525,7 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
       htmlUtil.setViewState(
         th,
         'sorted',
-        this.sortedAscending ? 'asc' : 'desc',
+        this.sortedAscending ? 'asc' : 'desc'
       );
     } else {
       if (this.sortedOn) {

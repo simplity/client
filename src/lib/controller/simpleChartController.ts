@@ -6,7 +6,7 @@ import {
   FormController,
   Values,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 
 export class SimpleChartController implements ChartController {
   private data: Vo[] = [];
@@ -17,7 +17,7 @@ export class SimpleChartController implements ChartController {
 
   constructor(
     public readonly fc: FormController,
-    private readonly view: ChartView,
+    private readonly view: ChartView
   ) {
     this.name = view.name;
     this.pc = fc.pc;
@@ -26,7 +26,7 @@ export class SimpleChartController implements ChartController {
 
   setDisplayState(compName: string, settings: Values): boolean {
     console.error(
-      `Chart Component '${this.name}' : setDisplayState() for a sub-component named ${compName} is ignored`,
+      `Chart Component '${this.name}' : setDisplayState() for a sub-component named ${compName} is ignored`
     );
     return false;
   }
@@ -46,7 +46,7 @@ export class SimpleChartController implements ChartController {
       return;
     }
     logger.error(
-      `${this.name} requires a tabular data but a non-array data is being set. Data ignored`,
+      `${this.name} requires a tabular data but a non-array data is being set. Data ignored`
     );
   }
 
@@ -58,7 +58,7 @@ export class SimpleChartController implements ChartController {
     }
     console.error(
       `Chart Component ${this.name}: Non-array data is received. Data Ignored`,
-      data,
+      data
     );
   }
   getData(): Vo | Vo[] {

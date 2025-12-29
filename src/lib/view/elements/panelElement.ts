@@ -4,7 +4,7 @@ import {
   PageController,
   Panel,
   PanelView,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../../logger';
 import { BaseElement } from './baseElement';
 import { elementFactory } from './elementFactory';

@@ -1,4 +1,4 @@
-import { MenuItem } from '@/types';
+import { MenuItem } from 'src/lib/types';
 export declare class MenuItemElement {
     readonly menuItem: MenuItem;
     readonly root: HTMLElement;

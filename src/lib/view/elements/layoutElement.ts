@@ -5,7 +5,7 @@ import {
   Module,
   NavigationOptions,
   StringMap,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../../logger';
 import { ChildElementId, htmlUtil } from './htmlUtils';
 import { ModuleElement } from './moduleElement';

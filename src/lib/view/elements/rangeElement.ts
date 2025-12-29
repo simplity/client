@@ -1,4 +1,9 @@
-import { DataField, FormController, PageController, RangePanel } from '@/types';
+import {
+  DataField,
+  FormController,
+  PageController,
+  RangePanel,
+} from 'src/lib/types';
 import { BaseElement } from './baseElement';
 import { htmlUtil } from './htmlUtils';
 import { elementFactory } from './elementFactory';
@@ -12,7 +17,7 @@ export class RangeElement extends BaseElement {
     public readonly pc: PageController,
     fc: FormController | undefined,
     public readonly range: RangePanel,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, range, 'range-wrapper', maxWidth);
 
@@ -20,7 +25,7 @@ export class RangeElement extends BaseElement {
       this.pc,
       fc,
       range.fromField as DataField,
-      maxWidth,
+      maxWidth
     ) as FieldElement;
 
     let ele = htmlUtil.getChildElement(this.root, 'from-field');
@@ -30,7 +35,7 @@ export class RangeElement extends BaseElement {
       this.pc,
       fc,
       range.toField as DataField,
-      maxWidth,
+      maxWidth
     ) as FieldElement;
     ele = htmlUtil.getChildElement(this.root, 'to-field');
     ele.appendChild(this.toView.root);

@@ -59,7 +59,10 @@ export class TableEditorElement extends BaseElement {
         this.dataRowEle.remove();
         this.renderHeader();
         this.tec = this.fc.newTableEditorController(this);
-        this.tableEle;
+        //TODO: dummy use of tableEle.style to avoid compiler warning
+        if (this.tableEle.style) {
+            //htmlUtil.applyStyles(this.tableEle, this.tableEle.style);
+        }
     }
     /**
      * remove all rows that are rendered

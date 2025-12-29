@@ -5,7 +5,7 @@ import {
   PageController,
   Values,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../../logger';
 import { BaseElement } from './baseElement';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
@@ -31,18 +31,18 @@ export class ChartElement extends BaseElement implements ChartView {
     pc: PageController,
     public readonly fc: FormController,
     public readonly chart: ChartComp,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, chart, 'chart', maxWidth);
     if (!fc) {
       throw new Error(
-        `Chart-component ${chart.name} is probably inside of a table?. Please check your page component design`,
+        `Chart-component ${chart.name} is probably inside of a table?. Please check your page component design`
       );
     }
 
     this.chartEle = htmlUtil.getChildElement(
       this.root,
-      'chart',
+      'chart'
     ) as HTMLCanvasElement;
     this.cc = fc.newChartController(this);
     this.cc; // to avoid unused warning
@@ -69,7 +69,7 @@ export class ChartElement extends BaseElement implements ChartView {
         values = arr[0];
         if (arr.length > 1) {
           logger.error(
-            `Data has ${arr.length} rows for the chart '${this.name}'. Only the first row is used `,
+            `Data has ${arr.length} rows for the chart '${this.name}'. Only the first row is used `
           );
         }
       }

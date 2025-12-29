@@ -59,7 +59,7 @@ function toForm(record) {
 function toDataFields(recordFields) {
     const fields = {};
     const names = [];
-    let keyFields = [];
+    const keyFields = [];
     for (const f of recordFields) {
         names.push(f.name);
         fields[f.name] = toDataField(f);

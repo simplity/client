@@ -1,4 +1,4 @@
-import { Button, FormController, PageController, StaticComp } from '@/types';
+import { Button, FormController, PageController, StaticComp } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 /**
  * base class for elements and buttons. These are elements with no children.

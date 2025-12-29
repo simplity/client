@@ -1,4 +1,4 @@
-import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, StringMap, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from '@/types';
+import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, StringMap, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent } from 'src/lib/types';
 export declare class AC implements AppController {
     private readonly agent;
     private readonly appView;
@@ -40,7 +40,7 @@ export declare class AC implements AppController {
     newWindow(url: string): void;
     newError(msg: string): Error;
     /**
-     * use has selected a menu item (outside of page buttons etc.. like from a menu)
+     * user has selected a menu item (outside of page buttons etc.. like from a menu)
      * @param menu
      */
     menuSelected(module: string, menuItem: string): void;

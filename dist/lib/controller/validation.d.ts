@@ -1,4 +1,4 @@
-import { Value, ValueSchema, ValueType, ValueValidationResult } from '@/types';
+import { Value, ValueSchema, ValueType, ValueValidationResult } from 'src/lib/types';
 export declare const DEFAULT_MAX_CHARS = 1000;
 export declare const DEFAULT_DAYS_RANGE = 365000;
 export declare const DEFAULT_MAX_NUMBER: number;

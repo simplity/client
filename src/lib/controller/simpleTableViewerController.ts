@@ -9,7 +9,7 @@ import {
   TableViewerView,
   Values,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 import { FC } from './formController';
 import { ReportConfigurator } from './reportConfigurator';
 import { logger } from '../logger';
@@ -68,7 +68,7 @@ export class SimpleTableViewerController implements TableViewerController {
    */
   public constructor(
     public readonly fc: FormController,
-    view: TableViewerView,
+    view: TableViewerView
   ) {
     this.name = view.name;
     this.pc = fc.pc;
@@ -140,7 +140,7 @@ export class SimpleTableViewerController implements TableViewerController {
       return;
     }
     logger.error(
-      `${this.name} is a table-controller but a non-array data is being set. Data ignored`,
+      `${this.name} is a table-controller but a non-array data is being set. Data ignored`
     );
   }
   public setData(data: Values[]): void {
@@ -203,7 +203,7 @@ export class SimpleTableViewerController implements TableViewerController {
     if (this.info.nbrSelected < this.info.minRows) {
       // todo: flash error message
       logger.error(
-        `At least  ${this.info.minRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`,
+        `At least  ${this.info.minRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`
       );
       return false;
     }
@@ -211,7 +211,7 @@ export class SimpleTableViewerController implements TableViewerController {
     if (this.info.maxRows && this.info.nbrSelected > this.info.maxRows) {
       // todo: flash error message
       logger.error(
-        `At most  ${this.info.maxRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`,
+        `At most  ${this.info.maxRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`
       );
       return false;
     }
@@ -321,7 +321,7 @@ export class TableInfo {
     if (meta.selectFieldName) {
       if (meta.onRowClick) {
         throw new Error(
-          `Panel ${meta.name} has both onRowClick and selectColumnName.`,
+          `Panel ${meta.name} has both onRowClick and selectColumnName.`
         );
       }
       this.columnNames.push('_select_');

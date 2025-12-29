@@ -8,7 +8,7 @@ import {
   TableEditorView,
   Values,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../logger';
 import { FC } from './formController';
 
@@ -55,7 +55,7 @@ export class SimpleTableEditorController implements TableEditorController {
    */
   public constructor(
     public readonly fc: FormController,
-    view: TableEditorView,
+    view: TableEditorView
   ) {
     this.name = view.name;
     this.pc = fc.pc;
@@ -87,7 +87,7 @@ export class SimpleTableEditorController implements TableEditorController {
       return;
     }
     logger.error(
-      `${this.name} is a table controller but a non-array data is being set. Data ignored`,
+      `${this.name} is a table controller but a non-array data is being set. Data ignored`
     );
   }
 
@@ -199,7 +199,7 @@ export class SimpleTableEditorController implements TableEditorController {
 
   private warn(rowId: number): void {
     logger.warn(
-      `Table ${this.name} has ${this.data.length} rows, but a request was made for row ${rowId} (0 based)`,
+      `Table ${this.name} has ${this.data.length} rows, but a request was made for row ${rowId} (0 based)`
     );
   }
 
@@ -237,7 +237,7 @@ export class SimpleTableEditorController implements TableEditorController {
   setColumnDisplayState(
     _columnName: string,
     _stateName: string,
-    _stateValue: string | number | boolean,
+    _stateValue: string | number | boolean
   ): void {
     throw new Error('Method not implemented.');
   }
@@ -245,7 +245,7 @@ export class SimpleTableEditorController implements TableEditorController {
     _columnName: string,
     _stateName: string,
     _stateValue: string | number | boolean,
-    _rowId?: number,
+    _rowId?: number
   ): void {
     throw new Error('Method not implemented.');
   }

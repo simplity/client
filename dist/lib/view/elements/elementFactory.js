@@ -8,7 +8,7 @@ import { RangeElement } from './rangeElement';
 import { TableEditorElement } from './tableEditorElement';
 import { TableViewerElement } from './tableViewerElement';
 import { TabsElement } from './tabsElement';
-import { logger } from '@/logger';
+import { logger } from 'src/lib/logger';
 let customFactory;
 export const elementFactory = {
     /**

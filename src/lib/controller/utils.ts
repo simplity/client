@@ -1,4 +1,4 @@
-import { Vo } from '@/types';
+import { Vo } from 'src/lib/types';
 export const utils = {
   /**
    * get effective style for an component based on various parameters
@@ -7,7 +7,7 @@ export const utils = {
    */
   getEffectiveStyle(
     defaultStyle: string | undefined,
-    userSpecified: string | undefined,
+    userSpecified: string | undefined
   ) {
     const style = defaultStyle || '';
     if (!userSpecified) {

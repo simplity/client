@@ -14,7 +14,7 @@ import {
   Value,
   ViewComponentFactory,
   BaseComponent,
-} from '@/types';
+} from 'src/lib/types';
 
 import { BaseElement } from './baseElement';
 import { ButtonPanelElement } from './buttonPanel';
@@ -27,7 +27,7 @@ import { RangeElement } from './rangeElement';
 import { TableEditorElement } from './tableEditorElement';
 import { TableViewerElement } from './tableViewerElement';
 import { TabsElement } from './tabsElement';
-import { logger } from '@/logger';
+import { logger } from 'src/lib/logger';
 
 let customFactory: ViewComponentFactory | undefined;
 export const elementFactory = {
@@ -59,7 +59,7 @@ export const elementFactory = {
     fc: FormController | undefined,
     comp: BaseComponent,
     maxWidth: number,
-    value?: Value,
+    value?: Value
   ): BaseElement {
     if (customFactory) {
       const view = customFactory.newViewComponent(
@@ -67,11 +67,11 @@ export const elementFactory = {
         fc,
         comp,
         maxWidth,
-        value,
+        value
       ) as BaseElement;
       if (view) {
         console.info(
-          `Component '${comp.name}' created at the app-specific factory.`,
+          `Component '${comp.name}' created at the app-specific factory.`
         );
         return view;
       }
@@ -102,7 +102,7 @@ export const elementFactory = {
       case 'chart':
         if (!fc) {
           throw new Error(
-            `A table element named ${comp.name} is embedded inside another table. This feature is not supported`,
+            `A table element named ${comp.name} is embedded inside another table. This feature is not supported`
           );
         }
         /**
@@ -125,7 +125,7 @@ export const elementFactory = {
         return new RangeElement(pc, fc, comp as RangePanel, maxWidth);
       default:
         throw new Error(
-          `Component ${comp.name} has an invalid compType of  ${comp.compType}`,
+          `Component ${comp.name} has an invalid compType of  ${comp.compType}`
         );
     }
   },

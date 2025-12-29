@@ -12,7 +12,12 @@
  * In future, we can improve this by using a dependency injection framework or a service locator pattern.
  */
 
-import { AppController, AppRuntime, AppView, BootStrapper } from '@/types';
+import {
+  AppController,
+  AppRuntime,
+  AppView,
+  BootStrapper,
+} from 'src/lib/types';
 import { AppElement } from './view/elements';
 import { AC } from './controller';
 import { serviceAgent } from './agent';
@@ -21,7 +26,7 @@ let appController: AppController | undefined;
 function getAc(): AppController {
   if (!appController) {
     throw new Error(
-      'Application Bootstrap Error: App is accessed before it is boostrapped.',
+      'Application Bootstrap Error: App is accessed before it is boostrapped.'
     );
   }
   return appController;
@@ -35,14 +40,14 @@ function bootstrap(appRuntime: AppRuntime): void {
   });
   const appView: AppView = new AppElement(
     appRuntime.appElement,
-    appRuntime.htmls,
+    appRuntime.htmls
   );
   appController = new AC(appRuntime, agent, appView);
 
   appView.render(
     appController,
     appRuntime.startingLayout,
-    appRuntime.startingModule,
+    appRuntime.startingModule
   );
 }
 function shutDown(): void {}

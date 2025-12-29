@@ -121,7 +121,7 @@ export class AC {
         return new Error(msg);
     }
     /**
-     * use has selected a menu item (outside of page buttons etc.. like from a menu)
+     * user has selected a menu item (outside of page buttons etc.. like from a menu)
      * @param menu
      */
     menuSelected(module, menuItem) {

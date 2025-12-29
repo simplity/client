@@ -1,4 +1,4 @@
-import { AgentConfigData, ServiceAgent, ServiceStatus } from '@/types';
+import { AgentConfigData, ServiceAgent, ServiceStatus } from 'src/lib/types';
 export declare const STATUS_DESCRIPTIONS: {
     [status in ServiceStatus]: string;
 };

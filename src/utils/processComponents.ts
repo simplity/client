@@ -24,7 +24,7 @@ import {
   TableEditor,
   TableViewer,
   ValueList,
-} from '@/types';
+} from 'src/lib/types';
 import { alterPage } from './alterPage';
 import { processTemplates } from './processTemplates';
 import { generateForms } from './generateForms';
@@ -211,7 +211,7 @@ export function processComponents(
    * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
    * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
    */
-  writeAll(pages, tsFolder, 'AppPage', 'pages', '@/types');
+  writeAll(pages, tsFolder, 'AppPage', 'pages', 'src/lib/types');
 
   /**
    * 11. write collection files for pages and forms

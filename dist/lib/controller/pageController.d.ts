@@ -1,4 +1,4 @@
-import { FieldView, PageView, Value, Vo, Values, StringMap, PageController, AppController, FormController, DetailedMessage, FnStatus, Action, AnyValue, SimpleList, KeyedList, FormOperation, ServiceRequestOptions } from '@/types';
+import { FieldView, PageView, Value, Vo, Values, StringMap, PageController, AppController, FormController, DetailedMessage, FnStatus, Action, AnyValue, SimpleList, KeyedList, FormOperation, ServiceRequestOptions } from 'src/lib/types';
 export declare class PC implements PageController {
     readonly ac: AppController;
     readonly name: string;

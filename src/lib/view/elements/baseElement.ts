@@ -9,7 +9,7 @@ import {
   Values,
   ViewInitFunction,
   StringMap,
-} from '@/types';
+} from 'src/lib/types';
 
 const DEFAULT_WIDTH = 4;
 /**

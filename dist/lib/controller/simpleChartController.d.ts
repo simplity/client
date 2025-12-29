@@ -1,11 +1,11 @@
-import { Chart, ChartController, ChartView, FormController, Values, Vo } from '@/types';
+import { Chart, ChartController, ChartView, FormController, Values, Vo } from 'src/lib/types';
 export declare class SimpleChartController implements ChartController {
     readonly fc: FormController;
     private readonly view;
     private data;
     readonly name: string;
     readonly type = "chart";
-    readonly pc: import("@/types").PageController;
+    readonly pc: import("src/lib/types").PageController;
     readonly chart: Chart;
     constructor(fc: FormController, view: ChartView);
     setDisplayState(compName: string, settings: Values): boolean;

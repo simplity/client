@@ -1,4 +1,4 @@
-import { AppController, Module } from '@/types';
+import { AppController, Module } from 'src/lib/types';
 export declare class ModuleElement {
     private readonly ac;
     private readonly module;

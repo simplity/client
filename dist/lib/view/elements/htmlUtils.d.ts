@@ -1,4 +1,4 @@
-import { BaseComponent, StringMap, Value } from '@/types';
+import { BaseComponent, StringMap, Value } from 'src/lib/types';
 /**
  * display states that are designed by simplity.
  * each view-state has a type associated with it, that is used for first-pevel of validation.

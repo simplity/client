@@ -1,4 +1,4 @@
-import { Alert, AppController, Page, PageView, Values } from '@/types';
+import { Alert, AppController, Page, PageView, Values } from 'src/lib/types';
 export declare class PageElement implements PageView {
     readonly ac: AppController;
     readonly page: Page;

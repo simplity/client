@@ -24,7 +24,7 @@ import {
   Value,
   Values,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../logger';
 import { SimpleTableEditorController } from './simpleTableEditorController';
 import { SimpleChartController } from './simpleChartController';

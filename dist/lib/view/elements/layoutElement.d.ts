@@ -1,4 +1,4 @@
-import { AppController, Layout, NavigationOptions, StringMap } from '@/types';
+import { AppController, Layout, NavigationOptions, StringMap } from 'src/lib/types';
 /**
  * Used exclusively by AppElement to manage non-page related view componnets in a layout
  *

@@ -1,4 +1,4 @@
-import { AppController, Form, FormController, PageController, Panel, TableViewer, TableViewerController, TableViewerView, Values, Vo } from '@/types';
+import { AppController, Form, FormController, PageController, Panel, TableViewer, TableViewerController, TableViewerView, Values, Vo } from 'src/lib/types';
 /**
  * controls a tabular data (rows and columns)
  */

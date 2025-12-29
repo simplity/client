@@ -1,4 +1,4 @@
-import { BaseComponent, StringMap, Value } from '@/types';
+import { BaseComponent, StringMap, Value } from 'src/lib/types';
 import { logger } from '../../logger';
 import { predefinedHtmls } from '../html';
 

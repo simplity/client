@@ -31,7 +31,7 @@ import {
   PageController,
   PageView,
   ServiceAgent,
-} from '@/types';
+} from 'src/lib/types';
 import { utils } from './utils';
 import { parseValue, validateValue } from './validation';
 import { logger } from '../logger';
@@ -174,7 +174,7 @@ export class AC implements AppController {
   }
 
   /**
-   * use has selected a menu item (outside of page buttons etc.. like from a menu)
+   * user has selected a menu item (outside of page buttons etc.. like from a menu)
    * @param menu
    */
   menuSelected(module: string, menuItem: string): void {

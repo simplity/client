@@ -1,6 +1,11 @@
 import { FieldElement } from '../view/elements';
 import { Datepicker, DatepickerOptions } from 'flowbite';
-import { DataField, DateSchema, FunctionImpl, ViewInitFunction } from '@/types';
+import {
+  DataField,
+  DateSchema,
+  FunctionImpl,
+  ViewInitFunction,
+} from 'src/lib/types';
 const OPTIONS: DatepickerOptions = {
   autohide: true,
   format: 'yyyy-mm-dd',

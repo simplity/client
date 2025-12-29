@@ -1,4 +1,4 @@
-import { Logger } from '@/types';
+import { Logger } from 'src/lib/types';
 /**
  * A simple console logger implementation.
  */

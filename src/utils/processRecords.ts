@@ -5,7 +5,7 @@ import {
   Record,
   SimpleRecord,
   StringMap,
-} from '@/types';
+} from 'src/lib/types';
 
 export type ProcessedRecords = {
   all: StringMap<Record>;

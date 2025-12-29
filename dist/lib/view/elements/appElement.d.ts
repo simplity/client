@@ -1,4 +1,4 @@
-import { Alert, AppController, AppView, NavigationOptions, StringMap, Vo } from '@/types';
+import { Alert, AppController, AppView, NavigationOptions, StringMap, Vo } from 'src/lib/types';
 export declare class AppElement implements AppView {
     ac: AppController;
     /**

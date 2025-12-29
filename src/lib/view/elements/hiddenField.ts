@@ -1,4 +1,9 @@
-import { DataField, FormController, PageController, Value } from '@/types';
+import {
+  DataField,
+  FormController,
+  PageController,
+  Value,
+} from 'src/lib/types';
 import { BaseElement } from './baseElement';
 
 export class HiddenField extends BaseElement {
@@ -7,7 +12,7 @@ export class HiddenField extends BaseElement {
     fc: FormController | undefined,
     public readonly field: DataField,
     maxWidth: number,
-    value?: Value,
+    value?: Value
   ) {
     super(pc, fc, field, '', maxWidth);
     if (!fc) {

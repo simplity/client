@@ -1,5 +1,5 @@
 import { Chart as ChartComp, //Chart is taken by chart.js
-ChartView, FormController, PageController, Vo } from '@/types';
+ChartView, FormController, PageController, Vo } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 export declare class ChartElement extends BaseElement implements ChartView {
     readonly fc: FormController;
@@ -8,7 +8,7 @@ export declare class ChartElement extends BaseElement implements ChartView {
      * for implementing sort feature
      */
     private data;
-    readonly cc: import("@/types").ChartController;
+    readonly cc: import("src/lib/types").ChartController;
     private readonly chartEle;
     private readonly labels;
     private readonly fieldNames;

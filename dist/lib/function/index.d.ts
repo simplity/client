@@ -1,2 +1,2 @@
-import { FunctionImpl, StringMap } from '@/types';
+import { FunctionImpl, StringMap } from 'src/lib/types';
 export declare const internalFunctions: StringMap<FunctionImpl>;

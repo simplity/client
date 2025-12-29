@@ -1,4 +1,4 @@
-import { StringMap, Page, Form, PageTemplate } from '@/types';
+import { StringMap, Page, Form, PageTemplate } from 'src/lib/types';
 /**
  * Processes the templates to generate pages.
  * @param templates The templates to process.

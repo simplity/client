@@ -1,4 +1,4 @@
-import { FormController, PageController, Panel, PanelView } from '@/types';
+import { FormController, PageController, Panel, PanelView } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 export declare class PanelElement extends BaseElement implements PanelView {
     readonly panel: Panel;

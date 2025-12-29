@@ -8,7 +8,7 @@ import {
   ValueSchema,
   ValueType,
   ValueValidationResult,
-} from '@/types';
+} from 'src/lib/types';
 export const DEFAULT_MAX_CHARS = 1000;
 export const DEFAULT_DAYS_RANGE = 365000;
 export const DEFAULT_MAX_NUMBER = Number.MAX_SAFE_INTEGER;

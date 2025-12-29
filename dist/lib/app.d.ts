@@ -11,7 +11,7 @@
  * This is not ideal, but it works for now.
  * In future, we can improve this by using a dependency injection framework or a service locator pattern.
  */
-import { AppController, BootStrapper } from '@/types';
+import { AppController, BootStrapper } from 'src/lib/types';
 declare function getAc(): AppController;
 export declare const app: {
     getAc: typeof getAc;

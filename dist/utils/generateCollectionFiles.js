@@ -43,10 +43,10 @@ const DISCLAIMER = `/**
  * But then we need a way to create a collection of all these components. This is in a separate file where a constant is defined as a named-collection of all the components that are defined under sub-folders.
  * This utility automates the generation of these collection files.
  * @param compRoot The folder containing component files. defaults to './src/comps/'
- * @param importPrefix The prefix to use for imports. Like in "import {page1 } from 'prefix/pages/page1.page'". Defaults to '@/comps/'
+ * @param importPrefix The prefix to use for imports. Like in "import {page1 } from 'prefix/pages/page1.page'". Defaults to 'src/lib/comps/'
  * @param outputFolder The folder to write the collection files. Defaults to './src/comps/generated/'
  */
-export function generateCollectionFiles(compRoot = './src/comps/', importPrefix = '@/comps/', outputFolder = './src/comps/generated/') {
+export function generateCollectionFiles(compRoot = './src/comps/', importPrefix = 'src/lib/comps/', outputFolder = './src/comps/generated/') {
     for (const compDetails of collections) {
         console.log(`Processing ${compDetails.name}...`);
         const compLocations = {};
@@ -94,7 +94,7 @@ function writeCollectionFile(compLocations, importPrefix, compDetails, folderNam
         .map(([name, relativePath]) => `import { ${toSimpleName(name)} } from '${importPrefix}${compDetails.name}/${relativePath}/${name}';`)
         .join('\n');
     const typeSource = compDetails.type.startsWith('App')
-        ? '@/types'
+        ? 'src/lib/types'
         : 'simplity';
     //contents of the file
     const text = `${DISCLAIMER}
@@ -119,6 +119,6 @@ function writeIt(folder, fileName, text) {
 function toSimpleName(name) {
     return name.substring(0, name.indexOf('.'));
 }
-// generateCollectionFiles('./src/comps/gen/', '@/comps/', './src/comps/gen/');
+// generateCollectionFiles('./src/comps/gen/', 'src/lib/comps/', './src/comps/gen/');
 // generateCollectionFiles(); //uncomment to use defaults
 //# sourceMappingURL=generateCollectionFiles.js.map

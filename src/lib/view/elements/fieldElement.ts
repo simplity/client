@@ -7,7 +7,7 @@ import {
   FormController,
   Values,
   PageController,
-} from '@/types';
+} from 'src/lib/types';
 import { logger } from '../../logger';
 import { conventions } from '../../conventions';
 import { HtmlTemplateName, htmlUtil, ViewState } from './htmlUtils';
@@ -105,12 +105,12 @@ export class FieldElement extends BaseElement implements FieldView {
     fc: FormController | undefined,
     public readonly field: DataField,
     maxWidth: number,
-    initialValue?: Value,
+    initialValue?: Value
   ) {
     super(pc, fc, field, getTemplateName(field), maxWidth);
     if (!this.fieldEle) {
       throw new Error(
-        `HTML template :'${getTemplateName(field)}' - data-id="field" missing for the target element for the field. e.g. <input data-id="field"...../>`,
+        `HTML template :'${getTemplateName(field)}' - data-id="field" missing for the target element for the field. e.g. <input data-id="field"...../>`
       );
     }
     this.fieldRendering = field.renderAs || 'text-field';
@@ -148,7 +148,7 @@ export class FieldElement extends BaseElement implements FieldView {
     }
     if (val !== undefined) {
       console.info(
-        `Setting default initial value of ${val} to field ${this.name}`,
+        `Setting default initial value of ${val} to field ${this.name}`
       );
       this.setValue(val);
       if (this.fc) {
@@ -202,7 +202,7 @@ export class FieldElement extends BaseElement implements FieldView {
 
       default:
         logger.error(
-          `field rendering type ${this.fieldRendering} not implemented. Value not set to field ${this.name}`,
+          `field rendering type ${this.fieldRendering} not implemented. Value not set to field ${this.name}`
         );
     }
   }
@@ -251,7 +251,7 @@ export class FieldElement extends BaseElement implements FieldView {
         //we check for checked attribute and not value for check-box
         this.fieldEle.addEventListener('change', () => {
           this.valueHasChanged(
-            '' + (this.fieldEle as HTMLInputElement).checked,
+            '' + (this.fieldEle as HTMLInputElement).checked
           );
         });
         return;
@@ -264,7 +264,7 @@ export class FieldElement extends BaseElement implements FieldView {
 
       default:
         logger.error(
-          `field rendering type ${this.fieldRendering} not implemented. Value not set to field ${this.name}`,
+          `field rendering type ${this.fieldRendering} not implemented. Value not set to field ${this.name}`
         );
     }
   }
@@ -299,7 +299,7 @@ export class FieldElement extends BaseElement implements FieldView {
 
     console.info(
       `Value of ${this.name} has changed with oldValue='${oldValue}', newValue='${this.value}', wasOk='${wasOk}' isOk = '${isOk}' this.fc:`,
-      this.fc,
+      this.fc
     );
     if (oldValue === this.value || !this.fc) {
       //value has not actually changed, or there is NO controller
@@ -470,7 +470,7 @@ export class FieldElement extends BaseElement implements FieldView {
       }
 
       logger.error(
-        `Field ${this.name}: Current value is '${this.textValue}'. However, this is not a valid value in the new list being set.`,
+        `Field ${this.name}: Current value is '${this.textValue}'. However, this is not a valid value in the new list being set.`
       );
       this.value = '';
       this.textValue = '';
@@ -535,7 +535,7 @@ export class FieldElement extends BaseElement implements FieldView {
       this.descEle.innerText = text;
     } else {
       logger.info(
-        `field ${this.name} is invalid with an error message="${this.errorMessage}". The field rendering has no provision to show error message`,
+        `field ${this.name} is invalid with an error message="${this.errorMessage}". The field rendering has no provision to show error message`
       );
     }
     htmlUtil.setViewState(this.root, 'invalid', true);

@@ -11,18 +11,18 @@ import {
   StringMap,
   ValidFormOperations,
   ValueType,
-} from '@/types';
+} from 'src/lib/types';
 import { ProcessedRecords } from './processRecords';
 
 export function generateForms(
   records: ProcessedRecords,
-  forms: StringMap<Form>,
+  forms: StringMap<Form>
 ): number {
   let nbrErrors = 0;
   for (const [name, record] of Object.entries(records.all)) {
     if (!record.isVisibleToClient) {
       console.warn(
-        `Warning: Record ${name} is not visible to the client-side. Form not created.`,
+        `Warning: Record ${name} is not visible to the client-side. Form not created.`
       );
       continue;
     }
@@ -40,7 +40,7 @@ export function generateForms(
 
       if (ref === undefined) {
         console.error(
-          `Error: Composite/extended Record "${name}" has mainRecord="${cr.mainRecordName}" but that record is not defined, or is a composite-record. Source NOT generated`,
+          `Error: Composite/extended Record "${name}" has mainRecord="${cr.mainRecordName}" but that record is not defined, or is a composite-record. Source NOT generated`
         );
         nbrErrors++;
         continue;
@@ -89,11 +89,11 @@ function toForm(record: SimpleRecord): Form {
   return form as Form;
 }
 function toDataFields(
-  recordFields: Field[],
+  recordFields: Field[]
 ): [StringMap<DataField>, string[], string[] | undefined] {
   const fields: StringMap<DataField> = {};
   const names: string[] = [];
-  let keyFields: string[] = [];
+  const keyFields: string[] = [];
   for (const f of recordFields) {
     names.push(f.name);
     fields[f.name] = toDataField(f);
@@ -199,7 +199,7 @@ function toChildForms(childRecords: ChildRecord[]): StringMap<ChildForm> {
 function copyAttrs(
   fromObj: StringMap<unknown>,
   toObj: StringMap<unknown>,
-  attrs: string[],
+  attrs: string[]
 ): void {
   for (const attr of attrs) {
     const value = fromObj[attr];

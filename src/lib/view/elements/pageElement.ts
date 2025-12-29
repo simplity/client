@@ -7,11 +7,11 @@ import {
   PageController,
   PageView,
   Values,
-} from '@/types';
+} from 'src/lib/types';
 import { htmlUtil } from './htmlUtils';
 import { PanelElement } from './panelElement';
 import { elementFactory } from './elementFactory';
-import { logger } from '@/logger';
+import { logger } from 'src/lib/logger';
 const NBR_COLS_IN_GRID = 12;
 
 export class PageElement implements PageView {

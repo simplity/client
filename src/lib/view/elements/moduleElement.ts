@@ -1,4 +1,4 @@
-import { AppController, Module, StringMap } from '@/types';
+import { AppController, Module, StringMap } from 'src/lib/types';
 import { htmlUtil } from './htmlUtils';
 import { MenuItemElement } from './menuItemElement';
 

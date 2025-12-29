@@ -4,7 +4,7 @@ import {
   PageAlteration,
   StringMap,
   BaseComponent,
-} from '@/types';
+} from 'src/lib/types';
 
 /**
  * attributes that we copy/override : simple ones

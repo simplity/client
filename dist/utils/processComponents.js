@@ -135,7 +135,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
      * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
      */
-    writeAll(pages, tsFolder, 'AppPage', 'pages', '@/types');
+    writeAll(pages, tsFolder, 'AppPage', 'pages', 'src/lib/types');
     /**
      * 11. write collection files for pages and forms
      */

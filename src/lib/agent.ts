@@ -6,7 +6,7 @@ import {
   ServiceStatus,
   ServerRequest,
   ServerResponse,
-} from '@/types';
+} from 'src/lib/types';
 
 export const STATUS_DESCRIPTIONS: {
   [status in ServiceStatus]: string;

@@ -6,7 +6,7 @@ import {
   existsSync,
   mkdirSync,
 } from 'fs';
-import { StringMap } from '@/types';
+import { StringMap } from 'src/lib/types';
 
 type CollectionParams = {
   name: string;
@@ -59,20 +59,20 @@ const DISCLAIMER = `/**
  * But then we need a way to create a collection of all these components. This is in a separate file where a constant is defined as a named-collection of all the components that are defined under sub-folders.
  * This utility automates the generation of these collection files.
  * @param compRoot The folder containing component files. defaults to './src/comps/'
- * @param importPrefix The prefix to use for imports. Like in "import {page1 } from 'prefix/pages/page1.page'". Defaults to '@/comps/'
+ * @param importPrefix The prefix to use for imports. Like in "import {page1 } from 'prefix/pages/page1.page'". Defaults to 'src/lib/comps/'
  * @param outputFolder The folder to write the collection files. Defaults to './src/comps/generated/'
  */
 export function generateCollectionFiles(
   compRoot: string = './src/comps/',
-  importPrefix: string = '@/comps/',
-  outputFolder: string = './src/comps/generated/',
+  importPrefix: string = 'src/lib/comps/',
+  outputFolder: string = './src/comps/generated/'
 ): void {
   for (const compDetails of collections) {
     console.log(`Processing ${compDetails.name}...`);
     const compLocations: StringMap<string> = {};
     const startingFolder = join(
       compRoot,
-      compDetails.folderName || compDetails.name,
+      compDetails.folderName || compDetails.name
     );
     /*
      * does the folder exist? if not skip it.
@@ -100,7 +100,7 @@ function scanDirectory(
   compLocations: StringMap<string>,
   ext: string,
   currentFolder: string,
-  relativePath: string = '',
+  relativePath: string = ''
 ) {
   const items = readdirSync(currentFolder);
 
@@ -115,7 +115,7 @@ function scanDirectory(
 
       if (compLocations[baseName]) {
         console.error(
-          `${baseName} is a duplicate at ${relativePath} and at ${compLocations[baseName]}`,
+          `${baseName} is a duplicate at ${relativePath} and at ${compLocations[baseName]}`
         );
       } else {
         compLocations[baseName] = relativePath;
@@ -128,19 +128,19 @@ function writeCollectionFile(
   compLocations: StringMap<string>,
   importPrefix: string,
   compDetails: CollectionParams,
-  folderName: string,
+  folderName: string
 ): void {
   const names = Object.keys(compLocations).join(',\n  ');
 
   const imports = Object.entries(compLocations)
     .map(
       ([name, relativePath]) =>
-        `import { ${toSimpleName(name)} } from '${importPrefix}${compDetails.name}/${relativePath}/${name}';`,
+        `import { ${toSimpleName(name)} } from '${importPrefix}${compDetails.name}/${relativePath}/${name}';`
     )
     .join('\n');
 
   const typeSource = compDetails.type.startsWith('App')
-    ? '@/types'
+    ? 'src/lib/types'
     : 'simplity';
 
   //contents of the file
@@ -169,5 +169,5 @@ function toSimpleName(name: string): string {
   return name.substring(0, name.indexOf('.'));
 }
 
-// generateCollectionFiles('./src/comps/gen/', '@/comps/', './src/comps/gen/');
+// generateCollectionFiles('./src/comps/gen/', 'src/lib/comps/', './src/comps/gen/');
 // generateCollectionFiles(); //uncomment to use defaults

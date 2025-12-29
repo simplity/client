@@ -1,4 +1,4 @@
-import { Vo } from '@/types';
+import { Vo } from 'src/lib/types';
 export declare const utils: {
     /**
      * get effective style for an component based on various parameters

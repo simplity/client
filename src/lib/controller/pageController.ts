@@ -37,7 +37,7 @@ import {
   DataController,
   DisplayAction,
   NavigationOptions,
-} from '@/types';
+} from 'src/lib/types';
 import { FC } from './formController';
 
 type StringSet = StringMap<boolean>;

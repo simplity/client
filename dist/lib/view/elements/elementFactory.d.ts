@@ -1,4 +1,4 @@
-import { FormController, PageController, Value, ViewComponentFactory, BaseComponent } from '@/types';
+import { FormController, PageController, Value, ViewComponentFactory, BaseComponent } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 export declare const elementFactory: {
     /**

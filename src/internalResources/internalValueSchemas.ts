@@ -1,4 +1,4 @@
-import { StringMap, ValueSchema } from '@/types';
+import { StringMap, ValueSchema } from 'src/lib/types';
 
 export const internalValueSchemas: StringMap<ValueSchema> = {
   _name: {

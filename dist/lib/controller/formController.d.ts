@@ -1,4 +1,4 @@
-import { AppController, BaseView, ChartController, ChartView, DataController, DetailedMessage, EventDetails, EventHandler, EventName, Form, FormController, PageController, StringMap, TableEditorController, TableEditorView, TableViewerController, TableViewerView, Value, Values, Vo } from '@/types';
+import { AppController, BaseView, ChartController, ChartView, DataController, DetailedMessage, EventDetails, EventHandler, EventName, Form, FormController, PageController, StringMap, TableEditorController, TableEditorView, TableViewerController, TableViewerView, Value, Values, Vo } from 'src/lib/types';
 /**
  * controls a row in a table or the root fields in a page.
  */

@@ -1,4 +1,4 @@
-import { FormController, PageController, Tabs } from '@/types';
+import { FormController, PageController, Tabs } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 
 export class TabsElement extends BaseElement {
@@ -6,7 +6,7 @@ export class TabsElement extends BaseElement {
     pc: PageController,
     fc: FormController | undefined,
     tabs: Tabs,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, tabs, 'tabs', maxWidth);
   }

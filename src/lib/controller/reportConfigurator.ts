@@ -17,7 +17,7 @@ import {
   TableViewer,
   TableViewerController,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 
 import { logger } from '../logger';
 
@@ -81,7 +81,7 @@ export class ReportConfigurator {
      * table controller for this report
      */
     private readonly twc: TableViewerController,
-    private readonly table: TableViewer,
+    private readonly table: TableViewer
   ) {
     this.pc = this.twc.pc;
     this.name = table.name;
@@ -143,7 +143,7 @@ export class ReportConfigurator {
     const settings = this.allSettings[name];
     if (!settings) {
       logger.error(
-        `variant name is set to "${name}", but no settings found for this variant. Error in setting drop-downs?`,
+        `variant name is set to "${name}", but no settings found for this variant. Error in setting drop-downs?`
       );
       return;
     }
@@ -178,7 +178,7 @@ export class ReportConfigurator {
       }
     } else {
       logger.error(
-        'List configuration is not yet designed to handle dynamic columns',
+        'List configuration is not yet designed to handle dynamic columns'
       );
     }
   }
@@ -236,7 +236,7 @@ export class ReportConfigurator {
   public rendered() {
     this.fc.formRendered();
     this.fieldSeqController = this.fc.getController(
-      FIELD_SEQUENCES,
+      FIELD_SEQUENCES
     ) as TableEditorController;
     /** set data to the fields selection table */
     this.fieldSeqController.setData(this.toFieldRow(this.allFieldNames));

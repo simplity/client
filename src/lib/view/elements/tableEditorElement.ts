@@ -5,7 +5,7 @@ import {
   TableEditorController,
   FormController,
   PageController,
-} from '@/types';
+} from 'src/lib/types';
 import { BaseElement } from './baseElement';
 import { htmlUtil } from './htmlUtils';
 import { elementFactory } from './elementFactory';
@@ -26,7 +26,7 @@ export class TableEditorElement extends BaseElement implements TableEditorView {
     public readonly pc: PageController,
     public readonly fc: FormController,
     public readonly table: TableEditor,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, table, 'table-editable', maxWidth);
 
@@ -75,7 +75,10 @@ export class TableEditorElement extends BaseElement implements TableEditorView {
 
     this.tec = this.fc.newTableEditorController(this);
 
-    this.tableEle;
+    //TODO: dummy use of tableEle.style to avoid compiler warning
+    if (this.tableEle.style) {
+      //htmlUtil.applyStyles(this.tableEle, this.tableEle.style);
+    }
   }
 
   /**

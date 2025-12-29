@@ -1,4 +1,4 @@
-import { MenuItem } from '@/types';
+import { MenuItem } from 'src/lib/types';
 import { htmlUtil } from './htmlUtils';
 
 export class MenuItemElement {

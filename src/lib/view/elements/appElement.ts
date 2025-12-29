@@ -6,7 +6,7 @@ import {
   StringMap,
   Values,
   Vo,
-} from '@/types';
+} from 'src/lib/types';
 
 import { PageElement } from './pageElement';
 import { ChildElementId, htmlUtil } from './htmlUtils';

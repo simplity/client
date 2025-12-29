@@ -1,4 +1,4 @@
-import { SimpleRecord } from '@/types';
+import { SimpleRecord } from 'src/lib/types';
 
 export const _reportSettingsHeader: SimpleRecord = {
   name: '_reportSettingsHeader',

@@ -1,4 +1,4 @@
-import { DataField, DetailedMessage, FieldView, SimpleList, Value, FormController, Values, PageController } from '@/types';
+import { DataField, DetailedMessage, FieldView, SimpleList, Value, FormController, Values, PageController } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 /**
  * Field is an element that has to render the value that it is given at run time.

@@ -23,7 +23,7 @@ import {
   ViewPage,
   TableEditor,
   ColumnDetails,
-} from '@/types';
+} from 'src/lib/types';
 /**
  * Processes the templates to generate pages.
  * @param templates The templates to process.

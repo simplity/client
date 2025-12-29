@@ -1,4 +1,9 @@
-import { Button, FormController, PageController, StaticComp } from '@/types';
+import {
+  Button,
+  FormController,
+  PageController,
+  StaticComp,
+} from 'src/lib/types';
 import { BaseElement } from './baseElement';
 import { HtmlTemplateName } from './htmlUtils';
 
@@ -8,7 +13,7 @@ const getTemplateName = (comp: StaticComp | Button): HtmlTemplateName | '' => {
   }
   const st = comp as StaticComp;
   console.info(
-    `going to create leaf element ${st.name} with type='${st.variant}' and templateName='${st.templateName}'`,
+    `going to create leaf element ${st.name} with type='${st.variant}' and templateName='${st.templateName}'`
   );
   return st.variant || '';
 };
@@ -23,7 +28,7 @@ export class LeafElement extends BaseElement {
     public readonly pc: PageController,
     fc: FormController | undefined,
     public comp: StaticComp | Button,
-    maxWidth: number,
+    maxWidth: number
   ) {
     super(pc, fc, comp, getTemplateName(comp), maxWidth);
     /**

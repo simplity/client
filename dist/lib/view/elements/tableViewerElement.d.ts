@@ -1,4 +1,4 @@
-import { TableViewer, TableViewerController, Values, TableViewerView, FormController, PageController } from '@/types';
+import { TableViewer, TableViewerController, Values, TableViewerView, FormController, PageController } from 'src/lib/types';
 import { BaseElement } from './baseElement';
 export declare class TableViewerElement extends BaseElement implements TableViewerView {
     readonly fc: FormController;
