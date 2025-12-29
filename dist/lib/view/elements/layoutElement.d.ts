@@ -12,7 +12,8 @@ export declare class LayoutElement {
      * html elements for any context-value being rendered in the layout
      */
     private readonly contextEles;
-    private currentModule?;
+    private currentModule;
+    private currentModuleEle?;
     /**
      * module names mapped to their indexes in the modules[] array
      */

@@ -9,9 +9,9 @@ import * as path from 'path';
  * - only one level of subfolders is supported.
  * @param htmlDir example: './src/html/'. In this case, index.ts will be created under ./src/html/index.ts.
  */
-export function processHtmls(htmlDir) {
+export function processHtmls(htmlDir, collectionName) {
     const htmlFiles = scanHtmlFiles(htmlDir);
-    writeIndexFile(htmlFiles, htmlDir);
+    writeIndexFile(htmlFiles, htmlDir, collectionName);
 }
 /**
  * Scan the html directory and collect all HTML files
@@ -48,9 +48,9 @@ function scanHtmlFiles(htmlDir) {
     }
     return htmlFiles;
 }
-function writeIndexFile(htmlFiles, htmlDir) {
+function writeIndexFile(htmlFiles, htmlDir, collectionName) {
     const t = [];
-    t.push('// Auto-generated HTML collection. Do not edit manually.\nexport const predefinedHtmls = {\n');
+    t.push(`// Auto-generated HTML collection. Do not edit manually.\nexport const ${collectionName} = {\n`);
     for (const htmlFile of htmlFiles) {
         const escapedContent = escapeForTypeScript(htmlFile.content);
         t.push(`  '${htmlFile.key}': \`${escapedContent}\`,\n`);

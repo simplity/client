@@ -18,9 +18,9 @@ interface HtmlFile {
  * - only one level of subfolders is supported.
  * @param htmlDir example: './src/html/'. In this case, index.ts will be created under ./src/html/index.ts.
  */
-export function processHtmls(htmlDir: string): void {
+export function processHtmls(htmlDir: string, collectionName: string): void {
   const htmlFiles = scanHtmlFiles(htmlDir);
-  writeIndexFile(htmlFiles, htmlDir);
+  writeIndexFile(htmlFiles, htmlDir, collectionName);
 }
 
 /**
@@ -63,10 +63,14 @@ function scanHtmlFiles(htmlDir: string): HtmlFile[] {
   return htmlFiles;
 }
 
-function writeIndexFile(htmlFiles: HtmlFile[], htmlDir: string): void {
+function writeIndexFile(
+  htmlFiles: HtmlFile[],
+  htmlDir: string,
+  collectionName: string
+): void {
   const t: string[] = [];
   t.push(
-    '// Auto-generated HTML collection. Do not edit manually.\nexport const predefinedHtmls = {\n'
+    `// Auto-generated HTML collection. Do not edit manually.\nexport const ${collectionName} = {\n`
   );
 
   for (const htmlFile of htmlFiles) {

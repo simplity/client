@@ -975,7 +975,7 @@ export const predefinedHtmls = {
 </div>
 `,
   '_tabs': ``,
-  '_team-icom': `<svg
+  '_team-icon': `<svg
   xmlns="http://www.w3.org/2000/svg"
   class="h-6 w-6 shrink-0 text-indigo-200 group-hover:text-white"
   fill="none"

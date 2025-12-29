@@ -1,5 +1,5 @@
 import { FunctionType, StringMap, ValueFormatter } from '../common';
-import { Layout, MenuItem, Module, Page, Service, Sql, PageTemplate, ValueSchema, PageAlteration, ListSource, Record, ValueList, Form } from '.';
+import { Layout, Module, Page, Service, Sql, PageTemplate, ValueSchema, PageAlteration, ListSource, Record, ValueList, Form } from '.';
 /**
  * All the metadata that captures the core design that are directly used at run time.
  * This is the output of the design layer, and input to the runtime layer
@@ -42,10 +42,6 @@ export type AppDesign = {
      * how to get list of valid values for a field
      */
     listSources: StringMap<ListSource>;
-    /**
-     * how the visual components are laid out on the canvas
-     */
-    menuItems?: StringMap<MenuItem>;
     /**
      * run-time messages
      */

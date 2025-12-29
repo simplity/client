@@ -46,7 +46,7 @@ export declare const predefinedHtmls: {
     _tab: string;
     _table: string;
     _tabs: string;
-    '_team-icom': string;
+    '_team-icon': string;
     '_text-area': string;
     '_text-field': string;
     '_user-icon': string;

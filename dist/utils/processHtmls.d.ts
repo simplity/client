@@ -7,4 +7,4 @@
  * - only one level of subfolders is supported.
  * @param htmlDir example: './src/html/'. In this case, index.ts will be created under ./src/html/index.ts.
  */
-export declare function processHtmls(htmlDir: string): void;
+export declare function processHtmls(htmlDir: string, collectionName: string): void;

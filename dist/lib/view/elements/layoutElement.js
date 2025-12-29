@@ -20,6 +20,7 @@ export class LayoutElement {
      */
     contextEles = {};
     currentModule;
+    currentModuleEle;
     //private lc: LayoutController;
     /**
      * module names mapped to their indexes in the modules[] array
@@ -97,15 +98,16 @@ export class LayoutElement {
         }
     }
     renderModule(options) {
-        const mn = options.module || this.layout.modules[0];
+        const mn = options.module || this.currentModule || this.layout.modules[0];
         const module = this.getInitialModule(mn);
         const moduleEle = this.moduleElements[module.name];
         //set current module
         htmlUtil.setViewState(moduleEle.root, 'current', true);
-        if (this.currentModule && this.currentModule !== moduleEle) {
-            htmlUtil.setViewState(this.currentModule.root, 'current', false);
+        if (this.currentModuleEle && this.currentModuleEle !== moduleEle) {
+            htmlUtil.setViewState(this.currentModuleEle.root, 'current', false);
         }
-        this.currentModule = moduleEle;
+        this.currentModuleEle = moduleEle;
+        this.currentModule = mn;
         const menu = this.getInitialMenu(module, options.menuItem);
         if (!menu.pageName) {
             throw new Error(this.reportError(`Menu ${menu.name} has no associated page. Initial page can not be rendered`));
