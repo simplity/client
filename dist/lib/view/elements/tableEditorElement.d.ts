@@ -1,4 +1,4 @@
-import { TableEditor, TableEditorView, Values, FormController, PageController } from 'src/lib/types';
+import { TableEditor, TableEditorView, Values, FormController, PageController } from '@simplity';
 import { BaseElement } from './baseElement';
 export declare class TableEditorElement extends BaseElement implements TableEditorView {
     readonly pc: PageController;

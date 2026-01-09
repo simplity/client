@@ -49,6 +49,15 @@ export class PC {
     functions = {};
     actions = {};
     lists = {};
+    popupIsActive = false;
+    /**
+     * if a popup is shown with managed-close, this has the action to be triggered on close
+     */
+    onPopdown = undefined;
+    /**
+     * parameters to be used when popdown action is triggered
+     */
+    popdownParams = undefined;
     constructor(ac, pageView) {
         this.ac = ac;
         this.pageView = pageView;
@@ -426,81 +435,167 @@ export class PC {
     }
     /**
      * IMP: code within this class must call this, and not the public method
-     * actions can be chained with onSuccess and inFailure.
+     * actions can be chained with onSuccess and onFailure etc..
      * This may lead to infinite loops.
      * This is designed to detect any such loop and throw error, rather than getting a activeActions-over-flow
      */
-    doAct(actionName, p, action) {
+    doAct(actionName, p, action // provided only by run-time actions
+    ) {
         if (!action) {
             action = this.getAction(actionName, p.fc);
         }
         let errorFound = false;
-        const controller = p.fc || this.fc;
+        const fcToUse = p.fc || this.fc;
         if (!action) {
             addMessage(`${actionName} is not defined as an action on this page but is requested by a component.`, p.msgs);
             errorFound = true;
         }
         else if (p.activeActions[actionName]) {
-            addMessage(`Action ${actionName} has onSuccess and/or onFailure that is resulting in a circular relationship.
-            This may result in an infinite loop,and hence is not allowed`, p.msgs);
+            addMessage(`Action ${actionName} started to chain of action links that is leading to a circular relationship.
+            This may result in an infinite loop, and hence is not allowed`, p.msgs);
             errorFound = true;
         }
         if (errorFound || !action) {
-            this.actionReturned(undefined, false, p);
+            this.actionReturned(undefined, p);
             return;
         }
         p.activeActions[actionName] = true;
-        const actionType = action.type;
         if (action.toDisableUx) {
             this.ac.disableUx();
         }
-        let fc;
+        const actionType = action.type;
+        let nextAction;
         switch (actionType) {
+            case 'message':
+                this.showMessages(action.messages);
+                nextAction = action.nextAction;
+                break;
             case 'close':
                 //todo: any checks and balances?'
                 this.ac.closePage();
-                break;
+                return;
             case 'reset':
-                fc = this.fc;
-                if (action.panelToReset) {
-                    fc = this.fc.getController(action.panelToReset);
-                    if (!fc) {
-                        logger.error(`No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`);
-                        break;
-                    }
-                }
-                fc.resetData(action.fieldsToReset);
+                nextAction = this.doReset(action);
                 break;
             case 'display':
-                for (const [compName, settings] of Object.entries(action.displaySettings)) {
-                    this.setDisplayState(compName, settings);
-                }
+                nextAction = this.doDisplay(action);
+                break;
+            case 'valueSetter':
+                nextAction = this.doSetters(action, p);
+                break;
+            case 'popup':
+                nextAction = this.doPopup(action, p);
+                break;
+            case 'popdown':
+                nextAction = this.doPopdown(action);
                 break;
             case 'function':
-                errorFound = this.doFn(action, p, controller);
+                // no nextAction. it is determined by errorFound
+                nextAction = this.doFn(action, p, fcToUse);
                 break;
             case 'form':
                 //request the form action as an async, chain the call back, and return.
-                this.doFormAction(action, p, (ok) => {
-                    this.actionReturned(action, ok, p);
-                });
-                return;
+                nextAction = this.doFormAction(action, p);
+                break;
             case 'navigation':
-                errorFound = this.navigate(action, p) === false;
+                this.navigate(action, p);
+                //can not ask for another action after navigation
                 break;
             case 'service':
-                errorFound = this.tryToServe(action, p, controller);
-                if (errorFound) {
-                    break;
-                }
-                return;
+                /**
+                 * async action. we return immediately after requesting the service.
+                 */
+                nextAction = this.tryToServe(action, p, fcToUse);
+                break;
             default:
                 addMessage(`${actionType} is an invalid action-type specified in action ${actionName}`, p.msgs);
-                action = undefined; //so that we stop this chain..
                 errorFound = true;
                 break;
         }
-        this.actionReturned(action, !errorFound, p);
+        this.actionReturned(action, p, nextAction);
+    }
+    doReset(action) {
+        let fc = this.fc;
+        if (action.panelToReset) {
+            const controller = this.fc.getController(action.panelToReset);
+            if (!controller) {
+                throw this.ac.newError(`No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`);
+            }
+            fc = controller;
+        }
+        fc.resetData(action.fieldsToReset);
+        return action.nextAction;
+    }
+    doDisplay(action) {
+        for (const [compName, settings] of Object.entries(action.displaySettings)) {
+            this.setDisplayState(compName, settings);
+        }
+        return action.nextAction;
+    }
+    doSetters(action, p) {
+        for (const setter of action.setters) {
+            const value = this.getValueOf(setter.value, p.fc || this.fc);
+            if (value !== undefined) {
+                this.setValueTo(setter.field, value, p.fc || this.fc);
+            }
+            else {
+                logger.error(`ValueSetter action with setter = ${JSON.stringify(setter)} could not determine a value to set`);
+            }
+        }
+        return action.nextAction;
+    }
+    doPopup(action, p) {
+        if (this.popupIsActive) {
+            throw this.ac.newError(`A popup is already active. Close the current popup before showing another one.`);
+        }
+        const name = action.panelName;
+        const view = this.fc.getChild(name);
+        if (!view) {
+            throw this.ac.newError(`No panel named ${name} found to show as popup`);
+        }
+        this.ac.showAsPopup(view, action.closeMode);
+        this.popupIsActive = true;
+        if (action.closeMode === 'managed') {
+            this.onPopdown = action.onClose;
+            this.popdownParams = p;
+        }
+        else {
+            this.onPopdown = undefined;
+            this.popdownParams = undefined;
+        }
+        return action.nextAction;
+    }
+    //this is called if the call to popup is with manual-close
+    doPopdown(action) {
+        if (!this.popupIsActive) {
+            throw this.ac.newError(`no popup is active to be closed.`);
+        }
+        if (this.popdownParams) {
+            throw this.ac.newError(`Popup is active with managed-close. But a manual close was attempted.`);
+        }
+        this.ac.closePopup();
+        this.popupIsActive = false;
+        return action.nextAction;
+    }
+    /**
+     * to be called when the user closes a popup with managed-close
+     */
+    popupClosed() {
+        if (!this.popupIsActive) {
+            throw this.ac.newError(`no popup is active to be closed, but popupClosed called.`);
+        }
+        if (!this.popdownParams) {
+            throw this.ac.newError(`Popup is active with manual-close. But a managed-close was attempted.`);
+        }
+        //note that the view has already closed the popup and called us.
+        this.popupIsActive = false;
+        if (this.onPopdown) {
+            const actionName = this.onPopdown;
+            const p = this.popdownParams;
+            this.onPopdown = undefined;
+            this.popdownParams = undefined;
+            this.doAct(actionName, p);
+        }
     }
     doFn(action, p, controller) {
         const functionName = action.functionName;
@@ -510,7 +605,7 @@ export class PC {
         const fn = this.functions[functionName];
         if (fn) {
             fn();
-            return false;
+            return action.onSuccess;
         }
         let params;
         if (action.additionalParams) {
@@ -525,54 +620,74 @@ export class PC {
             params = p.additionalParams;
         }
         const status = this.callFunction(functionName, params, p.msgs, controller);
-        return !status.allOk;
+        return status.allOk ? action.onSuccess : action.onFailure;
     }
     tryToServe(action, p, controller) {
         let values;
-        let errorFound = false;
-        if (action.submitAll || action.panelToSubmit) {
-            let controllerToUse;
-            if (action.submitAll) {
-                controllerToUse = this.fc;
+        const payload = action.dataToSend;
+        if (payload) {
+            const source = payload.source;
+            if (source === 'all' || source === 'panel') {
+                let controllerToUse;
+                if (source === 'all') {
+                    controllerToUse = this.fc;
+                }
+                else {
+                    controllerToUse = this.getControllerByType(payload.panelName, 'form');
+                    if (!controllerToUse) {
+                        throw new Error(`Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${payload.panelName}' but that form is not used on this page `);
+                    }
+                }
+                //let us validate the form again
+                if (controllerToUse.validate()) {
+                    values = controllerToUse.getData();
+                }
+                else {
+                    addMessage('Please fix the errors on this page', p.msgs);
+                    return;
+                }
+            }
+            else if (source === 'fields') {
+                const n = p.msgs.length;
+                values = controller.extractData(payload.fields, p.msgs);
+                if (n !== p.msgs.length) {
+                    return;
+                }
+            }
+            else if (source === 'table') {
+                const tc = this.getControllerByType(payload.tablePanel, 'table');
+                if (!tc) {
+                    throw this.ac.newError(`Design Error. Action '${action.name}' on page '${this.name}' specifies tablePanel='${payload.tablePanel}' but that table is not used on this page `);
+                }
+                if (payload.sendARow) {
+                    values = tc.getRowData(payload.rowIdx, payload.columns);
+                }
+                else {
+                    values = { list: tc.getData() };
+                }
             }
             else {
-                controllerToUse = this.fc.getController(action.panelToSubmit);
+                throw this.ac.newError(`Design Error. Action '${action.name}' on page '${this.name}' specifies an invalid source='${source}' `);
             }
-            if (!controllerToUse) {
-                throw new Error(`Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${action.panelToSubmit}' but that form is not used on this page `);
-            }
-            //let us validate the form again
-            if (controllerToUse.validate()) {
-                values = controllerToUse.getData();
-            }
-            else {
-                addMessage('Please fix the errors on this page', p.msgs);
-                errorFound = true;
-            }
-        }
-        else if (action.fieldsToSubmit) {
-            const n = p.msgs.length;
-            values = controller.extractData(action.fieldsToSubmit, p.msgs);
-            errorFound = n !== p.msgs.length;
         }
         /**
          * do we have an intercept?
          */
-        if (!errorFound && action.fnBeforeRequest) {
+        if (action.fnBeforeRequest) {
             const fnd = this.ac.getFn(action.fnBeforeRequest, 'request');
             const fn = fnd.fn;
             const ok = fn(controller, values, p.msgs);
-            errorFound = !ok;
+            if (!ok) {
+                return;
+            }
         }
-        if (!errorFound) {
-            /**
-             * ok. ask for the service.
-             */
-            this.serve(action.serviceName, controller, values, action.targetPanelName, action.fnAfterResponse).then((ok) => {
-                this.actionReturned(action, ok, p);
-            });
-        }
-        return errorFound;
+        /**
+         * ok. ask for the service.
+         */
+        this.serve(action.serviceName, controller, values, action.targetPanelName, action.fnAfterResponse).then((ok) => {
+            this.actionReturned(action, p, ok ? action.onSuccess : action.onFailure);
+        });
+        return action.nextAction;
     }
     /**
      *
@@ -593,7 +708,47 @@ export class PC {
         return this.actions['' + an];
     }
     setDisplayState(compName, settings) {
-        this.fc.setDisplayState(compName, settings);
+        const done = this.fc.setDisplayState(compName, settings);
+        if (done) {
+            return;
+        }
+        //could be for a row or a column.
+        const tablePart = this.getTableParts(compName);
+        if (tablePart === undefined) {
+            return;
+        }
+        const tc = this.getControllerByType(tablePart.name, 'table');
+        if (tc) {
+            tc.setRowOrCellState(settings, tablePart.rowIdx, tablePart.columnName);
+        }
+    }
+    getTableParts(name) {
+        const names = name.split('.');
+        if (names.length === 1) {
+            return undefined;
+        }
+        const msg = `'${name}' is not a valid target for a row or a cell in a table. Expected 'name.number' or 'name.?' with optional '.columnName'`;
+        if (names.length > 3) {
+            logger.error(msg);
+            return undefined;
+        }
+        const parts = { name: names[0].trim() };
+        const idx = names[1].trim();
+        if (idx === '?') {
+            //means current-idx. rowIdx need not be added
+        }
+        else {
+            const n = Number.parseInt(idx, 10);
+            if (!Number.isInteger(n)) {
+                logger.error(msg);
+                return undefined;
+            }
+            parts.rowIdx = n;
+        }
+        if (names.length === 3) {
+            parts.columnName = names[2].trim();
+        }
+        return parts;
     }
     /**
      * an async action has returned. We have to continue the possible action-chain
@@ -601,36 +756,14 @@ export class PC {
      * @param ok //if the action succeeded
      * @param activeActions
      */
-    actionReturned(action, ok, p) {
+    actionReturned(action, p, nextAction) {
         this.showMessages(p.msgs);
-        if (!action) {
-            return;
-        }
-        if (action.toDisableUx) {
+        if (action?.toDisableUx) {
             this.ac.enableUx();
         }
-        //call back action??
-        if (ok) {
-            if (action.successMessageId) {
-                this.showMessages([this.toMessage(action.successMessageId, 'success')]);
-            }
-            if (action.onSuccess) {
-                //this chain continues..
-                this.doAct(action.onSuccess, p);
-            }
+        if (nextAction) {
+            this.doAct(nextAction, p, undefined);
         }
-        else {
-            if (action.failureMessageId) {
-                this.showMessages([this.toMessage(action.failureMessageId, 'error')]);
-            }
-            if (action.onFailure) {
-                //this chain continues..
-                this.doAct(action.onFailure, p);
-            }
-        }
-    }
-    toMessage(id, type) {
-        return { id, type, text: this.ac.getMessage(id) };
     }
     navigate(action, p) {
         //NavigationOptions is a subset of NavigationAction
@@ -693,22 +826,26 @@ export class PC {
         }, 0);
         return true;
     }
-    doFormAction(action, actionParams, callback) {
-        const fc = actionParams.fc || this.fc;
-        const messages = [];
+    /**
+     *
+     * @param action
+     * @param p
+     * @param callback
+     * @returns nextAction to be taken without waiting for thr form-service to return
+     * undefined in case of any error in submitting the form..
+     */
+    doFormAction(action, p) {
+        const fc = p.fc || this.fc;
         let operation = action.formOperation;
         if (operation === 'save') {
             if (!this.forSave) {
-                addMessage('This page is not designed for a save operation', messages);
+                throw this.ac.newError('This page is not designed for a save operation');
             }
-            else {
-                operation = this.saveIsUpdate ? 'update' : 'create';
-            }
+            operation = this.saveIsUpdate ? 'update' : 'create';
         }
-        const serviceName = this.getServiceName(action.formName || fc.getFormName(), action.formOperation, messages);
-        if (messages.length) {
-            this.showMessages(messages);
-            callback(false);
+        const nbrMessages = p.msgs.length;
+        const serviceName = this.getServiceName(action.formName || fc.getFormName(), action.formOperation, p.msgs);
+        if (nbrMessages < p.msgs.length) {
             return;
         }
         let data;
@@ -716,11 +853,11 @@ export class PC {
         let fa;
         switch (action.formOperation) {
             case 'get':
-                data = fc.extractKeys(messages);
+                data = fc.extractKeys(p.msgs);
                 break;
             case 'filter':
                 fa = action;
-                data = this.getFilterData(fc, fa, messages);
+                data = this.getFilterData(fc, fa, p.msgs);
                 targetChild = fa.targetTableName;
                 break;
             case 'create':
@@ -728,26 +865,24 @@ export class PC {
             case 'delete':
             case 'save':
                 if (!this.isValid()) {
-                    addMessage('Page has fields with errors.', messages);
+                    addMessage('Page has fields with errors.', p.msgs);
                     break;
                 }
                 data = fc.getData();
                 break;
             default:
-                addMessage(`Form operation ${action.formOperation} is not valid`, actionParams.msgs);
-                callback(false);
-                return;
+                addMessage(`Form operation ${action.formOperation} is not valid`, p.msgs);
+                break;
         }
-        if (messages.length) {
-            this.showMessages(messages);
-            callback(false);
+        if (nbrMessages < p.msgs.length) {
             return;
         }
+        //all ok to call the service. this function returns immediately after requesting the service.
         this.serve(serviceName, fc, data, targetChild, undefined).then((ok) => {
-            if (callback) {
-                callback(ok);
-            }
+            this.actionReturned(action, p, ok ? action.onSuccess : action.onFailure);
         });
+        //nextAction is to be taken without waiting for the form-service to return
+        return action.nextAction;
     }
     getFilterData(fc, action, messages) {
         const vo = {};
@@ -772,6 +907,66 @@ export class PC {
             vo.filters = filters;
         }
         return vo;
+    }
+    getValueOf(source, fc) {
+        if (typeof source !== 'object') {
+            //we do not check for null and functions. It is a constant value
+            return source;
+        }
+        //is it a form-field?
+        if (source.fieldName) {
+            const f = source;
+            const controller = source.formName
+                ? this.getControllerByType(source.formName, 'form')
+                : fc;
+            if (controller) {
+                return controller.getFieldValue(f.fieldName);
+            }
+            return undefined;
+        }
+        //it is a column in a table
+        const t = source;
+        const tc = this.getControllerByType(t.tableName, 'table');
+        if (tc) {
+            return tc.getRowData(t.rowIdx)?.[t.columnName];
+        }
+        return undefined;
+    }
+    setValueTo(field, value, fc) {
+        if (typeof field === 'string') {
+            fc.setFieldValue(field, value);
+            return;
+        }
+        if (field.fieldName) {
+            const f = field.formName
+                ? this.getControllerByType(field.formName, 'form')
+                : fc;
+            if (f) {
+                f.setFieldValue(field.fieldName, value);
+            }
+            return;
+        }
+        const t = field;
+        const tc = this.getControllerByType(t.tableName, 'table');
+        if (tc) {
+            const row = tc.getRowData(t.rowIdx);
+            if (row) {
+                row[t.columnName] = value;
+            }
+        }
+    }
+    getControllerByType(name, type //TODO: use enum
+    ) {
+        const controller = this.fc.getController(name);
+        if (!controller) {
+            logger.error(`No controller named ${name} is available on this page.`);
+            return undefined;
+        }
+        if (controller.type !== type) {
+            logger.error(`child controller '${name}' is expected to be a '${type}' but it is ${controller.type}`);
+            return undefined;
+        }
+        return controller;
     }
 }
 /**

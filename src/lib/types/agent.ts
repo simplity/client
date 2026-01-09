@@ -1,4 +1,10 @@
-import { FilterCondition, SortBy, StringMap, Vo } from './common';
+import {
+  DetailedMessage,
+  FilterCondition,
+  SortBy,
+  StringMap,
+  Vo,
+} from './common';
 
 /**
  * Component that serves all services to the client-app.
@@ -20,7 +26,7 @@ export interface ServiceAgent {
   serve(
     serviceName: string,
     sessionId?: string,
-    data?: Vo,
+    data?: Vo
   ): Promise<ServerResponse>;
 }
 
@@ -179,40 +185,3 @@ export type ServiceStatus =
    * There was an internal error on the server. It is being looked into.
    */
   | 'serverError';
-
-/**
- * Structure of a Message received as part of a response
- */
-export type DetailedMessage = {
-  /**
-   * one of the pre-defined type
-   */
-  type: 'error' | 'warning' | 'info' | 'success';
-  /**
-   * unique name assigned to this message in the app.
-   */
-  id: string;
-  /**
-   * Required if id is not specified. If text is specified, then the id is ignored.
-   * formatted text in English that is ready to be rendered
-   */
-  text: string;
-  /**
-   * name of the field (primary one in case more than one field are involved) that caused
-   * this error. undefined if this is not specific to any field.
-   */
-  fieldName?: string;
-  /**
-   * name of the table/object that the field is part of. undefined if this not relevant
-   */
-  objectName?: string;
-  /**
-   * 0-based row number in case the field in error is part of a table.
-   */
-  idx?: number;
-
-  /**
-   * run-time parameters that are used to compose this message. This is useful in i18n
-   */
-  params?: string[];
-};

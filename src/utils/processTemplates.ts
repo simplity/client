@@ -23,7 +23,7 @@ import {
   ViewPage,
   TableEditor,
   ColumnDetails,
-} from 'src/lib/types';
+} from '@simplity';
 /**
  * Processes the templates to generate pages.
  * @param templates The templates to process.
@@ -218,7 +218,7 @@ class Gen {
         name: 'close',
         type: 'navigation',
         menuItem: this.template.menuToGoBack,
-      },
+      } as NavigationAction,
     };
 
     this.buttons.push({
@@ -309,7 +309,7 @@ class Gen {
       type: 'navigation',
       menuItem: btn.menuItem,
       pageParameters: params,
-    };
+    } as NavigationAction;
     this.actions[actionName] = a;
   }
 
@@ -449,12 +449,12 @@ class Gen {
         type: 'navigation',
         menuItem: this.template.menuToGoBack,
         warnIfModified: true,
-      },
+      } as NavigationAction,
       close: {
         name: 'close',
         type: 'navigation',
         menuItem: this.template.menuToGoBack,
-      },
+      } as NavigationAction,
     };
 
     this.buttons = [
@@ -633,7 +633,7 @@ class Gen {
     this.actions.cancel = {
       name: 'cancel',
       type: 'navigation',
-    };
+    } as NavigationAction;
     /**
      * buttons
      */
@@ -692,7 +692,7 @@ class Gen {
       name,
       menuItem: name,
       pageParameters: params,
-    };
+    } as NavigationAction;
   }
 }
 

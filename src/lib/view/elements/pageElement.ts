@@ -7,11 +7,11 @@ import {
   PageController,
   PageView,
   Values,
-} from 'src/lib/types';
+} from '@simplity';
 import { htmlUtil } from './htmlUtils';
 import { PanelElement } from './panelElement';
 import { elementFactory } from './elementFactory';
-import { logger } from 'src/lib/logger';
+import { logger } from '../../logger';
 const NBR_COLS_IN_GRID = 12;
 
 export class PageElement implements PageView {
@@ -105,6 +105,7 @@ export class PageElement implements PageView {
     );
   }
   dispose(): void {
+    console.info('Disposing PageElement for page ' + this.page.name);
     this.root.remove();
   }
 }

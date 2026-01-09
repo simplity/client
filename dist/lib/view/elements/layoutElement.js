@@ -122,6 +122,17 @@ export class LayoutElement {
             htmlUtil.setViewState(this.menuBarEle, 'hidden', !toShow);
         }
     }
+    showModule(module) {
+        if (module === this.currentModule) {
+            return;
+        }
+        if (this.currentModuleEle) {
+            htmlUtil.setViewState(this.currentModuleEle.root, 'current', false);
+        }
+        this.currentModuleEle = this.moduleElements[module];
+        htmlUtil.setViewState(this.currentModuleEle.root, 'current', true);
+        this.currentModule = module;
+    }
     /**
      * to be called if the page was opened after retaining the earlier page
      */

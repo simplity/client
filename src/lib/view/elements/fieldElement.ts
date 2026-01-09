@@ -6,11 +6,12 @@ import {
   Value,
   FormController,
   Values,
+  ViewState,
   PageController,
-} from 'src/lib/types';
+} from '@simplity';
 import { logger } from '../../logger';
 import { conventions } from '../../conventions';
-import { HtmlTemplateName, htmlUtil, ViewState } from './htmlUtils';
+import { HtmlTemplateName, htmlUtil } from './htmlUtils';
 import { BaseElement } from './baseElement';
 
 function getTemplateName(field: DataField): HtmlTemplateName | '' {
@@ -548,8 +549,8 @@ export class FieldElement extends BaseElement implements FieldView {
    */
   setDisplayState(settings: Values): void {
     if (this.fieldEle) {
-      let setting: ViewState = 'disabled';
-      let val = settings[setting];
+      const setting: ViewState = 'disabled';
+      const val = settings[setting];
       if (val !== undefined) {
         htmlUtil.setViewState(this.fieldEle, setting, !!val);
       }

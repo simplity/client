@@ -23,12 +23,13 @@ export class ButtonPanelElement extends BaseElement {
             ['middle', panel.middleButtons],
             ['right', panel.rightButtons],
         ]) {
-            if (buttons) {
-                const parent = htmlUtil.getChildElement(this.root, place);
-                for (const button of buttons) {
-                    const ele = elementFactory.newElement(pc, fc, button, 0);
-                    parent.appendChild(ele.root);
-                }
+            if (!buttons) {
+                continue;
+            }
+            const parent = htmlUtil.getChildElement(this.root, place);
+            for (const button of buttons) {
+                const ele = elementFactory.newElement(pc, fc, button, 0);
+                parent.appendChild(ele.root);
             }
         }
     }

@@ -1,4 +1,4 @@
-import { MenuItem } from 'src/lib/types';
+import { MenuItem } from '@simplity';
 export declare class MenuItemElement {
     readonly menuItem: MenuItem;
     readonly root: HTMLElement;

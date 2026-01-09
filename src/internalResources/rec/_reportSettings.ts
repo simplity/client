@@ -1,4 +1,4 @@
-import { SimpleRecord } from 'src/lib/types';
+import { SimpleRecord } from '@simplity';
 
 export const _reportSettings: SimpleRecord = {
   name: '_reportSettings',

@@ -1,4 +1,5 @@
 export declare const predefinedHtmls: {
+    '_button-link': string;
     '_button-navigation': string;
     '_button-panel': string;
     '_button-primary': string;
@@ -9,7 +10,6 @@ export declare const predefinedHtmls: {
     _chart: string;
     _charts: string;
     '_check-box': string;
-    _content: string;
     '_date-field': string;
     _dialog: string;
     '_disable-ux': string;
@@ -25,13 +25,14 @@ export declare const predefinedHtmls: {
     _logo: string;
     '_menu-item': string;
     _message: string;
+    '_modal-page': string;
+    '_modal-panel': string;
     _module: string;
     _output: string;
     '_page-with-border': string;
     _page: string;
     '_panel-flex': string;
     '_panel-grid': string;
-    '_panel-modal': string;
     '_panel-outline': string;
     _panel: string;
     _password: string;
@@ -42,6 +43,8 @@ export declare const predefinedHtmls: {
     _settings: string;
     _snackbar: string;
     '_sortable-header': string;
+    '_static-box': string;
+    _static: string;
     '_tab-label': string;
     _tab: string;
     _table: string;

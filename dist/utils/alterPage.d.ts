@@ -1,4 +1,4 @@
-import { Page, PageAlteration } from 'src/lib/types';
+import { Page, PageAlteration } from '@simplity';
 /**
  * alter a page as per alteration specifications
  * @param pageToAlter received as any to avoid the compile time error with readonly check

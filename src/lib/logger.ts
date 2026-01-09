@@ -1,4 +1,4 @@
-import { Logger } from 'src/lib/types';
+import { Logger } from '@simplity';
 /**
  * A simple console logger implementation.
  */

@@ -1,4 +1,4 @@
-import { AppController, Module } from 'src/lib/types';
+import { AppController, Module } from '@simplity';
 export declare class ModuleElement {
     private readonly ac;
     private readonly module;

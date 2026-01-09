@@ -87,7 +87,6 @@ export const predefinedHtmlTemplates = [
     'button',
     'button-panel',
     'check-box',
-    'content',
     'chart',
     'date-field',
     'dialog',
@@ -101,6 +100,7 @@ export const predefinedHtmlTemplates = [
     'menu-item',
     'message',
     'modal-panel',
+    'modal-page',
     'nav-bar',
     'output',
     'page',
@@ -114,6 +114,8 @@ export const predefinedHtmlTemplates = [
     'select',
     'snack-bar',
     'sortable-header',
+    'static',
+    'static-block',
     'tab',
     'table-editable',
     'table',
@@ -127,8 +129,10 @@ export const childElementIds = [
     'buttons',
     'chart',
     'close-button',
+    'close-panel',
     'color-theme',
     'container',
+    'content',
     'data',
     'description',
     'field',
@@ -264,24 +268,21 @@ function getChildElement(rootEle, id) {
     console.info(rootEle);
     throw new Error(`HTML Template does not contain a child element with data-id="${id}". This is required as a container to render a child component`);
 }
-function newHtmlElement(name, comp) {
+function newHtmlElement(templateName, comp) {
+    let name = templateName;
     let ele;
     //template name specified in the component overrides the name passed here
     if (comp && comp.templateName) {
-        ele = locateEle(comp.templateName);
+        name = comp.templateName;
     }
-    else {
-        ele = locateEle(name);
-        if (!ele) {
-            //try with simplity-provided prefix
-            ele = locateEle('_' + name);
-        }
+    else if (comp && comp.variant) {
+        name = name + '-' + comp.variant;
     }
+    ele = locateEle(name);
     if (!ele) {
         //template not found. create a dummy one
-        const n = comp && comp.templateName ? comp.templateName : name;
-        ele = createUndefinedEle(n);
-        cachedElements[n] = ele;
+        ele = createUndefinedEle(name);
+        cachedElements[name] = ele;
     }
     return ele.cloneNode(true);
 }
@@ -304,11 +305,13 @@ function locateEle(name) {
         }
         indexedName = internalName;
     }
+    ele = toEle(html);
     cachedElements[indexedName] = ele;
     return ele;
 }
 function createUndefinedEle(name) {
     logger.error(`A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`);
+    console.log('allhtmls=', allHtmls);
     const ele = toEle(`<div><!-- html source ${name} not found --></div>`);
     cachedElements[name] = ele;
     return ele;

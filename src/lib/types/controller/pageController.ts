@@ -1,10 +1,17 @@
 import { FieldView } from '../view';
-import { Vo, AnyValue, Values, StringMap, Value } from '../common';
+import {
+  Vo,
+  AnyValue,
+  Values,
+  StringMap,
+  Value,
+  DetailedMessage,
+} from '../common';
 
 import { AppController, FnStatus, FormController } from './';
 
 import { Action, FormOperation, KeyedList, SimpleList } from '../design';
-import { DetailedMessage, FilterParams } from '../agent';
+import { FilterParams } from '../agent';
 /**
  * options for a service request
  */

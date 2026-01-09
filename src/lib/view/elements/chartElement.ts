@@ -5,7 +5,7 @@ import {
   PageController,
   Values,
   Vo,
-} from 'src/lib/types';
+} from '@simplity';
 import { logger } from '../../logger';
 import { BaseElement } from './baseElement';
 import { Chart, ChartConfiguration } from 'chart.js/auto';

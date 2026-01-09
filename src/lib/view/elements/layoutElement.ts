@@ -5,7 +5,7 @@ import {
   Module,
   NavigationOptions,
   StringMap,
-} from 'src/lib/types';
+} from '@simplity';
 import { logger } from '../../logger';
 import { ChildElementId, htmlUtil } from './htmlUtils';
 import { ModuleElement } from './moduleElement';
@@ -162,6 +162,20 @@ export class LayoutElement {
     if (this.menuBarEle) {
       htmlUtil.setViewState(this.menuBarEle, 'hidden', !toShow);
     }
+  }
+
+  public showModule(module: string): void {
+    if (module === this.currentModule) {
+      return;
+    }
+
+    if (this.currentModuleEle) {
+      htmlUtil.setViewState(this.currentModuleEle.root, 'current', false);
+    }
+
+    this.currentModuleEle = this.moduleElements[module];
+    htmlUtil.setViewState(this.currentModuleEle.root, 'current', true);
+    this.currentModule = module;
   }
 
   /**

@@ -1,9 +1,4 @@
-import {
-  DataField,
-  FormController,
-  PageController,
-  Value,
-} from 'src/lib/types';
+import { DataField, FormController, PageController, Value } from '@simplity';
 import { BaseElement } from './baseElement';
 
 export class HiddenField extends BaseElement {

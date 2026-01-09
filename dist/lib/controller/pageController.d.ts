@@ -1,4 +1,4 @@
-import { FieldView, PageView, Value, Vo, Values, StringMap, PageController, AppController, FormController, DetailedMessage, FnStatus, Action, AnyValue, SimpleList, KeyedList, FormOperation, ServiceRequestOptions } from 'src/lib/types';
+import { FieldView, PageView, Value, Vo, Values, StringMap, PageController, AppController, FormController, DetailedMessage, FnStatus, Action, AnyValue, SimpleList, KeyedList, FormOperation, ServiceRequestOptions } from '@simplity';
 export declare class PC implements PageController {
     readonly ac: AppController;
     readonly name: string;
@@ -44,6 +44,15 @@ export declare class PC implements PageController {
     private readonly functions;
     private readonly actions;
     private readonly lists;
+    private popupIsActive;
+    /**
+     * if a popup is shown with managed-close, this has the action to be triggered on close
+     */
+    private onPopdown;
+    /**
+     * parameters to be used when popdown action is triggered
+     */
+    private popdownParams;
     constructor(ac: AppController, pageView: PageView);
     pageRendered(): void;
     pageLoaded(): void;
@@ -79,11 +88,20 @@ export declare class PC implements PageController {
     private serve;
     /**
      * IMP: code within this class must call this, and not the public method
-     * actions can be chained with onSuccess and inFailure.
+     * actions can be chained with onSuccess and onFailure etc..
      * This may lead to infinite loops.
      * This is designed to detect any such loop and throw error, rather than getting a activeActions-over-flow
      */
     private doAct;
+    private doReset;
+    private doDisplay;
+    private doSetters;
+    private doPopup;
+    private doPopdown;
+    /**
+     * to be called when the user closes a popup with managed-close
+     */
+    popupClosed(): void;
     private doFn;
     private tryToServe;
     /**
@@ -92,6 +110,7 @@ export declare class PC implements PageController {
      */
     private getAction;
     setDisplayState(compName: string, settings: Values): void;
+    private getTableParts;
     /**
      * an async action has returned. We have to continue the possible action-chain
      * @param action
@@ -99,8 +118,18 @@ export declare class PC implements PageController {
      * @param activeActions
      */
     private actionReturned;
-    toMessage(id: string, type: 'error' | 'warning' | 'info' | 'success'): DetailedMessage;
     private navigate;
+    /**
+     *
+     * @param action
+     * @param p
+     * @param callback
+     * @returns nextAction to be taken without waiting for thr form-service to return
+     * undefined in case of any error in submitting the form..
+     */
     private doFormAction;
     private getFilterData;
+    private getValueOf;
+    private setValueTo;
+    private getControllerByType;
 }

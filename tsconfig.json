@@ -3,9 +3,10 @@
   "exclude": ["node_modules", "generatedRecords"],
 
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/lib/*"]
+      "@simplity": ["lib/types"],
+      "@simplity/*": ["lib/types/*"]
     },
     "outDir": "./dist/",
     "module": "esnext",
@@ -49,6 +50,6 @@
     // "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
 
     //"types": ["webpack-env"],
-    //"typeRoots": ["node_modules/@types", "src/types"]
+    //"typeRoots": ["node_modules/@simplity", "src/types"]
   }
 }

@@ -8,7 +8,7 @@ import { RangeElement } from './rangeElement';
 import { TableEditorElement } from './tableEditorElement';
 import { TableViewerElement } from './tableViewerElement';
 import { TabsElement } from './tabsElement';
-import { logger } from 'src/lib/logger';
+import { logger } from '../../logger';
 let customFactory;
 export const elementFactory = {
     /**
@@ -42,12 +42,13 @@ export const elementFactory = {
                 return view;
             }
         }
+        let field;
         switch (comp.compType) {
             case 'button':
             case 'static':
                 return new LeafElement(pc, fc, comp, maxWidth);
             case 'field':
-                const field = comp;
+                field = comp;
                 if (field.renderAs === 'hidden') {
                     return new HiddenField(pc, fc, field, maxWidth, value);
                 }

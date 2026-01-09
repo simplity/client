@@ -1,4 +1,4 @@
-import { FormController, PageController, Panel, PanelView } from 'src/lib/types';
+import { FormController, PageController, Panel, PanelView } from '@simplity';
 import { BaseElement } from './baseElement';
 export declare class PanelElement extends BaseElement implements PanelView {
     readonly panel: Panel;

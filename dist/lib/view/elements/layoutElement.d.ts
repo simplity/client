@@ -1,4 +1,4 @@
-import { AppController, Layout, NavigationOptions, StringMap } from 'src/lib/types';
+import { AppController, Layout, NavigationOptions, StringMap } from '@simplity';
 /**
  * Used exclusively by AppElement to manage non-page related view componnets in a layout
  *
@@ -24,6 +24,7 @@ export declare class LayoutElement {
     private setColorTheme;
     renderModule(options: NavigationOptions): string;
     displayMenuBar(toShow: boolean): void;
+    showModule(module: string): void;
     /**
      * to be called if the page was opened after retaining the earlier page
      */

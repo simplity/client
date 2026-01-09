@@ -6,7 +6,7 @@ import {
   existsSync,
   mkdirSync,
 } from 'fs';
-import { StringMap } from 'src/lib/types';
+import { StringMap } from '@simplity';
 
 type CollectionParams = {
   name: string;
@@ -140,7 +140,7 @@ function writeCollectionFile(
     .join('\n');
 
   const typeSource = compDetails.type.startsWith('App')
-    ? 'src/lib/types'
+    ? '@simplity'
     : 'simplity';
 
   //contents of the file

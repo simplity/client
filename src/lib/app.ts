@@ -12,12 +12,7 @@
  * In future, we can improve this by using a dependency injection framework or a service locator pattern.
  */
 
-import {
-  AppController,
-  AppRuntime,
-  AppView,
-  BootStrapper,
-} from 'src/lib/types';
+import { AppController, AppRuntime, AppView, BootStrapper } from '@simplity';
 import { AppElement } from './view/elements';
 import { AC } from './controller';
 import { serviceAgent } from './agent';

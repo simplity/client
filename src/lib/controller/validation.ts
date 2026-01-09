@@ -8,7 +8,7 @@ import {
   ValueSchema,
   ValueType,
   ValueValidationResult,
-} from 'src/lib/types';
+} from '@simplity';
 export const DEFAULT_MAX_CHARS = 1000;
 export const DEFAULT_DAYS_RANGE = 365000;
 export const DEFAULT_MAX_NUMBER = Number.MAX_SAFE_INTEGER;

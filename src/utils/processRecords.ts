@@ -5,7 +5,7 @@ import {
   Record,
   SimpleRecord,
   StringMap,
-} from 'src/lib/types';
+} from '@simplity';
 
 export type ProcessedRecords = {
   all: StringMap<Record>;

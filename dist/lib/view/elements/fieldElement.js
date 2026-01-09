@@ -456,8 +456,8 @@ export class FieldElement extends BaseElement {
      */
     setDisplayState(settings) {
         if (this.fieldEle) {
-            let setting = 'disabled';
-            let val = settings[setting];
+            const setting = 'disabled';
+            const val = settings[setting];
             if (val !== undefined) {
                 htmlUtil.setViewState(this.fieldEle, setting, !!val);
             }

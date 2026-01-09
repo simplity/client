@@ -509,10 +509,12 @@ export class FC {
     }
     setDisplayState(compName, settings) {
         const f = this.children[compName];
+        //is this a direct child?
         if (f) {
             f.setDisplayState(settings);
             return true;
         }
+        // could be componnet inside a child-controller
         for (const c of Object.values(this.controllers)) {
             if (c.setDisplayState(compName, settings)) {
                 return true;

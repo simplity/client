@@ -5,7 +5,7 @@ import {
   DateSchema,
   FunctionImpl,
   ViewInitFunction,
-} from 'src/lib/types';
+} from '@simplity';
 const OPTIONS: DatepickerOptions = {
   autohide: true,
   format: 'yyyy-mm-dd',

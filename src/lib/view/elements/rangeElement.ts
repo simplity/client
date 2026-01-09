@@ -3,7 +3,7 @@ import {
   FormController,
   PageController,
   RangePanel,
-} from 'src/lib/types';
+} from '@simplity';
 import { BaseElement } from './baseElement';
 import { htmlUtil } from './htmlUtils';
 import { elementFactory } from './elementFactory';

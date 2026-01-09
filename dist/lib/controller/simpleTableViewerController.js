@@ -63,11 +63,32 @@ export class SimpleTableViewerController {
         }
         this.info = new TableInfo(this.table);
     }
-    getRowData(rowIdx) {
+    getRowData(rowIdx, columns) {
         if (rowIdx === undefined) {
             rowIdx = this.currentIdx === -1 ? 0 : this.currentIdx;
         }
-        return this.data[rowIdx];
+        else {
+            rowIdx = this.sanitizeIdx(rowIdx);
+            if (rowIdx === undefined) {
+                logger.error(`Invalid row index ${rowIdx} for table ${this.name}`);
+                return undefined;
+            }
+        }
+        const row = this.data[rowIdx];
+        if (!columns || columns.length === 0) {
+            return row;
+        }
+        const values = {};
+        for (const col of columns) {
+            const value = row[col];
+            if (value === undefined) {
+                logger.warn(`Column ${col} not found in row ${rowIdx} of table ${this.name}`);
+            }
+            else {
+                values[col] = row[col];
+            }
+        }
+        return values;
     }
     getFormName() {
         if (this.form) {
@@ -107,7 +128,7 @@ export class SimpleTableViewerController {
             this.setData(data);
             return;
         }
-        let arr = data[this.name] || data['list'];
+        const arr = data[this.name] || data['list'];
         if (arr && Array.isArray(arr)) {
             this.setData(arr);
             return;
@@ -129,7 +150,7 @@ export class SimpleTableViewerController {
     getData() {
         return this.data;
     }
-    resetData(fields) {
+    resetData(_fields) {
         this.setData([]);
     }
     rowClicked(rowIdx) {
@@ -205,7 +226,21 @@ export class SimpleTableViewerController {
         }
     }
     setDisplayState(_compName, _settings) {
+        //table-viewer has no concept of 'children'. setRowOrCellState() to be used instaed
         return false;
+    }
+    setRowOrCellState(settings, rowIdx, columnName) {
+        const idx = this.sanitizeIdx(rowIdx === undefined ? this.currentIdx : rowIdx);
+        if (idx === undefined) {
+            if (rowIdx === undefined) {
+                logger.error(`No current row is selected for table ${this.name}`);
+            }
+            else {
+                logger.error(`Invalid row index ${rowIdx} for table ${this.name}`);
+            }
+            return false;
+        }
+        return this.view.setRowOrCellState(settings, idx, columnName);
     }
 }
 export class TableInfo {

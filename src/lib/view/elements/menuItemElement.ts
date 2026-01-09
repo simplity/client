@@ -1,4 +1,4 @@
-import { MenuItem } from 'src/lib/types';
+import { MenuItem } from '@simplity';
 import { htmlUtil } from './htmlUtils';
 
 export class MenuItemElement {

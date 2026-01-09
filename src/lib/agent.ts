@@ -6,7 +6,7 @@ import {
   ServiceStatus,
   ServerRequest,
   ServerResponse,
-} from 'src/lib/types';
+} from '@simplity';
 
 export const STATUS_DESCRIPTIONS: {
   [status in ServiceStatus]: string;

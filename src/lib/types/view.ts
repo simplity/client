@@ -32,6 +32,7 @@ import {
   TableEditor,
   TableViewer,
   Tabs,
+  DisplayStates,
 } from './design';
 
 export type View = object;
@@ -101,6 +102,18 @@ export interface AppView {
    * @param values
    */
   renderContextValues(values: StringMap<string>): void;
+
+  /**
+   * show/render a panel as a popup/modal dialog
+   * @param panel
+   * @param closeMode
+   */
+  showAsPopup(panel: BaseView, closeMode?: 'manual' | 'managed'): void;
+
+  /**
+   * hide the currently shown popup panel
+   */
+  closePopup(): void;
 }
 
 /**
@@ -331,6 +344,18 @@ export interface TableViewerView extends BaseView {
    * @param selectedNames if this is a configurable table, then this is required
    */
   renderData(data: Values[], selectedNames?: string[]): void;
+
+  /**
+   * set display state for a specific row or cell
+   * @param settings
+   * @param rowIdx
+   * @param columnName
+   */
+  setRowOrCellState(
+    settings: DisplayStates,
+    rowIdx: number,
+    columnName?: string
+  ): boolean;
 }
 
 /**

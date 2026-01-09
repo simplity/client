@@ -31,7 +31,8 @@ import {
   PageController,
   PageView,
   ServiceAgent,
-} from 'src/lib/types';
+  BaseView,
+} from '@simplity';
 import { utils } from './utils';
 import { parseValue, validateValue } from './validation';
 import { logger } from '../logger';
@@ -194,6 +195,14 @@ export class AC implements AppController {
    */
   navigate(options: NavigationOptions): void {
     this.appView.navigate(options);
+  }
+
+  showAsPopup(panel: BaseView, closeMode?: 'manual' | 'managed'): void {
+    this.appView.showAsPopup(panel, closeMode);
+  }
+
+  closePopup(): void {
+    this.appView.closePopup();
   }
 
   closePage(): void {

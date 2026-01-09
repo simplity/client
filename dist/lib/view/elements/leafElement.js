@@ -1,12 +1,6 @@
 import { BaseElement } from './baseElement';
-const getTemplateName = (comp) => {
-    if (comp.compType == 'button') {
-        return 'button';
-    }
-    const st = comp;
-    console.info(`going to create leaf element ${st.name} with type='${st.variant}' and templateName='${st.templateName}'`);
-    return st.variant || '';
-};
+import { htmlUtil } from './htmlUtils';
+import { logger } from 'lib/logger';
 /**
  * base class for elements and buttons. These are elements with no children.
  * These elements are allowed to be rendered inside a TablePanel, in which case we have to handle them with their rowId.
@@ -16,7 +10,7 @@ export class LeafElement extends BaseElement {
     pc;
     comp;
     constructor(pc, fc, comp, maxWidth) {
-        super(pc, fc, comp, getTemplateName(comp), maxWidth);
+        super(pc, fc, comp, comp.compType, maxWidth);
         this.pc = pc;
         this.comp = comp;
         /**
@@ -25,6 +19,18 @@ export class LeafElement extends BaseElement {
         if (maxWidth === 0 && this.labelEle) {
             this.labelEle.remove();
             this.labelEle = undefined;
+        }
+        //TODO: handle different types of static components
+        const ct = comp.compType;
+        if (ct === 'static') {
+            const content = comp.content || '';
+            const ele = htmlUtil.getChildElement(this.root, 'content');
+            ele.innerHTML = content;
+            return;
+        }
+        if (ct !== 'button') {
+            logger.error(`LeafElement instantiated with unsupported component type '${ct}'`);
+            return;
         }
     }
 }

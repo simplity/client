@@ -14,7 +14,7 @@ import {
   Value,
   ViewComponentFactory,
   BaseComponent,
-} from 'src/lib/types';
+} from '@simplity';
 
 import { BaseElement } from './baseElement';
 import { ButtonPanelElement } from './buttonPanel';
@@ -27,7 +27,7 @@ import { RangeElement } from './rangeElement';
 import { TableEditorElement } from './tableEditorElement';
 import { TableViewerElement } from './tableViewerElement';
 import { TabsElement } from './tabsElement';
-import { logger } from 'src/lib/logger';
+import { logger } from '../../logger';
 
 let customFactory: ViewComponentFactory | undefined;
 export const elementFactory = {
@@ -77,13 +77,14 @@ export const elementFactory = {
       }
     }
 
+    let field: DataField;
     switch (comp.compType) {
       case 'button':
       case 'static':
         return new LeafElement(pc, fc, comp as Button | StaticComp, maxWidth);
 
       case 'field':
-        const field = comp as DataField;
+        field = comp as DataField;
         if (field.renderAs === 'hidden') {
           return new HiddenField(pc, fc, field, maxWidth, value);
         }

@@ -1,4 +1,4 @@
-import { RuntimeList, StringMap, ValueList } from 'src/lib/types';
+import { RuntimeList, StringMap, ValueList } from '@simplity';
 
 export const internalValueLists: StringMap<ValueList> = {
   _reportName: {

@@ -1,4 +1,4 @@
-import { GeneratorInput } from 'src/lib/types';
+import { GeneratorInput } from '@simplity';
 export type DevFolders = {
     json: string;
     ts: string;

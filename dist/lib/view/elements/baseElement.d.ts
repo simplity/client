@@ -1,5 +1,5 @@
 import { HtmlTemplateName } from './htmlUtils';
-import { AppController, BaseComponent, BaseView, FormController, PageController, Values, StringMap } from 'src/lib/types';
+import { AppController, BaseComponent, BaseView, FormController, PageController, StringMap, DisplayStates } from '@simplity';
 /**
  * Base class to be extended by all view components
  * As of now, it is NOT a WebComponent, but a controller that is bound to the root html element.
@@ -56,7 +56,7 @@ export declare class BaseElement implements BaseView {
      * @param msg
      */
     setError(msg: unknown): void;
-    setDisplayState(settings: Values): void;
+    setDisplayState(settings: DisplayStates): void;
     clicked(): void;
     dispose(): void;
 }

@@ -29,6 +29,9 @@ export class ModuleElement {
         const moduleName = this.module.name;
         for (const item of this.module.menuItems) {
             const menu = this.ac.getMenu(moduleName, item.name);
+            if (menu.isHidden) {
+                continue;
+            }
             const menuItemElement = new MenuItemElement(menu);
             this.menuItems[item.name] = menuItemElement;
             menuItemElement.root.addEventListener('click', () => {

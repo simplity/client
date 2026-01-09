@@ -11,7 +11,7 @@ import {
   StringMap,
   ValidFormOperations,
   ValueType,
-} from 'src/lib/types';
+} from '@simplity';
 import { ProcessedRecords } from './processRecords';
 
 export function generateForms(

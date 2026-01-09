@@ -1,4 +1,4 @@
-import { FormController, PageController, RangePanel } from 'src/lib/types';
+import { FormController, PageController, RangePanel } from '@simplity';
 import { BaseElement } from './baseElement';
 import { FieldElement } from './fieldElement';
 export declare class RangeElement extends BaseElement {

@@ -16,6 +16,7 @@ import {
   Value,
   Values,
   FilterCondition,
+  DetailedMessage,
 } from '../common';
 
 import {
@@ -203,7 +204,7 @@ export type BaseComponent = {
   /**
    * initial display state. e.g. {hidden: true}
    */
-  displayStates?: StringMap<Value>;
+  displayStates?: DisplayStates;
 
   /**
    * an app may have app-specific view implementation. Actual parameters are left to the app implementation.
@@ -336,7 +337,7 @@ export type Panel = BaseComponent & {
   /**
    * contents of this panel. Either this is specified, or fieldNames is specified
    */
-  children?: BaseComponent[];
+  children?: PredefinedComponent[];
   /**
    * render these fields from the relevant form. This is an alternative to specify fields as children.
    * 'all' is a short cut to use the field names as in the form, in that order.
@@ -384,10 +385,6 @@ export type StaticVariant = 'image' | 'content' | 'line';
  */
 export type TableViewer = BaseComponent & {
   compType: 'table';
-  /**
-   * table variants are defined as separate types.
-   */
-  variant?: never;
   /**
    * Table view is designed to be read-only
    */
@@ -451,7 +448,7 @@ export type TableViewer = BaseComponent & {
    * Note that the selectField, if specified, should not be defined as a column.
    * Value of that field is automatically linked to the selection status of the rows
    * NOTE: the components are rendered in the usual field-view mode.
-   * Chose this member only if that is what is needed. Consider using columnsToRender instead.
+   * Choose this member only if that is what is needed. Consider using columns instead.
    * It is an error to specify both children and columns
    */
   children?: LeafComponent[];
@@ -465,7 +462,7 @@ export type TableViewer = BaseComponent & {
    */
   actionButtons?: Button[];
   /**
-   * action: label maps for dynamic action menu for each row
+   * action->label maps for dynamic action menu for each row
    */
   rowActions?: StringMap<string>;
 
@@ -492,10 +489,6 @@ export type TableViewer = BaseComponent & {
  */
 export type TableEditor = BaseComponent & {
   compType: 'table';
-  /**
-   * table variants are defined as separate types.
-   */
-  variant?: never;
   /**
    * Table view is designed to be read-only
    */
@@ -532,10 +525,6 @@ export type TableEditor = BaseComponent & {
 
 export type ButtonPanel = BaseComponent & {
   compType: 'buttonPanel';
-  /**
-   * variants are not defined yet.
-   */
-  variant?: never;
   leftButtons?: Button[];
   middleButtons?: Button[];
   rightButtons?: Button[];
@@ -543,10 +532,6 @@ export type ButtonPanel = BaseComponent & {
 
 export type Tabs = BaseComponent & {
   compType: 'tabs';
-  /**
-   * variants are not defined yet.
-   */
-  variant?: never;
   /**
    * if the tabs have editable fields,then we may want to
    * render the tab to indicate whether any fields within that is in error
@@ -591,42 +576,36 @@ export type Chart = BaseComponent & {
   fields: ChartField[];
 };
 
+type Chainable = {
+  /**
+   * next action to be taken up.
+   * for actions that are asynchronous, this action starts immediately after triggering the current action.
+   * for example, the nextAction starts immediately after sending a request to the server, without waiting for the response for a service-action
+   */
+  nextAction?: string;
+};
+type Failable = {
+  onSuccess?: string;
+  onFailure?: string;
+};
+
 /**
  * common attributes of all the actions
  */
-type BaseAction = {
+type ActionMetaData = {
   name: string;
-  /**
-   * optional next action to be taken if this action succeeds
-   */
-  onSuccess?: string;
-  /**
-   * optional next action to be taken if this action fails
-   */
-  onFailure?: string;
   /**
    * service call is generally asynchronous, and likely to take some time.
    * should the UX be disabled till the service response is received?
    */
   toDisableUx?: boolean;
-  /**
-   * message to be rendered as success if the action succeeds
-   * app should provide text for this id
-   */
-  successMessageId?: string;
-  /**
-   * message to be rendered as error if the action fails
-   * app should provide text for this id
-   */
-  failureMessageId?: string;
 };
 
 /**
  * close this page.
  *
  */
-export type CloseAction = BaseAction & {
-  //actually base action attributes are not relevant, but having them simplifies type-checks
+export type CloseAction = ActionMetaData & {
   type: 'close';
 };
 
@@ -634,160 +613,319 @@ export type CloseAction = BaseAction & {
  * Reset fields/tables on this page.
  *
  */
-export type ResetAction = BaseAction & {
-  type: 'reset';
-  /**
-   * by default all fields and tables will be reset.
-   * you may specify that a specific panel associated with a child-form be reset.
-   * Further, if fieldsToReset is also specified, then only the specified fields in this form will be reset
-   */
-  panelToReset?: string;
-  /**
-   * if specified, only the listed fields will be reset.
-   * These fields are from the root-form by default.
-   * if panelToReset is specified, only these fields from that child-form will be reset
-   */
-  fieldsToReset?: string[];
-};
-/**
- * A piece of work/task that is typically triggered through an event
- */
-export type Action =
-  | CloseAction
-  | FilterAction
-  | FormAction
-  | FunctionAction
-  | NavigationAction
-  | ResetAction
-  | ServiceAction
-  | DisplayAction;
+export type ResetAction = ActionMetaData &
+  Chainable & {
+    type: 'reset';
+    /**
+     * by default all fields and tables will be reset.
+     * you may specify that a specific panel associated with a child-form be reset.
+     * Further, if fieldsToReset is also specified, then only the specified fields in this form will be reset
+     */
+    panelToReset?: string;
+    /**
+     * if specified, only the listed fields will be reset.
+     * These fields are from the root-form by default.
+     * if panelToReset is specified, only these fields from that child-form will be reset
+     */
+    fieldsToReset?: string[];
+  };
 /**
  * action that requires specific programming logic. This is implemented as a function in the app
  */
-export type FunctionAction = BaseAction & {
-  type: 'function';
-  /**
-   * function name must be one of the functions defined in this page
-   */
-  functionName: string;
-  /**
-   * Additional parameters to be passed to the function.
-   * Must match the published api specification of that function.
-   * This is all design-time determined constants.
-   * No feature is provided to pass run-time-determined parameters.
-   */
-  additionalParams?: StringMap<unknown>;
-};
+export type FunctionAction = ActionMetaData &
+  Failable & {
+    type: 'function';
+    /**
+     * function name must be one of the functions defined in this page
+     */
+    functionName: string;
+    /**
+     * Additional parameters to be passed to the function.
+     * Must match the published api specification of that function.
+     * This is all design-time determined constants.
+     * No feature is provided to pass run-time-determined parameters.
+     */
+    additionalParams?: StringMap<unknown>;
+  };
 /**
  * form related action, like fetching and saving form data
  */
-export type FormAction = BaseAction & {
-  type: 'form';
-  formName: string;
-  formOperation: FormOperation;
-};
+export type FormAction = ActionMetaData &
+  Failable &
+  Chainable & {
+    type: 'form';
+    formName: string;
+    formOperation: FormOperation;
+  };
+
 /**
+ * display settings for components
+ * e.g {
+ *    comp1: {hidden: true},
+ *    comp2: {hidden: false},
+ *    field1: {disabled: false, invalid: true},
+ * }
+ * For a table row, use 'tableName.rowIndex' as name.
+ * e.g. 'tablePanel1.1' for first row or 'tablePanel1.?' for the current row
  *
+ * To target a cell in a table, append '.columnName' to the row-name
+ * e.g. 'customerTablePanel.?.customerName'
  */
-export type DisplaySettings = StringMap<StringMap<Value>>;
+export type DisplayStates = OptionalOf<Record<ViewState, Value>>;
+
+/**
+ * Data structure to identify a row or cell of a table.
+ * this data structure is an expansion of the cryptic 'name' syntax in DisplayAction
+ */
+export type TableRowOrCell = {
+  name: string;
+  rowIdx?: number;
+  columnName?: string;
+};
+
 /**
  * change the view related attribute of a component
  */
-export type DisplayAction = BaseAction & {
-  type: 'display';
-  /**
-   * display settings for components
-   * e.g {
-   *    comp1: {hidden: true},
-   *    comp2: {hidden: false},
-   *    field1: {disabled: false, invalid: true}
-   * }
-   */
-  displaySettings: DisplaySettings;
-};
+export type DisplayAction = ActionMetaData &
+  Chainable & {
+    type: 'display';
+    /**
+     * display settings for components
+     * e.g {
+     *    comp1: {hidden: true},
+     *    comp2: {hidden: false},
+     *    field1: {disabled: false, invalid: true}
+     * }
+     */
+    displaySettings: StringMap<DisplayStates>;
+  };
 
-export type FilterAction = BaseAction & {
-  type: 'form';
-  formOperation: 'filter';
-  formName: string;
-  /**
-   * name of the table (table-component) that receives the filtered data
-   */
-  targetTableName: string;
-  /**
-   * conditions based on which the rows for the child are fetched
-   */
-  filters?: FilterCondition[];
-  /**
-   * sorting of rows based on fields
-   */
-  sortBy?: SortBy[];
-  fields?: string[];
-  maxRows?: number;
-};
+export type FilterAction = ActionMetaData &
+  Failable &
+  Chainable & {
+    type: 'form';
+    formOperation: 'filter';
+    formName: string;
+    /**
+     * name of the table (table-component) that receives the filtered data
+     */
+    targetTableName: string;
+    /**
+     * conditions based on which the rows for the child are fetched
+     */
+    filters?: FilterCondition[];
+    /**
+     * sorting of rows based on fields
+     */
+    sortBy?: SortBy[];
+    fields?: string[];
+    maxRows?: number;
+  };
 
+/**
+ * what data to be sent to the service
+ */
+type DataPayload =
+  | /**
+   * send all the data defined for this form.
+   */ { source: 'all' }
+  | /**
+   * panel with its child-form. Should not be a table-panel. (use table for that)
+   * entire form data is sent including any child-forms
+   */ { source: 'panel'; panelName: string }
+  | /**
+   * Send a list of fields.
+   * If the boolean is true, the field is considered to be mandatory, and an error is generated if the value is missing
+   */ { source: 'fields'; fields: Record<string, boolean> }
+  | /**
+   * Send data from a table-panel.
+   */ {
+      source: 'table';
+      /**
+       * name of the panel, and NOT the form/record
+       */
+      tablePanel: string;
+      /**
+       * false to send all rows as a table. true to send a row as an object
+       */
+      sendARow: boolean;
+      /**
+       * optional row index. if omitted, current row is sent
+       */
+      rowIdx?: number;
+      /**
+       * optional list of columns to be sent. if omitted, all columns are sent
+       */
+      columns?: string[];
+    };
 /**
  * request a specific service
  */
-export type ServiceAction = BaseAction & {
-  type: 'service';
-  serviceName: string;
-  /**
-   * submit the entire form/data-structure defined for this form.
-   */
-  submitAll?: true;
-
-  /**
-   * can be used only if submitAll is not set.
-   * submit the form/data-structure defined for a panel.
-   * the named panel must have childForm=""
-   */
-  panelToSubmit?: string;
-
-  /**
-   * can be used only if submitAll and panelToSubmit are not set.
-   * list of fields to be submitted.
-   * If the boolean is true, the field is considered to be mandatory, and an error is generated if teh value is missing
-   */
-  fieldsToSubmit?: StringMap<boolean>;
-  /**
-   * function to be executed just before requesting this service.
-   * this function should be a RequestFunction type.
-   * if the function returns falsy, then the service is not requested
-   * This feature can be used to prepare the required data to be submitted, or carrying out any special validations
-   */
-  fnBeforeRequest?: string;
-  /**
-   * function to be called after the response is received (request returns) but before the payload is processed
-   * this function is like an intercept that can alter the response before it is processed
-   * it should be of type ResponseFunction
-   */
-  fnAfterResponse?: string;
-  /**
-   * The data received from a a service is is meant to be for the entire page.
-   * However, you may target a panel that is bound to its own form.
-   * Also, note that the data received is assumed to be "complete" data, and not incremental.
-   * That is, if no data is received for a field, then that field is reset. (Any old data is replaced with an empty string)
-   */
-  targetPanelName?: string;
-};
+export type ServiceAction = ActionMetaData &
+  Failable &
+  Chainable & {
+    type: 'service';
+    serviceName: string;
+    dataToSend?: DataPayload;
+    /**
+     * function to be executed just before requesting this service.
+     * this function should be a RequestFunction type.
+     * if the function returns falsy, then the service is not requested
+     * This feature can be used to prepare the required data to be submitted, or carrying out any special validations
+     */
+    fnBeforeRequest?: string;
+    /**
+     * function to be called after the response is received (request returns) but before the payload is processed
+     * this function is like an intercept that can alter the response before it is processed
+     * it should be of type ResponseFunction
+     */
+    fnAfterResponse?: string;
+    /**
+     * The data received from a a service is is meant to be for the entire page.
+     * However, you may target a panel that is bound to its own form.
+     * Also, note that the data received is assumed to be "complete" data, and not incremental.
+     * That is, if no data is received for a field, then that field is reset. (Any old data is replaced with an empty string)
+     */
+    targetPanelName?: string;
+  };
 /**
  * event triggered to navigate to a page or a module
  * Note:
  * One of menuItem, module or layout is mandatory.
  */
-export type NavigationAction = BaseAction & {
-  type: 'navigation';
-  /**
-   * user is warned and is asked to reconfirm before taking this action, in case the form is modified by the user
-   */
-  warnIfModified?: boolean;
+export type NavigationAction = ActionMetaData &
+  NavigationOptions & {
+    type: 'navigation';
+    /**
+     * user is warned and is asked to reconfirm before taking this action, in case the form is modified by the user
+     */
+    warnIfModified?: boolean;
 
+    /**
+     * relevant if retainCurrentPage = true. action to be taken when this page is un-hidden/activated again.
+     */
+    onReactivation?: string;
+  };
+
+/**
+ * specifies a field in a form
+ */
+export type FormField = {
   /**
-   * relevant if retainCurrentPage = true. action to be taken when this page is un-hidden/activated again.
+   * field name
    */
-  onReactivation?: string;
-} & NavigationOptions;
+  fieldName: string;
+  columnName?: never;
+  /**
+   * form name if this field is is in a different form
+   * default is to assume the current/main form
+   */
+  formName?: string;
+};
+
+/**
+ * specifies a column in a table
+ */
+export type TableColumn = {
+  fieldName?: never;
+  /**
+   * column name
+   */
+  columnName: string;
+  /**
+   * table name.
+   * Note that the table name is required even if we are referring to a column in the same table but a different row
+   */
+  tableName: string;
+  /**
+   * row index. default is to assume the current row
+   */
+  rowIdx?: number;
+};
+
+/**
+ * instruction to set value to a field/column
+ */
+export type ValueSetter = {
+  /**
+   * field/column name to which the value is to be set
+   */
+  field: string | FormField | TableColumn;
+  /**
+   * value to be set. can be a constant or a field identifier
+   */
+  value: Value | FormField | TableColumn;
+};
+/**
+ * set values of fields in the form
+ */
+export type ValueSetterAction = ActionMetaData &
+  Chainable & {
+    type: 'valueSetter';
+    setters: ValueSetter[];
+  };
+
+/**
+ * flash messages the way any standard message is flashed.
+ */
+export type MessageAction = ActionMetaData &
+  Chainable & {
+    type: 'message';
+    messages: DetailedMessage[];
+  };
+
+/**
+ * Render a panel as a popup/modal.
+ * Note that this action is considered 'complete' on rendering the panel as a popup.
+ * The standard design of a popup panel provides an area for the specified panel to be rendered, and also a close button.
+ * If you choose to trigger 'close' on your own, you may use 'hideCloseButton' and then use 'popdown' action to close it.
+ * nextAction, if any, is triggered immediately after this action, and not wait for the panel to be closed.
+ * It is an error if this action is triggered when a popup is already open.
+ * Use 'popdown' action to close the popup.
+ */
+export type PopupAction = ActionMetaData &
+  Chainable & {
+    type: 'popup';
+    panelName: string;
+  } & (ManagedPopupMode | ManualPopupMode);
+
+interface ManagedPopupMode {
+  /** * System handles the 'Close' button.
+   * The action triggers when the user closes the popup.
+   */
+  closeMode: 'managed';
+  /** Fired when the user clicks the system close button */
+  onClose?: string;
+}
+
+interface ManualPopupMode {
+  /** * You are responsible for calling 'popdown'.
+   * The action triggers immediately after the popup opens.
+   */
+  closeMode: 'manual';
+}
+
+export type PopdownAction = ActionMetaData &
+  Chainable & {
+    type: 'popdown';
+  };
+/**
+ * A piece of work/task that is typically triggered through an event
+ */
+export type Action =
+  | CloseAction
+  | DisplayAction
+  | FilterAction
+  | FormAction
+  | FunctionAction
+  | MessageAction
+  | NavigationAction
+  | PopdownAction
+  | PopupAction
+  | ResetAction
+  | ServiceAction
+  | ValueSetterAction;
+
 /**
  * meta data for a button that is meant to navigate to a menu item
  */
@@ -880,3 +1018,27 @@ export type ColumnDetails = {
    */
   comp?: StaticComp | Button;
 };
+
+/**
+ * view-state of a view-component.
+ * this is how a view component's appearance may be changed at run time.
+ * this is a list of pre-defined states across all components.
+ * care must be taken to esnure that the component supports these states, and the value is valid and meaningful for that view-state
+ */
+
+export type ViewState =
+  | 'clickable'
+  | 'selectable'
+  | 'disabled'
+  | 'full'
+  | 'invalid'
+  | 'idx'
+  | 'hidden'
+  | 'width'
+  | 'init'
+  | 'align'
+  | 'vAlign'
+  | 'sorted'
+  | 'empty'
+  | 'current'
+  | (string & {});

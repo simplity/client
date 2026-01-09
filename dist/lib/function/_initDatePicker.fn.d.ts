@@ -1,2 +1,2 @@
-import { FunctionImpl } from 'src/lib/types';
+import { FunctionImpl } from '@simplity';
 export declare const _initDatePicker: FunctionImpl;

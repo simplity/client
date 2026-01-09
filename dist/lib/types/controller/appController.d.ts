@@ -1,6 +1,6 @@
 import { Values, Vo, StringMap, FunctionType, Alert, Value, ValueFormatter, FormattedValue } from '../common';
 import { FunctionImpl, PageController, ValueValidationResult } from './';
-import { PageView } from '../view';
+import { BaseView, PageView } from '../view';
 import { Layout, MenuItem, Module, Page, Form, ValueSchema, SimpleList, ValueType, NavigationOptions } from '../design';
 import { ServiceResponse } from '../agent';
 /**
@@ -249,6 +249,16 @@ export interface AppController {
      * close this page. It is error to close the page if there are no pages in the page stack.
      */
     closePage(): void;
+    /**
+     * show the specified panel as a popup/modal dialog
+     * @param panel
+     * @param closeMode
+     */
+    showAsPopup(panel: BaseView, closeMode?: 'manual' | 'managed'): void;
+    /**
+     * close the currently open popup
+     */
+    closePopup(): void;
     /**
      * user has selected a menu item. This comes from the view-side (not the controller side);
      * @param module a menu item can be part of more than modules,

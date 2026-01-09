@@ -1,4 +1,5 @@
-import { Alert, AppController, AppView, NavigationOptions, StringMap, Vo } from 'src/lib/types';
+import { Alert, AppController, AppView, NavigationOptions, StringMap, Vo } from '@simplity';
+import { BaseElement } from './baseElement';
 export declare class AppElement implements AppView {
     ac: AppController;
     /**
@@ -18,16 +19,31 @@ export declare class AppElement implements AppView {
     private spinnerTextEle?;
     private readonly messageEle?;
     private readonly messageTextEle?;
-    private readonly modalEle?;
-    private readonly modalPageEle?;
+    private readonly modalPageEle;
+    private readonly modalPageContainerEle?;
     /**
-     * keeps track of active pages. Current one is on the top.
+     * current page is the one that has currently the focus.
+     * it is not in the stack. theoretically, it could be the one on the top of the stack.
+     * but keeping it on its own, and not pushing it to the stack makes certain operations easier.
+     */
+    private currentPage?;
+    /**
+     * is the current page shown as a modal?
+     */
+    private modalOpened;
+    /**
+     * keeps track of active pages that are behind the current page.
+     * Current one is on the stack.
      */
     private readonly pageStack;
     /**
-     * is the last opened page modal?
+     *  modal container elements for rendering a modal panel.
+     * this should be able to be on top of modal pages as well
      */
-    private modalOpened;
+    private readonly modalPanelEle;
+    private readonly modalPanelContainerEle?;
+    private readonly modalClosePanel?;
+    private poppedupEle?;
     /**
      *
      * @param runtime
@@ -52,7 +68,10 @@ export declare class AppElement implements AppView {
     disableUx(displayText?: string): void;
     enableUx(): void;
     download(data: Vo, fileName: string): void;
+    showAsPopup(panel: BaseElement, closeMode?: 'manual' | 'managed'): void;
+    closePopup(): void;
     private purgeStack;
     private renderLayout;
+    private closeModalPanel;
     private renderPage;
 }

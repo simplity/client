@@ -1,4 +1,4 @@
-import { AppController, Form, FormController, PageController, Panel, TableViewer, TableViewerController, TableViewerView, Values, Vo } from 'src/lib/types';
+import { AppController, Form, FormController, PageController, Panel, TableViewer, TableViewerController, TableViewerView, Values, Vo } from '@simplity';
 /**
  * controls a tabular data (rows and columns)
  */
@@ -49,7 +49,7 @@ export declare class SimpleTableViewerController implements TableViewerControlle
      * @param view
      */
     constructor(fc: FormController, view: TableViewerView);
-    getRowData(rowIdx?: number): Vo | undefined;
+    getRowData(rowIdx?: number, columns?: string[]): Values | undefined;
     getFormName(): string | undefined;
     createConfig(): {
         panel: Panel;
@@ -61,7 +61,7 @@ export declare class SimpleTableViewerController implements TableViewerControlle
     receiveData(data: Vo | Vo[]): void;
     setData(data: Values[]): void;
     getData(): Values[];
-    resetData(fields?: string[]): void;
+    resetData(_fields?: string[]): void;
     rowClicked(rowIdx: number): void;
     cellClicked(rowIdx: number, action: string): void;
     isValid(): boolean;
@@ -73,6 +73,7 @@ export declare class SimpleTableViewerController implements TableViewerControlle
     columnClicked(row: Vo, action: string): void;
     setCurrentRowIdx(rowIdx: number): void;
     setDisplayState(_compName: string, _settings: Values): boolean;
+    setRowOrCellState(settings: Values, rowIdx?: number, columnName?: string): boolean;
 }
 export declare class TableInfo {
     /**

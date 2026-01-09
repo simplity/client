@@ -94,7 +94,7 @@ function writeCollectionFile(compLocations, importPrefix, compDetails, folderNam
         .map(([name, relativePath]) => `import { ${toSimpleName(name)} } from '${importPrefix}${compDetails.name}/${relativePath}/${name}';`)
         .join('\n');
     const typeSource = compDetails.type.startsWith('App')
-        ? 'src/lib/types'
+        ? '@simplity'
         : 'simplity';
     //contents of the file
     const text = `${DISCLAIMER}

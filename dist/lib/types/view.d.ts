@@ -9,7 +9,7 @@
  */
 import { Alert, StringMap, Value, Values } from './common';
 import { AppController, ChartController, FormController, PageController, TableViewerController } from './controller';
-import { Button, Chart, DataField, MultiReportPanel, NavigationOptions, Page, BaseComponent, Panel, SimpleList, StaticComp, Tab, TableEditor, TableViewer, Tabs } from './design';
+import { Button, Chart, DataField, MultiReportPanel, NavigationOptions, Page, BaseComponent, Panel, SimpleList, StaticComp, Tab, TableEditor, TableViewer, Tabs, DisplayStates } from './design';
 export type View = object;
 /**
  * An App-view is the outer most container component inside of which the relevant view components are laid out
@@ -67,6 +67,16 @@ export interface AppView {
      * @param values
      */
     renderContextValues(values: StringMap<string>): void;
+    /**
+     * show/render a panel as a popup/modal dialog
+     * @param panel
+     * @param closeMode
+     */
+    showAsPopup(panel: BaseView, closeMode?: 'manual' | 'managed'): void;
+    /**
+     * hide the currently shown popup panel
+     */
+    closePopup(): void;
 }
 /**
  * A view component that renders menu groups.
@@ -263,6 +273,13 @@ export interface TableViewerView extends BaseView {
      * @param selectedNames if this is a configurable table, then this is required
      */
     renderData(data: Values[], selectedNames?: string[]): void;
+    /**
+     * set display state for a specific row or cell
+     * @param settings
+     * @param rowIdx
+     * @param columnName
+     */
+    setRowOrCellState(settings: DisplayStates, rowIdx: number, columnName?: string): boolean;
 }
 /**
  * table renders tabular data, but does not allow any edits to the columns.

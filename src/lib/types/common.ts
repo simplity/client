@@ -3,12 +3,17 @@
  */
 export type StringMap<T> = { [name: string]: T };
 
+/**
+ * Restrict the key of a key-value pair to be from a set of strings
+ * e.g. OptionalOf<Record<'a' | 'b' | 'c', number>> results in { a?: number; b?: number; c?: number }
+ */
 export type OptionalOf<T> = {
   [K in keyof T]?: T[K];
 };
 
 /**
- * Technique to incorporate condition like (one of a,b, or c must be specified)
+ * Restrict the key of a key-value pair to be from a set of strings. But only one key from the set at a time.
+ * e.g. OptionalOf<Record<'a' | 'b' | 'c', number>> results in { a?: number; b?: number; c?: number }
  */
 export type OneOf<T> = {
   [K in keyof T]: { [P in K]: T[K] } & Partial<
@@ -267,3 +272,40 @@ export type Alert = {
  * can be used for it(...)
  */
 export type Spec = { [method: string]: string[] };
+
+/**
+ * Structure of a Message received as part of a response
+ */
+export type DetailedMessage = {
+  /**
+   * one of the pre-defined type
+   */
+  type: 'error' | 'warning' | 'info' | 'success';
+  /**
+   * unique name assigned to this message in the app.
+   */
+  id: string;
+  /**
+   * Required if id is not specified. If text is specified, then the id is ignored.
+   * formatted text in English that is ready to be rendered
+   */
+  text: string;
+  /**
+   * name of the field (primary one in case more than one field are involved) that caused
+   * this error. undefined if this is not specific to any field.
+   */
+  fieldName?: string;
+  /**
+   * name of the table/object that the field is part of. undefined if this not relevant
+   */
+  objectName?: string;
+  /**
+   * 0-based row number in case the field in error is part of a table.
+   */
+  idx?: number;
+
+  /**
+   * run-time parameters that are used to compose this message. This is useful in i18n
+   */
+  params?: string[];
+};

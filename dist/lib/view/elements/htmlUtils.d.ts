@@ -1,84 +1,10 @@
-import { BaseComponent, StringMap, Value } from 'src/lib/types';
-/**
- * display states that are designed by simplity.
- * each view-state has a type associated with it, that is used for first-pevel of validation.
- * 'enum' is used to have a list of pre-defined values for that state, in which case the named enum is defined in the viewStateEnums constant.
- */
-declare const viewStates: {
-    /**
-     * clickable: some action will be triggered on click-of this element
-     */
-    readonly clickable: "boolean";
-    /**
-     * a row can be "selected", may be an item can be "selected"
-     */
-    readonly selectable: "boolean";
-    /**
-     * true/false. Generally used for input fields.
-     * However, we should be able to use it for wrapper elements that contain input fields
-     */
-    readonly disabled: "boolean";
-    /**
-     * used by the template to mark that the element would like to set its width to all it can
-     */
-    readonly full: "boolean";
-    /**
-     * generally meant for input field, but may be used for a wrapper that contain input fields
-     */
-    readonly invalid: "boolean";
-    /**
-     * index of the element within its parent array.
-     * e.g. for a tr-element, this is the idx into the data-array that this tr is rendering from
-     */
-    readonly idx: "number";
-    /**
-     * true/false to show/hide an element
-     */
-    readonly hidden: "boolean";
-    /**
-     * width of this element as per column-width design for this app.
-     * for example, in a standard grid-layout design, full-width is 12.
-     *
-     */
-    readonly width: "number";
-    /**
-     * initialization function for this element
-     */
-    readonly init: "string";
-    /**
-     * change alignment at run time. like right-align for numbers in a table-column.
-     * valid values are as per 'left', 'center', 'right'
-     */
-    readonly align: "string";
-    /**
-     * Height in number of rows of text. Generally not required, but may be useful for certain components like spacer, text etc..
-     */
-    /**
-     * change vertical alignment at run time. like middle-align for items in a nav-bar
-     * valid values are as per 'top', 'middle', 'bottom'
-     */
-    readonly vAlign: "string";
-    /**
-     * how a column in a table is sorted.
-     * 'asc' or 'desc'
-     */
-    readonly sorted: "string";
-    /**
-     * whether a select element is empty. Used for the label positioning
-     */
-    readonly empty: "boolean";
-    /**
-     * whether a menu/button is currently pressed
-     */
-    readonly current: "boolean";
-};
-export type ViewState = keyof typeof viewStates;
+import { BaseComponent, StringMap, Value, ViewState } from '@simplity';
 /**
  * to be used only by design-time utilities to check if all the required templates are supplied or not
  */
-export declare const predefinedHtmlTemplates: readonly ["button", "button-panel", "check-box", "content", "chart", "date-field", "dialog", "disable-ux", "image-field", "image", "layout", "line", "list", "module", "menu-item", "message", "modal-panel", "nav-bar", "output", "page", "panel", "panel-flex", "panel-grid", "range-wrapper", "password", "popup", "select-output", "select", "snack-bar", "sortable-header", "tab", "table-editable", "table", "tabs", "text-area", "text-field"];
+export declare const predefinedHtmlTemplates: readonly ["button", "button-panel", "check-box", "chart", "date-field", "dialog", "disable-ux", "image-field", "image", "layout", "line", "list", "module", "menu-item", "message", "modal-panel", "modal-page", "nav-bar", "output", "page", "panel", "panel-flex", "panel-grid", "range-wrapper", "password", "popup", "select-output", "select", "snack-bar", "sortable-header", "static", "static-block", "tab", "table-editable", "table", "tabs", "text-area", "text-field"];
 export type HtmlTemplateName = (typeof predefinedHtmlTemplates)[number];
-export declare const childElementIds: readonly ["add-button", "arrow-icon", "buttons", "chart", "close-button", "color-theme", "container", "data", "description", "field", "from-field", "full", "header", "label", "left", "list-config", "menu-bar", "menu-item", "message", "middle", "no-data", "page", "right", "row", "rows", "search", "table", "title", "to-field"];
+export declare const childElementIds: readonly ["add-button", "arrow-icon", "buttons", "chart", "close-button", "close-panel", "color-theme", "container", "content", "data", "description", "field", "from-field", "full", "header", "label", "left", "list-config", "menu-bar", "menu-item", "message", "middle", "no-data", "page", "right", "row", "rows", "search", "table", "title", "to-field"];
 /**
  * data-id values that are used within templates to identify child elements
  */
@@ -161,7 +87,7 @@ export declare const htmlUtil: {
 };
 declare function getOptionalElement(rootEle: HTMLElement, id: ChildElementId): HTMLElement | undefined;
 declare function getChildElement(rootEle: HTMLElement, id: ChildElementId): HTMLElement;
-declare function newHtmlElement(name: HtmlTemplateName, comp?: BaseComponent): HTMLElement;
+declare function newHtmlElement(templateName: HtmlTemplateName, comp?: BaseComponent): HTMLElement;
 declare function removeChildren(ele: HTMLElement): void;
 declare function appendText(ele: HTMLElement, text: string): void;
 declare function appendIcon(ele: HTMLElement, icon: string, alt?: string): void;

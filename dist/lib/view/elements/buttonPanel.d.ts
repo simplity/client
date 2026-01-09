@@ -1,4 +1,4 @@
-import { ButtonPanel, FormController, PageController } from 'src/lib/types';
+import { ButtonPanel, FormController, PageController } from '@simplity';
 import { BaseElement } from './baseElement';
 /**
  * button panel renders action buttons, typically at the bottom of a form

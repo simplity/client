@@ -230,6 +230,26 @@ export class TableViewerElement extends BaseElement {
             this.headerRowEle.innerHTML = '';
         }
     }
+    setRowOrCellState(settings, rowIdx, columnName) {
+        const target = this.allTrs[rowIdx];
+        if (!target) {
+            logger.error(`Table '${this.name}' has no row at index ${rowIdx}. setRowOrCellState command ignored`);
+            return false;
+        }
+        if (columnName) {
+            const colDetails = this.columnDetailsMap[columnName];
+            if (!colDetails) {
+                logger.error(`Table '${this.name}' has no column named '${columnName}'. setRowOrCellState command ignored`);
+                return false;
+            }
+            logger.error(`COlumn level setState is not yet implemented. Command ignored`);
+            return false;
+        }
+        for (const [setting, value] of Object.entries(settings)) {
+            htmlUtil.setViewState(target, setting, value);
+        }
+        return true;
+    }
     addTr(idx) {
         const ele = this.dataRowEle.cloneNode(true);
         htmlUtil.setViewState(ele, 'idx', idx);

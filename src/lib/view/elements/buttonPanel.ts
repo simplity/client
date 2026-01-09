@@ -1,9 +1,4 @@
-import {
-  Button,
-  ButtonPanel,
-  FormController,
-  PageController,
-} from 'src/lib/types';
+import { Button, ButtonPanel, FormController, PageController } from '@simplity';
 import { BaseElement } from './baseElement';
 import { elementFactory } from './elementFactory';
 import { ChildElementId, htmlUtil } from './htmlUtils';
@@ -33,15 +28,17 @@ export class ButtonPanelElement extends BaseElement {
       ['middle', panel.middleButtons],
       ['right', panel.rightButtons],
     ] as [string, Button[]][]) {
-      if (buttons) {
-        const parent = htmlUtil.getChildElement(
-          this.root,
-          place as ChildElementId
-        );
-        for (const button of buttons) {
-          const ele = elementFactory.newElement(pc, fc, button, 0);
-          parent.appendChild(ele.root);
-        }
+      if (!buttons) {
+        continue;
+      }
+
+      const parent = htmlUtil.getChildElement(
+        this.root,
+        place as ChildElementId
+      );
+      for (const button of buttons) {
+        const ele = elementFactory.newElement(pc, fc, button, 0);
+        parent.appendChild(ele.root);
       }
     }
   }

@@ -24,7 +24,7 @@ import {
   TableEditor,
   TableViewer,
   ValueList,
-} from 'src/lib/types';
+} from '@simplity';
 import { alterPage } from './alterPage';
 import { processTemplates } from './processTemplates';
 import { generateForms } from './generateForms';
@@ -211,7 +211,7 @@ export function processComponents(
    * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
    * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
    */
-  writeAll(pages, tsFolder, 'AppPage', 'pages', 'src/lib/types');
+  writeAll(pages, tsFolder, 'AppPage', 'pages', '@app-types');
 
   /**
    * 11. write collection files for pages and forms
@@ -379,12 +379,13 @@ function processPages(pages: StringMap<Page>, forms: StringMap<Form>): number {
 
 function processPanel(
   panel: Panel,
-  form: Form | undefined,
+  parentForm: Form | undefined,
   forms: StringMap<Form>,
   pageName: string
 ): number {
   let n = 0;
 
+  let form: Form | undefined = parentForm;
   if (panel.formName) {
     form = forms[panel.formName];
     if (!form) {

@@ -1,4 +1,4 @@
-import { TableViewer, TableViewerController, Values, TableViewerView, FormController, PageController } from 'src/lib/types';
+import { TableViewer, TableViewerController, Values, TableViewerView, FormController, PageController, DisplayStates } from '@simplity';
 import { BaseElement } from './baseElement';
 export declare class TableViewerElement extends BaseElement implements TableViewerView {
     readonly fc: FormController;
@@ -63,6 +63,7 @@ export declare class TableViewerElement extends BaseElement implements TableView
      * remove all rows that are rendered. Remove the header if it is dynamic
      */
     reset(headerAsWell?: boolean): void;
+    setRowOrCellState(settings: DisplayStates, rowIdx: number, columnName?: string): boolean;
     private addTr;
     private addTh;
     /**

@@ -1,4 +1,4 @@
-import { BaseComponent, StringMap, Value } from 'src/lib/types';
+import { BaseComponent, StringMap, Value, ViewState } from '@simplity';
 import { logger } from '../../logger';
 import { predefinedHtmls } from '../html';
 
@@ -14,7 +14,7 @@ const viewStateEnums: Record<string, readonly string[]> = {
  * each view-state has a type associated with it, that is used for first-pevel of validation.
  * 'enum' is used to have a list of pre-defined values for that state, in which case the named enum is defined in the viewStateEnums constant.
  */
-const viewStates = {
+const viewStates: Record<ViewState, 'boolean' | 'number' | 'string'> = {
   /**
    * clickable: some action will be triggered on click-of this element
    */
@@ -95,8 +95,7 @@ const viewStates = {
    * whether a menu/button is currently pressed
    */
   current: 'boolean',
-} as const;
-export type ViewState = keyof typeof viewStates;
+};
 /**
  * to be used only by design-time utilities to check if all the required templates are supplied or not
  */
@@ -104,7 +103,6 @@ export const predefinedHtmlTemplates = [
   'button',
   'button-panel',
   'check-box',
-  'content',
   'chart',
   'date-field',
   'dialog',
@@ -118,6 +116,7 @@ export const predefinedHtmlTemplates = [
   'menu-item',
   'message',
   'modal-panel',
+  'modal-page',
   'nav-bar',
   'output',
   'page',
@@ -131,6 +130,8 @@ export const predefinedHtmlTemplates = [
   'select',
   'snack-bar',
   'sortable-header',
+  'static',
+  'static-block',
   'tab',
   'table-editable',
   'table',
@@ -147,8 +148,10 @@ export const childElementIds = [
   'buttons',
   'chart',
   'close-button',
+  'close-panel',
   'color-theme',
   'container',
+  'content',
   'data',
   'description',
   'field',
@@ -312,27 +315,24 @@ function getChildElement(
 }
 
 function newHtmlElement(
-  name: HtmlTemplateName,
+  templateName: HtmlTemplateName,
   comp?: BaseComponent
 ): HTMLElement {
+  let name = templateName;
   let ele: HTMLElement | undefined;
 
   //template name specified in the component overrides the name passed here
   if (comp && comp.templateName) {
-    ele = locateEle(comp.templateName);
-  } else {
-    ele = locateEle(name);
-    if (!ele) {
-      //try with simplity-provided prefix
-      ele = locateEle('_' + name);
-    }
+    name = comp.templateName as HtmlTemplateName;
+  } else if (comp && comp.variant) {
+    name = name + '-' + comp.variant;
   }
+  ele = locateEle(name);
 
   if (!ele) {
     //template not found. create a dummy one
-    const n = comp && comp.templateName ? comp.templateName : name;
-    ele = createUndefinedEle(n);
-    cachedElements[n] = ele;
+    ele = createUndefinedEle(name);
+    cachedElements[name] = ele;
   }
 
   return ele.cloneNode(true) as HTMLElement;
@@ -358,6 +358,8 @@ function locateEle(name: string): HTMLElement | undefined {
     }
     indexedName = internalName;
   }
+
+  ele = toEle(html);
   cachedElements[indexedName] = ele;
   return ele;
 }
@@ -366,6 +368,7 @@ function createUndefinedEle(name: string): HTMLElement {
   logger.error(
     `A component requires an html-template named "${name}". This template is not available at run time. A dummy HTML is used.`
   );
+  console.log('allhtmls=', allHtmls);
   const ele = toEle(`<div><!-- html source ${name} not found --></div>`);
   cachedElements[name] = ele;
   return ele;

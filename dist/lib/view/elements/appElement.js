@@ -22,16 +22,33 @@ export class AppElement {
     spinnerTextEle;
     messageEle;
     messageTextEle;
-    modalEle;
+    // modal container elements for rendering a modal page
     modalPageEle;
+    modalPageContainerEle;
     /**
-     * keeps track of active pages. Current one is on the top.
+     * current page is the one that has currently the focus.
+     * it is not in the stack. theoretically, it could be the one on the top of the stack.
+     * but keeping it on its own, and not pushing it to the stack makes certain operations easier.
      */
-    pageStack = [];
+    currentPage;
     /**
-     * is the last opened page modal?
+     * is the current page shown as a modal?
      */
     modalOpened = false;
+    /**
+     * keeps track of active pages that are behind the current page.
+     * Current one is on the stack.
+     */
+    pageStack = [];
+    //for showing a panel as modal
+    /**
+     *  modal container elements for rendering a modal panel.
+     * this should be able to be on top of modal pages as well
+     */
+    modalPanelEle;
+    modalPanelContainerEle;
+    modalClosePanel;
+    poppedupEle;
     /**
      *
      * @param runtime
@@ -58,22 +75,32 @@ export class AppElement {
             document.body.appendChild(this.messageEle);
         }
         /**
-         * modal container
+         * modal containers
          */
-        this.modalEle = htmlUtil.newHtmlElement('modal-panel');
-        if (this.modalEle) {
-            this.modalPageEle = htmlUtil.getChildElement(this.modalEle, 'page');
-            if (!this.modalPageEle) {
-                throw new Error(`Modal panel html template must have a child element with data-id="page"`);
-            }
-            const closeBtn = htmlUtil.getOptionalElement(this.modalEle, 'close-button');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    this.closePage();
+        this.modalPanelEle = htmlUtil.newHtmlElement('modal-panel');
+        this.modalPanelContainerEle = htmlUtil.getOptionalElement(this.modalPanelEle, 'container');
+        if (this.modalPanelContainerEle) {
+            this.modalClosePanel = htmlUtil.getOptionalElement(this.modalPanelEle, 'close-panel');
+            if (this.modalClosePanel) {
+                const closeEle = htmlUtil.getOptionalElement(this.modalPanelEle, 'close-button') ||
+                    this.modalClosePanel;
+                closeEle.addEventListener('click', () => {
+                    this.closeModalPanel();
                 });
             }
-            document.body.appendChild(this.modalEle);
         }
+        else {
+            logger.error(`This app has no html to support modal display of certain type of contets. 
+        An html template named 'modal-panel' with a placeholder for 'container' is missing.`);
+        }
+        document.body.appendChild(this.modalPanelEle);
+        this.modalPageEle = htmlUtil.newHtmlElement('modal-page');
+        this.modalPageContainerEle = htmlUtil.getOptionalElement(this.modalPageEle, 'page');
+        if (!this.modalPageContainerEle) {
+            logger.error(`This app has no html to support modal display of certain type of contets. 
+        An html template named 'modal-page' with a placeholder for 'page' is missing.`);
+        }
+        document.body.appendChild(this.modalPageEle);
     }
     /**
      * Renders the application view. Must be called once after the constructor
@@ -92,9 +119,16 @@ export class AppElement {
         if (options.erasePagesOnTheStack && this.pageStack.length) {
             this.purgeStack();
         }
+        /**
+         * pageNmay may not be in options. It nay the default for a layout/module
+         */
         let pageName;
-        //navigate to a layout??
-        if (options.layout && this.layoutEle.layout.name !== options.layout) {
+        // hope we stay on the same layout!
+        if (!options.layout || this.layoutEle.layout.name === options.layout) {
+            pageName = this.layoutEle.renderModule(options);
+        }
+        else {
+            //ok to change the layout?
             if (options.asModal || options.retainCurrentPage) {
                 throw this.ac.newError(`When the current page is retained, new menu-item must be from the same-layout`);
             }
@@ -103,51 +137,60 @@ export class AppElement {
             There are ${this.pageStack.length} pages on the stack. 
             If these can be removed, then you must set erasePagesOnTheStack to true in navigation options`);
             }
+            //alright, change the layout
             pageName = this.renderLayout(options.layout, options);
         }
-        else {
-            pageName = this.layoutEle.renderModule(options);
-        }
-        const lastEntry = this.pageStack[this.pageStack.length - 1];
-        if (lastEntry) {
-            if (options.asModal) {
-                if (!this.modalEle || !this.modalPageEle) {
-                    throw this.ac.newError(`Modal page requested but the app html template has no modal-panel defined`);
+        //hide/close the current page
+        if (this.currentPage) {
+            if (options.retainCurrentPage) {
+                if (this.modalOpened && !options.asModal) {
+                    throw this.ac.newError(`A Modal page can not retain itself and open a non-modal page`);
                 }
-                this.modalOpened = true;
-                htmlUtil.setViewState(this.modalEle, 'hidden', false);
-            }
-            else if (options.retainCurrentPage) {
-                //hide the last page
-                lastEntry.scrollTop = document.documentElement.scrollTop;
-                htmlUtil.setViewState(lastEntry.ele.root, 'hidden', true);
+                /*
+                 * push the current page onto the stack, and fade out from the view
+                 */
+                this.pageStack.push({
+                    ele: this.currentPage,
+                    scrollTop: document.documentElement.scrollTop,
+                });
+                htmlUtil.setViewState(this.currentPage.root, 'hidden', true);
             }
             else {
-                lastEntry.ele.dispose();
-                this.pageStack.pop();
+                this.currentPage.dispose();
             }
         }
+        if (options.asModal) {
+            if (!this.modalPageContainerEle) {
+                throw this.ac.newError(`Modal page requested but a suitable template named 'modal-page' is not provided, or is not as per the norm`);
+            }
+            this.modalOpened = true;
+            htmlUtil.setViewState(this.modalPageEle, 'hidden', false);
+        }
+        else if (this.modalOpened) {
+            this.modalOpened = false;
+            htmlUtil.setViewState(this.modalPageEle, 'hidden', true);
+        }
         this.renderPage(pageName, options.asModal || false, options.pageParameters);
+        if (options.module) {
+            this.layoutEle.showModule(options.module);
+        }
     }
     closePage() {
-        let entry = this.pageStack.pop();
+        const entry = this.pageStack.pop();
         if (!entry) {
-            logger.error(`appElement.closeCurrentPage() invoked no page is open!!`);
+            logger.error(`A page can not be closed when no pages were saved.`);
             return;
         }
-        // App must have at least one page rendered at all times
-        if (this.pageStack.length === 0) {
-            logger.error(`page '${entry.ele.page.name}' cannot be closed because there is no active page to render. Error in page navigation design`);
-            return;
-        }
-        entry.ele.dispose();
-        if (this.modalOpened) {
+        this.currentPage.dispose();
+        /**
+         * it is not possible that the current page in non-modal but the previous page is modal
+         */
+        if (this.modalOpened && !entry.isModal) {
             this.modalOpened = false;
-            htmlUtil.setViewState(this.modalEle, 'hidden', true);
+            htmlUtil.setViewState(this.modalPageEle, 'hidden', true);
         }
-        //show the previous page
-        entry = this.pageStack[this.pageStack.length - 1];
-        htmlUtil.setViewState(entry.ele.root, 'hidden', false);
+        this.currentPage = entry.ele;
+        htmlUtil.setViewState(this.currentPage.root, 'hidden', false);
         //menu bar visibility
         this.layoutEle.displayMenuBar(!entry.ele.page.hideModules);
         //restore scroll position
@@ -234,6 +277,34 @@ export class AppElement {
         doc.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+    showAsPopup(panel, closeMode) {
+        if (!this.modalPanelContainerEle) {
+            throw this.ac.newError(`Modal panel can not be shown because the app does not have a suitable html template named 'modal-panel'`);
+        }
+        if (this.poppedupEle) {
+            throw this.ac.newError(`Panel '${this.poppedupEle.name}' is already shown as popup. Panel ${panel.name} can not be shown as popup`);
+        }
+        const panelEle = panel.root;
+        panelEle.remove(); //just in case it is still attached to the page
+        htmlUtil.setViewState(panel.root, 'hidden', false); //just in case it was hidden
+        this.modalPanelContainerEle.appendChild(panelEle);
+        this.poppedupEle = panel;
+        if (this.modalClosePanel) {
+            const toHide = closeMode === 'managed';
+            htmlUtil.setViewState(this.modalClosePanel, 'hidden', toHide);
+        }
+        htmlUtil.setViewState(this.modalPanelEle, 'hidden', false);
+        this.poppedupEle = panel;
+    }
+    closePopup() {
+        if (!this.poppedupEle) {
+            logger.warn(`No popup panel is shown currently. Nothing to hide`);
+            return;
+        }
+        this.poppedupEle.root.remove();
+        this.poppedupEle = undefined;
+        htmlUtil.setViewState(this.modalPanelEle, 'hidden', true);
+    }
     purgeStack() {
         for (const entry of this.pageStack) {
             entry.ele.dispose();
@@ -242,6 +313,9 @@ export class AppElement {
         logger.info(`Erased ${this.pageStack.length} pages from the stack as per navigation options.`);
     }
     renderLayout(layoutName, options) {
+        if (this.layoutEle) {
+            this.layoutEle.dispose();
+        }
         const layout = this.ac.getLayout(layoutName);
         this.layoutEle = new LayoutElement(this.ac, layout);
         this.pageEle = htmlUtil.getChildElement(this.layoutEle.root, 'page');
@@ -249,20 +323,25 @@ export class AppElement {
         //render the module and return the initial page name to be rendered
         return this.layoutEle.renderModule(options);
     }
+    closeModalPanel() {
+        if (this.modalPanelContainerEle) {
+            this.modalPanelContainerEle.innerHTML = '';
+            htmlUtil.setViewState(this.modalPanelEle, 'hidden', true);
+        }
+    }
     renderPage(pageName, asModal, pageParameters) {
         const page = this.ac.getPage(pageName);
         const pageView = new PageElement(this.ac, page, pageParameters || {});
-        this.pageStack.push({
-            ele: pageView,
-            scrollTop: 0,
-        });
+        this.currentPage = pageView;
+        this.modalOpened = asModal;
         if (asModal) {
-            this.modalPageEle.appendChild(pageView.root);
+            this.modalPageContainerEle.appendChild(pageView.root);
         }
         else {
             this.layoutEle.displayMenuBar(!page.hideModules);
             this.pageEle.appendChild(pageView.root);
         }
+        this.currentPage = pageView;
     }
 }
 //# sourceMappingURL=appElement.js.map

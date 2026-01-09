@@ -1,4 +1,4 @@
-import { AppController, Form, FormController, PageController, TableEditorController, TableEditorView, Values, Vo } from 'src/lib/types';
+import { AppController, Form, FormController, PageController, TableEditorController, TableEditorView, Values, Vo } from '@simplity';
 /**
  * controls a tabular data (rows and columns)
  */

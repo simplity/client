@@ -6,7 +6,7 @@ import {
   FormController,
   Values,
   Vo,
-} from 'src/lib/types';
+} from '@simplity';
 
 export class SimpleChartController implements ChartController {
   private data: Vo[] = [];

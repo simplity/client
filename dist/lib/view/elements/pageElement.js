@@ -1,7 +1,7 @@
 import { htmlUtil } from './htmlUtils';
 import { PanelElement } from './panelElement';
 import { elementFactory } from './elementFactory';
-import { logger } from 'src/lib/logger';
+import { logger } from '../../logger';
 const NBR_COLS_IN_GRID = 12;
 export class PageElement {
     ac;
@@ -72,6 +72,7 @@ export class PageElement {
             JSON.stringify(alerts));
     }
     dispose() {
+        console.info('Disposing PageElement for page ' + this.page.name);
         this.root.remove();
     }
 }

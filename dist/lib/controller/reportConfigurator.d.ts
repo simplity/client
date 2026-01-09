@@ -1,4 +1,4 @@
-import { FormController, Panel, TableViewer, TableViewerController } from 'src/lib/types';
+import { FormController, Panel, TableViewer, TableViewerController } from '@simplity';
 /**
  * this is the panel. For a given list, it requires 2 changes
  * 1. Report selector button may have to be added.

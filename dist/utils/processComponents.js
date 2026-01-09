@@ -135,7 +135,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
      * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
      */
-    writeAll(pages, tsFolder, 'AppPage', 'pages', 'src/lib/types');
+    writeAll(pages, tsFolder, 'AppPage', 'pages', '@app-types');
     /**
      * 11. write collection files for pages and forms
      */
@@ -271,8 +271,9 @@ function processPages(pages, forms) {
     }
     return n;
 }
-function processPanel(panel, form, forms, pageName) {
+function processPanel(panel, parentForm, forms, pageName) {
     let n = 0;
+    let form = parentForm;
     if (panel.formName) {
         form = forms[panel.formName];
         if (!form) {

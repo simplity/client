@@ -37,7 +37,17 @@ import {
   DataController,
   DisplayAction,
   NavigationOptions,
-} from 'src/lib/types';
+  MessageAction,
+  ValueSetterAction,
+  ValueSetter,
+  TableViewerController,
+  TableColumn,
+  FormField,
+  TableRowOrCell,
+  PopupAction,
+  ResetAction,
+  PopdownAction,
+} from '@simplity';
 import { FC } from './formController';
 
 type StringSet = StringMap<boolean>;
@@ -46,6 +56,7 @@ type ActionParameters = {
   fc?: FormController;
   msgs: DetailedMessage[];
   activeActions: StringSet;
+
   /**
    * additional parameters for a function passed at run time
    */
@@ -111,6 +122,16 @@ export class PC implements PageController {
   private readonly functions: StringMap<() => unknown> = {};
   private readonly actions: StringMap<Action> = {};
   private readonly lists: StringMap<SimpleList | KeyedList> = {};
+
+  private popupIsActive = false;
+  /**
+   * if a popup is shown with managed-close, this has the action to be triggered on close
+   */
+  private onPopdown: string | undefined = undefined;
+  /**
+   * parameters to be used when popdown action is triggered
+   */
+  private popdownParams: ActionParameters | undefined = undefined;
 
   public constructor(
     public readonly ac: AppController,
@@ -595,21 +616,21 @@ export class PC implements PageController {
 
   /**
    * IMP: code within this class must call this, and not the public method
-   * actions can be chained with onSuccess and inFailure.
+   * actions can be chained with onSuccess and onFailure etc..
    * This may lead to infinite loops.
    * This is designed to detect any such loop and throw error, rather than getting a activeActions-over-flow
    */
   private doAct(
     actionName: string,
     p: ActionParameters,
-    action?: Action
+    action?: Action // provided only by run-time actions
   ): void {
     if (!action) {
       action = this.getAction(actionName, p.fc);
     }
 
     let errorFound: boolean = false;
-    const controller = p.fc || this.fc;
+    const fcToUse = p.fc || this.fc;
     if (!action) {
       addMessage(
         `${actionName} is not defined as an action on this page but is requested by a component.`,
@@ -618,93 +639,208 @@ export class PC implements PageController {
       errorFound = true;
     } else if (p.activeActions[actionName]) {
       addMessage(
-        `Action ${actionName} has onSuccess and/or onFailure that is resulting in a circular relationship.
-            This may result in an infinite loop,and hence is not allowed`,
+        `Action ${actionName} started to chain of action links that is leading to a circular relationship.
+            This may result in an infinite loop, and hence is not allowed`,
         p.msgs
       );
       errorFound = true;
     }
 
     if (errorFound || !action) {
-      this.actionReturned(undefined, false, p);
+      this.actionReturned(undefined, p);
       return;
     }
 
     p.activeActions[actionName] = true;
-    const actionType = action.type;
+
     if (action.toDisableUx) {
       this.ac.disableUx();
     }
 
-    let fc: DataController | undefined;
+    const actionType = action.type;
+    let nextAction: string | undefined;
     switch (actionType) {
+      case 'message':
+        this.showMessages((action as MessageAction).messages);
+        nextAction = action.nextAction;
+        break;
+
       case 'close':
         //todo: any checks and balances?'
         this.ac.closePage();
-        break;
+        return;
 
       case 'reset':
-        fc = this.fc;
-        if (action.panelToReset) {
-          fc = this.fc.getController(action.panelToReset);
-          if (!fc) {
-            logger.error(
-              `No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`
-            );
-            break;
-          }
-        }
-        fc.resetData(action.fieldsToReset);
+        nextAction = this.doReset(action as ResetAction);
         break;
 
       case 'display':
-        for (const [compName, settings] of Object.entries(
-          (action as DisplayAction).displaySettings
-        )) {
-          this.setDisplayState(compName, settings as Values);
-        }
+        nextAction = this.doDisplay(action as DisplayAction);
+        break;
+
+      case 'valueSetter':
+        nextAction = this.doSetters(action as ValueSetterAction, p);
+        break;
+
+      case 'popup':
+        nextAction = this.doPopup(action as PopupAction, p);
+        break;
+
+      case 'popdown':
+        nextAction = this.doPopdown(action as PopdownAction);
         break;
 
       case 'function':
-        errorFound = this.doFn(action as FunctionAction, p, controller);
+        // no nextAction. it is determined by errorFound
+        nextAction = this.doFn(action as FunctionAction, p, fcToUse);
         break;
 
       case 'form':
         //request the form action as an async, chain the call back, and return.
-        this.doFormAction(action as FormAction | FilterAction, p, (ok) => {
-          this.actionReturned(action, ok, p);
-        });
-        return;
+        nextAction = this.doFormAction(action as FormAction, p);
+        break;
 
       case 'navigation':
-        errorFound = this.navigate(action as NavigationAction, p) === false;
+        this.navigate(action as NavigationAction, p);
+        //can not ask for another action after navigation
         break;
 
       case 'service':
-        errorFound = this.tryToServe(action as ServiceAction, p, controller);
-        if (errorFound) {
-          break;
-        }
-        return;
+        /**
+         * async action. we return immediately after requesting the service.
+         */
+        nextAction = this.tryToServe(action as ServiceAction, p, fcToUse);
+
+        break;
 
       default:
         addMessage(
           `${actionType} is an invalid action-type specified in action ${actionName}`,
           p.msgs
         );
-        action = undefined; //so that we stop this chain..
         errorFound = true;
         break;
     }
+    this.actionReturned(action, p, nextAction);
+  }
 
-    this.actionReturned(action, !errorFound, p);
+  private doReset(action: ResetAction): string | undefined {
+    let fc = this.fc as DataController;
+    if (action.panelToReset) {
+      const controller = this.fc.getController(action.panelToReset);
+      if (!controller) {
+        throw this.ac.newError(
+          `No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`
+        );
+      }
+      fc = controller;
+    }
+    fc.resetData(action.fieldsToReset);
+    return action.nextAction;
+  }
+
+  private doDisplay(action: DisplayAction): string | undefined {
+    for (const [compName, settings] of Object.entries(
+      (action as DisplayAction).displaySettings
+    )) {
+      this.setDisplayState(compName, settings as Values);
+    }
+    return action.nextAction;
+  }
+
+  private doSetters(
+    action: ValueSetterAction,
+    p: ActionParameters
+  ): string | undefined {
+    for (const setter of action.setters) {
+      const value = this.getValueOf(setter.value, p.fc || this.fc);
+      if (value !== undefined) {
+        this.setValueTo(setter.field, value, p.fc || this.fc);
+      } else {
+        logger.error(
+          `ValueSetter action with setter = ${JSON.stringify(setter)} could not determine a value to set`
+        );
+      }
+    }
+    return action.nextAction;
+  }
+
+  private doPopup(
+    action: PopupAction,
+    p: ActionParameters
+  ): string | undefined {
+    if (this.popupIsActive) {
+      throw this.ac.newError(
+        `A popup is already active. Close the current popup before showing another one.`
+      );
+    }
+
+    const name = action.panelName;
+    const view = this.fc.getChild(name);
+    if (!view) {
+      throw this.ac.newError(`No panel named ${name} found to show as popup`);
+    }
+
+    this.ac.showAsPopup(view, action.closeMode);
+
+    this.popupIsActive = true;
+    if (action.closeMode === 'managed') {
+      this.onPopdown = action.onClose;
+      this.popdownParams = p;
+    } else {
+      this.onPopdown = undefined;
+      this.popdownParams = undefined;
+    }
+    return action.nextAction;
+  }
+
+  //this is called if the call to popup is with manual-close
+  private doPopdown(action: PopdownAction): string | undefined {
+    if (!this.popupIsActive) {
+      throw this.ac.newError(`no popup is active to be closed.`);
+    }
+
+    if (this.popdownParams) {
+      throw this.ac.newError(
+        `Popup is active with managed-close. But a manual close was attempted.`
+      );
+    }
+    this.ac.closePopup();
+    this.popupIsActive = false;
+    return action.nextAction;
+  }
+
+  /**
+   * to be called when the user closes a popup with managed-close
+   */
+  public popupClosed(): void {
+    if (!this.popupIsActive) {
+      throw this.ac.newError(
+        `no popup is active to be closed, but popupClosed called.`
+      );
+    }
+
+    if (!this.popdownParams) {
+      throw this.ac.newError(
+        `Popup is active with manual-close. But a managed-close was attempted.`
+      );
+    }
+    //note that the view has already closed the popup and called us.
+    this.popupIsActive = false;
+    if (this.onPopdown) {
+      const actionName = this.onPopdown;
+      const p = this.popdownParams!;
+      this.onPopdown = undefined;
+      this.popdownParams = undefined;
+      this.doAct(actionName, p);
+    }
   }
 
   private doFn(
     action: FunctionAction,
     p: ActionParameters,
     controller: FormController
-  ): boolean {
+  ): string | undefined {
     const functionName = action.functionName;
     /**
      * is it a dynamic function added at run time for this page?
@@ -712,7 +848,7 @@ export class PC implements PageController {
     const fn = this.functions[functionName];
     if (fn) {
       fn();
-      return false;
+      return action.onSuccess;
     }
 
     let params: StringMap<unknown> | undefined;
@@ -727,66 +863,93 @@ export class PC implements PageController {
     }
     const status = this.callFunction(functionName, params, p.msgs, controller);
 
-    return !status.allOk;
+    return status.allOk ? action.onSuccess : action.onFailure;
   }
+
   private tryToServe(
     action: ServiceAction,
     p: ActionParameters,
     controller: FormController
-  ): boolean {
+  ): string | undefined {
     let values: Vo | undefined;
-    let errorFound = false;
-    if (action.submitAll || action.panelToSubmit) {
-      let controllerToUse: DataController | undefined;
-      if (action.submitAll) {
-        controllerToUse = this.fc;
+    const payload = action.dataToSend;
+    if (payload) {
+      const source = payload.source;
+      if (source === 'all' || source === 'panel') {
+        let controllerToUse: DataController | undefined;
+        if (source === 'all') {
+          controllerToUse = this.fc;
+        } else {
+          controllerToUse = this.getControllerByType(payload.panelName, 'form');
+
+          if (!controllerToUse) {
+            throw new Error(
+              `Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${payload.panelName}' but that form is not used on this page `
+            );
+          }
+        }
+
+        //let us validate the form again
+        if (controllerToUse.validate()) {
+          values = controllerToUse.getData() as Vo;
+        } else {
+          addMessage('Please fix the errors on this page', p.msgs);
+          return;
+        }
+      } else if (source === 'fields') {
+        const n = p.msgs.length;
+        values = controller.extractData(payload.fields, p.msgs);
+        if (n !== p.msgs.length) {
+          return;
+        }
+      } else if (source === 'table') {
+        const tc = this.getControllerByType(
+          payload.tablePanel,
+          'table'
+        ) as TableViewerController;
+        if (!tc) {
+          throw this.ac.newError(
+            `Design Error. Action '${action.name}' on page '${this.name}' specifies tablePanel='${payload.tablePanel}' but that table is not used on this page `
+          );
+        }
+        if (payload.sendARow) {
+          values = tc.getRowData(payload.rowIdx, payload.columns);
+        } else {
+          values = { list: tc.getData() };
+        }
       } else {
-        controllerToUse = this.fc.getController(action.panelToSubmit!);
-      }
-      if (!controllerToUse) {
-        throw new Error(
-          `Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${action.panelToSubmit}' but that form is not used on this page `
+        throw this.ac.newError(
+          `Design Error. Action '${action.name}' on page '${this.name}' specifies an invalid source='${source}' `
         );
       }
-
-      //let us validate the form again
-      if (controllerToUse.validate()) {
-        values = controllerToUse.getData() as Vo;
-      } else {
-        addMessage('Please fix the errors on this page', p.msgs);
-        errorFound = true;
-      }
-    } else if (action.fieldsToSubmit) {
-      const n = p.msgs.length;
-      values = controller.extractData(action.fieldsToSubmit, p.msgs);
-      errorFound = n !== p.msgs.length;
     }
 
     /**
      * do we have an intercept?
      */
-    if (!errorFound && action.fnBeforeRequest) {
+    if (action.fnBeforeRequest) {
       const fnd = this.ac.getFn(action.fnBeforeRequest, 'request');
       const fn = fnd.fn as RequestFunction;
       const ok = fn(controller, values, p.msgs);
-      errorFound = !ok;
+      if (!ok) {
+        return;
+      }
     }
-    if (!errorFound) {
-      /**
-       * ok. ask for the service.
-       */
+    /**
+     * ok. ask for the service.
+     */
 
-      this.serve(
-        action.serviceName,
-        controller,
-        values,
-        action.targetPanelName,
-        action.fnAfterResponse
-      ).then((ok: boolean) => {
-        this.actionReturned(action, ok, p);
-      });
-    }
-    return errorFound;
+    this.serve(
+      action.serviceName,
+      controller,
+      values,
+      action.targetPanelName,
+      action.fnAfterResponse
+    ).then((ok: boolean) => {
+      this.actionReturned(action, p, ok ? action.onSuccess : action.onFailure);
+    });
+
+    return action.nextAction;
   }
   /**
    *
@@ -810,9 +973,54 @@ export class PC implements PageController {
   }
 
   setDisplayState(compName: string, settings: Values): void {
-    this.fc.setDisplayState(compName, settings);
+    const done = this.fc.setDisplayState(compName, settings);
+    if (done) {
+      return;
+    }
+
+    //could be for a row or a column.
+    const tablePart = this.getTableParts(compName);
+    if (tablePart === undefined) {
+      return;
+    }
+
+    const tc = this.getControllerByType(
+      tablePart.name,
+      'table'
+    ) as TableViewerController;
+    if (tc) {
+      tc.setRowOrCellState(settings, tablePart.rowIdx!, tablePart.columnName);
+    }
   }
 
+  private getTableParts(name: string): TableRowOrCell | undefined {
+    const names = name.split('.');
+    if (names.length === 1) {
+      return undefined;
+    }
+
+    const msg = `'${name}' is not a valid target for a row or a cell in a table. Expected 'name.number' or 'name.?' with optional '.columnName'`;
+    if (names.length > 3) {
+      logger.error(msg);
+      return undefined;
+    }
+    const parts: TableRowOrCell = { name: names[0].trim() };
+    const idx = names[1].trim();
+    if (idx === '?') {
+      //means current-idx. rowIdx need not be added
+    } else {
+      const n = Number.parseInt(idx, 10);
+      if (!Number.isInteger(n)) {
+        logger.error(msg);
+        return undefined;
+      }
+      parts.rowIdx = n;
+    }
+    if (names.length === 3) {
+      parts.columnName = names[2].trim();
+    }
+    return parts;
+  }
   /**
    * an async action has returned. We have to continue the possible action-chain
    * @param action
@@ -821,41 +1029,16 @@ export class PC implements PageController {
    */
   private actionReturned(
     action: Action | undefined,
-    ok: boolean,
-    p: ActionParameters
+    p: ActionParameters,
+    nextAction?: string
   ): void {
     this.showMessages(p.msgs);
-    if (!action) {
-      return;
-    }
-    if (action.toDisableUx) {
+    if (action?.toDisableUx) {
       this.ac.enableUx();
     }
-    //call back action??
-    if (ok) {
-      if (action.successMessageId) {
-        this.showMessages([this.toMessage(action.successMessageId, 'success')]);
-      }
-      if (action.onSuccess) {
-        //this chain continues..
-        this.doAct(action.onSuccess, p);
-      }
-    } else {
-      if (action.failureMessageId) {
-        this.showMessages([this.toMessage(action.failureMessageId, 'error')]);
-      }
-      if (action.onFailure) {
-        //this chain continues..
-        this.doAct(action.onFailure, p);
-      }
+    if (nextAction) {
+      this.doAct(nextAction, p, undefined);
     }
-  }
-
-  toMessage(
-    id: string,
-    type: 'error' | 'warning' | 'info' | 'success'
-  ): DetailedMessage {
-    return { id, type, text: this.ac.getMessage(id) };
   }
 
   private navigate(action: NavigationAction, p: ActionParameters): boolean {
@@ -938,32 +1121,38 @@ export class PC implements PageController {
     return true;
   }
 
+  /**
+   *
+   * @param action
+   * @param p
+   * @param callback
+   * @returns nextAction to be taken without waiting for thr form-service to return
+   * undefined in case of any error in submitting the form..
+   */
   private doFormAction(
-    action: FormAction | FilterAction,
-    actionParams: ActionParameters,
-    callback: (ok: boolean) => void
-  ): void {
-    const fc = actionParams.fc || this.fc;
-    const messages: DetailedMessage[] = [];
+    action: FormAction,
+    p: ActionParameters
+  ): string | undefined {
+    const fc = p.fc || this.fc;
 
     let operation = action.formOperation;
     if (operation === 'save') {
       if (!this.forSave) {
-        addMessage('This page is not designed for a save operation', messages);
-      } else {
-        operation = this.saveIsUpdate ? 'update' : 'create';
+        throw this.ac.newError(
+          'This page is not designed for a save operation'
+        );
       }
+      operation = this.saveIsUpdate ? 'update' : 'create';
     }
 
+    const nbrMessages = p.msgs.length;
     const serviceName = this.getServiceName(
       action.formName || fc.getFormName(),
       action.formOperation,
-      messages
+      p.msgs
     );
 
-    if (messages.length) {
-      this.showMessages(messages);
-      callback(false);
+    if (nbrMessages < p.msgs.length) {
       return;
     }
 
@@ -972,13 +1161,13 @@ export class PC implements PageController {
     let fa: FilterAction;
     switch (action.formOperation) {
       case 'get':
-        data = fc.extractKeys(messages) as Vo;
+        data = fc.extractKeys(p.msgs) as Vo;
         break;
 
       case 'filter':
         fa = action as FilterAction;
 
-        data = this.getFilterData(fc, fa, messages);
+        data = this.getFilterData(fc, fa, p.msgs);
         targetChild = fa.targetTableName;
         break;
 
@@ -987,7 +1176,7 @@ export class PC implements PageController {
       case 'delete':
       case 'save':
         if (!this.isValid()) {
-          addMessage('Page has fields with errors.', messages);
+          addMessage('Page has fields with errors.', p.msgs);
           break;
         }
         data = fc.getData();
@@ -996,22 +1185,21 @@ export class PC implements PageController {
       default:
         addMessage(
           `Form operation ${(action as FormAction).formOperation} is not valid`,
-          actionParams.msgs
+          p.msgs
         );
-        callback(false);
-        return;
+        break;
     }
-    if (messages.length) {
-      this.showMessages(messages);
-      callback(false);
+    if (nbrMessages < p.msgs.length) {
       return;
     }
 
+    //all ok to call the service. this function returns immediately after requesting the service.
     this.serve(serviceName, fc, data, targetChild, undefined).then((ok) => {
-      if (callback) {
-        callback(ok);
-      }
+      this.actionReturned(action, p, ok ? action.onSuccess : action.onFailure);
     });
+
+    //nextAction is to be taken without waiting for the form-service to return
+    return action.nextAction;
   }
 
   private getFilterData(
@@ -1045,6 +1233,90 @@ export class PC implements PageController {
     }
 
     return vo;
+  }
+
+  private getValueOf(
+    source: Value | FormField | TableColumn,
+    fc: FormController
+  ): Value | undefined {
+    if (typeof source !== 'object') {
+      //we do not check for null and functions. It is a constant value
+      return source as Value;
+    }
+
+    //is it a form-field?
+    if (source.fieldName) {
+      const f = source as FormField;
+      const controller = source.formName
+        ? (this.getControllerByType(source.formName, 'form') as FormController)
+        : fc;
+      if (controller) {
+        return controller.getFieldValue(f.fieldName);
+      }
+      return undefined;
+    }
+
+    //it is a column in a table
+    const t = source as TableColumn;
+    const tc = this.getControllerByType(
+      t.tableName,
+      'table'
+    ) as TableViewerController;
+    if (tc) {
+      return tc.getRowData(t.rowIdx)?.[t.columnName] as Value | undefined;
+    }
+    return undefined;
+  }
+
+  private setValueTo(
+    field: ValueSetter['field'],
+    value: Value,
+    fc: FormController
+  ): void {
+    if (typeof field === 'string') {
+      fc.setFieldValue(field, value);
+      return;
+    }
+    if (field.fieldName) {
+      const f = field.formName
+        ? (this.getControllerByType(field.formName, 'form') as FormController)
+        : fc;
+      if (f) {
+        f.setFieldValue(field.fieldName, value);
+      }
+      return;
+    }
+    const t = field as TableColumn;
+    const tc = this.getControllerByType(
+      t.tableName,
+      'table'
+    ) as TableViewerController;
+    if (tc) {
+      const row = tc.getRowData(t.rowIdx);
+      if (row) {
+        row[t.columnName] = value;
+      }
+    }
+  }
+
+  private getControllerByType(
+    name: string,
+    type: string //TODO: use enum
+  ): DataController | undefined {
+    const controller = this.fc.getController(name);
+    if (!controller) {
+      logger.error(`No controller named ${name} is available on this page.`);
+      return undefined;
+    }
+
+    if (controller.type !== type) {
+      logger.error(
+        `child controller '${name}' is expected to be a '${type}' but it is ${controller.type}`
+      );
+      return undefined;
+    }
+
+    return controller;
   }
 
   /*  ********** methods discontinued 

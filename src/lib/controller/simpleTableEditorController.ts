@@ -8,7 +8,7 @@ import {
   TableEditorView,
   Values,
   Vo,
-} from 'src/lib/types';
+} from '@simplity';
 import { logger } from '../logger';
 import { FC } from './formController';
 

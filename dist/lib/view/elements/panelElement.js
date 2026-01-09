@@ -2,12 +2,6 @@ import { logger } from '../../logger';
 import { BaseElement } from './baseElement';
 import { elementFactory } from './elementFactory';
 import { htmlUtil } from './htmlUtils';
-function getTemplateName(panel) {
-    if (panel.variant) {
-        return ('panel-' + panel.variant);
-    }
-    return 'panel';
-}
 export class PanelElement extends BaseElement {
     panel;
     /**
@@ -15,7 +9,7 @@ export class PanelElement extends BaseElement {
      */
     childFc;
     constructor(pc, fc, panel, maxWidth) {
-        super(pc, fc, panel, getTemplateName(panel), maxWidth);
+        super(pc, fc, panel, 'panel', maxWidth);
         this.panel = panel;
         let fcForChildren = fc;
         /**

@@ -136,13 +136,11 @@ export class ReportConfigurator {
             }
         }
         else if (this.table.children) {
-            for (let { name, label } of this.table.children) {
-                if (!label) {
-                    label = '';
-                }
-                this.fieldsList.push({ value: name, label });
+            for (const { name, label } of this.table.children) {
+                const lbl = label ?? '';
+                this.fieldsList.push({ value: name, label: lbl });
                 this.allFieldNames.push(name);
-                this.labels[name] = label;
+                this.labels[name] = lbl;
             }
         }
         else {
@@ -150,7 +148,7 @@ export class ReportConfigurator {
         }
     }
     doFilter() {
-        let maxRows = this.fc.getFieldValue(MAX_ROWS);
+        const maxRows = this.fc.getFieldValue(MAX_ROWS);
         /**
          * There are three tables : FIELDS, FILTERS and SORTS
          */
@@ -406,7 +404,7 @@ function arrangeFields(fields) {
  * @returns
  */
 function getNames(fields) {
-    let names = [];
+    const names = [];
     for (const a of fields) {
         if (!a.seqNo) {
             break;

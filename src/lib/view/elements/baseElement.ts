@@ -1,15 +1,16 @@
 import { logger } from '../../logger';
-import { HtmlTemplateName, htmlUtil, ViewState } from './htmlUtils';
+import { HtmlTemplateName, htmlUtil } from './htmlUtils';
 import {
   AppController,
   BaseComponent,
   BaseView,
   FormController,
   PageController,
-  Values,
   ViewInitFunction,
   StringMap,
-} from 'src/lib/types';
+  ViewState,
+  DisplayStates,
+} from '@simplity';
 
 const DEFAULT_WIDTH = 4;
 /**
@@ -154,9 +155,9 @@ export class BaseElement implements BaseView {
     htmlUtil.setViewState(this.root, 'invalid', msg !== undefined);
   }
 
-  setDisplayState(settings: Values): void {
+  setDisplayState(settings: DisplayStates): void {
     for (const [name, value] of Object.entries(settings)) {
-      htmlUtil.setViewState(this.root, name as ViewState, value);
+      htmlUtil.setViewState(this.root, name as ViewState, value!);
     }
   }
 

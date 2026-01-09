@@ -1,4 +1,4 @@
-import { CompositeRecord, Record, SimpleRecord, StringMap } from 'src/lib/types';
+import { CompositeRecord, Record, SimpleRecord, StringMap } from '@simplity';
 export type ProcessedRecords = {
     all: StringMap<Record>;
     /**

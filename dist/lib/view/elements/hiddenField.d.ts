@@ -1,4 +1,4 @@
-import { DataField, FormController, PageController, Value } from 'src/lib/types';
+import { DataField, FormController, PageController, Value } from '@simplity';
 import { BaseElement } from './baseElement';
 export declare class HiddenField extends BaseElement {
     readonly field: DataField;

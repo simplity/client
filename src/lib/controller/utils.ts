@@ -1,4 +1,4 @@
-import { Vo } from 'src/lib/types';
+import { Vo } from '@simplity';
 export const utils = {
   /**
    * get effective style for an component based on various parameters

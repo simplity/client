@@ -140,6 +140,12 @@ export class AC {
     navigate(options) {
         this.appView.navigate(options);
     }
+    showAsPopup(panel, closeMode) {
+        this.appView.showAsPopup(panel, closeMode);
+    }
+    closePopup() {
+        this.appView.closePopup();
+    }
     closePage() {
         this.appView.closePage();
     }

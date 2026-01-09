@@ -1,5 +1,12 @@
 // Auto-generated HTML collection. Do not edit manually.
 export const predefinedHtmls = {
+    '_button-link': `<button
+  data-id="label"
+  type="button"
+  class="rounded-md text-indigo-600 mx-2 text-sm hover:text-indigo-500 hover:underline"
+></button>
+<!-- w-auto -->
+`,
     '_button-navigation': `<!--
   This is a button styled like a link for navigation purposes.
 -->
@@ -126,8 +133,6 @@ export const predefinedHtmls = {
     ></p>
   </div>
 </div>
-`,
-    '_content': `<span class="mx-4"></span>
 `,
     '_date-field': `<!-- prettier-ignore -->
 <div data-init="_initDatePicker" data-id="text-field" class="group mx-4">
@@ -535,6 +540,101 @@ export const predefinedHtmls = {
   </div>
 </div>
 `,
+    '_modal-page': `<!--
+  wrapper-panel that renders its content as modal at the centre of the page
+-->
+<div
+  data-hidden
+  class="relative z-10"
+  aria-labelledby="modal-title"
+  role="dialog"
+  aria-modal="true"
+>
+  <!--
+  Background backdrop, show/hide based on modal state.
+
+  Entering: "ease-out duration-300"
+    From: "opacity-0"
+    To: "opacity-100"
+  Leaving: "ease-in duration-200"
+    From: "opacity-100"
+    To: "opacity-0"
+-->
+  <div
+    class="fixed inset-0 bg-gray-500/75 transition-opacity"
+    aria-hidden="true"
+  ></div>
+
+  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+    <div
+      class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+    >
+      <!--
+      Modal panel, show/hide based on modal state.
+
+      Entering: "ease-out duration-300"
+        From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        To: "opacity-100 translate-y-0 sm:scale-100"
+      Leaving: "ease-in duration-200"
+        From: "opacity-100 translate-y-0 sm:scale-100"
+        To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    -->
+      <div
+        data-id="page"
+        class="relative transform overflow-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-3/4 sm:p-6"
+      ></div>
+    </div>
+  </div>
+</div>
+`,
+    '_modal-panel': `<!--
+  wrapper-panel that renders its content as modal at the centre of the page
+-->
+<div
+  data-hidden
+  class="relative z-10"
+  aria-labelledby="modal-title"
+  role="dialog"
+  aria-modal="true"
+  data-id="container"
+>
+  <!--
+  Background backdrop, show/hide based on modal state.
+
+  Entering: "ease-out duration-300"
+    From: "opacity-0"
+    To: "opacity-100"
+  Leaving: "ease-in duration-200"
+    From: "opacity-100"
+    To: "opacity-0"
+-->
+  <div
+    class="fixed inset-0 bg-gray-500/75 transition-opacity"
+    aria-hidden="true"
+  ></div>
+
+  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+    <div
+      class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+    >
+      <!--
+      Modal panel, show/hide based on modal state.
+
+      Entering: "ease-out duration-300"
+        From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        To: "opacity-100 translate-y-0 sm:scale-100"
+      Leaving: "ease-in duration-200"
+        From: "opacity-100 translate-y-0 sm:scale-100"
+        To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    -->
+      <div
+        data-id="container"
+        class="relative transform overflow-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-3/4 sm:p-6"
+      ></div>
+    </div>
+  </div>
+</div>
+`,
     '_module': `<!-- prettier-ignore -->
 <li data-clickable class="group">
   <button
@@ -641,53 +741,6 @@ export const predefinedHtmls = {
     class="absolute right-4 my-4 flex flex-row justify-end gap-4"
   ></div>
   <div data-id="table"></div>
-</div>
-`,
-    '_panel-modal': `<!--
-  wrapper-panel that renders its content as modal at the centre of the page
--->
-<div
-  data-hidden
-  class="relative z-10"
-  aria-labelledby="modal-title"
-  role="dialog"
-  aria-modal="true"
->
-  <!--
-  Background backdrop, show/hide based on modal state.
-
-  Entering: "ease-out duration-300"
-    From: "opacity-0"
-    To: "opacity-100"
-  Leaving: "ease-in duration-200"
-    From: "opacity-100"
-    To: "opacity-0"
--->
-  <div
-    class="fixed inset-0 bg-gray-500/75 transition-opacity"
-    aria-hidden="true"
-  ></div>
-
-  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-    <div
-      class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
-    >
-      <!--
-      Modal panel, show/hide based on modal state.
-
-      Entering: "ease-out duration-300"
-        From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        To: "opacity-100 translate-y-0 sm:scale-100"
-      Leaving: "ease-in duration-200"
-        From: "opacity-100 translate-y-0 sm:scale-100"
-        To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-    -->
-      <div
-        data-id="page"
-        class="relative transform overflow-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-3/4 sm:p-6"
-      ></div>
-    </div>
-  </div>
 </div>
 `,
     '_panel-outline': `<div
@@ -888,6 +941,10 @@ export const predefinedHtmls = {
     </span>
   </div>
 </th>
+`,
+    '_static-box': `<div class="mx-4 border-gray-500" data-id="content"></div>
+`,
+    '_static': `<span class="mx-4" data-id="content"></span>
 `,
     '_tab-label': ``,
     '_tab': ``,

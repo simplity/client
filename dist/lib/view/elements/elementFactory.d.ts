@@ -1,4 +1,4 @@
-import { FormController, PageController, Value, ViewComponentFactory, BaseComponent } from 'src/lib/types';
+import { FormController, PageController, Value, ViewComponentFactory, BaseComponent } from '@simplity';
 import { BaseElement } from './baseElement';
 export declare const elementFactory: {
     /**

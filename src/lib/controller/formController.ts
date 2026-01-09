@@ -24,7 +24,7 @@ import {
   Value,
   Values,
   Vo,
-} from 'src/lib/types';
+} from '@simplity';
 import { logger } from '../logger';
 import { SimpleTableEditorController } from './simpleTableEditorController';
 import { SimpleChartController } from './simpleChartController';
@@ -289,7 +289,7 @@ export class FC implements FormController {
     return controller;
   }
 
-  getController(name: string): DataController | undefined {
+  public getController(name: string): DataController | undefined {
     for (const [panelName, c] of Object.entries(this.controllers)) {
       if (panelName === name) {
         return c;
@@ -645,16 +645,19 @@ export class FC implements FormController {
 
   setDisplayState(compName: string, settings: Values): boolean {
     const f = this.children[compName];
+    //is this a direct child?
     if (f) {
       f.setDisplayState(settings);
       return true;
     }
 
+    // could be componnet inside a child-controller
     for (const c of Object.values(this.controllers)) {
       if (c.setDisplayState(compName, settings)) {
         return true;
       }
     }
+
     return false;
   }
 

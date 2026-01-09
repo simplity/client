@@ -4,18 +4,12 @@ import {
   PageController,
   Panel,
   PanelView,
-} from 'src/lib/types';
+} from '@simplity';
 import { logger } from '../../logger';
 import { BaseElement } from './baseElement';
 import { elementFactory } from './elementFactory';
-import { HtmlTemplateName, htmlUtil } from './htmlUtils';
+import { htmlUtil } from './htmlUtils';
 
-function getTemplateName(panel: Panel): HtmlTemplateName {
-  if (panel.variant) {
-    return ('panel-' + panel.variant) as HtmlTemplateName;
-  }
-  return 'panel';
-}
 export class PanelElement extends BaseElement implements PanelView {
   /**
    * in case this panel is associated with a child-form
@@ -28,7 +22,7 @@ export class PanelElement extends BaseElement implements PanelView {
     public readonly panel: Panel,
     maxWidth: number
   ) {
-    super(pc, fc, panel, getTemplateName(panel), maxWidth);
+    super(pc, fc, panel, 'panel', maxWidth);
 
     let fcForChildren = fc;
 

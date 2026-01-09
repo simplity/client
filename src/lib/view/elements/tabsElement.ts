@@ -1,4 +1,4 @@
-import { FormController, PageController, Tabs } from 'src/lib/types';
+import { FormController, PageController, Tabs } from '@simplity';
 import { BaseElement } from './baseElement';
 
 export class TabsElement extends BaseElement {

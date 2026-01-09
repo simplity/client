@@ -1,6 +1,12 @@
-import { AlertType, FormattedValue, Value, Vo } from '../common';
+import {
+  AlertType,
+  FormattedValue,
+  Value,
+  Vo,
+  DetailedMessage,
+} from '../common';
 import { AppController, FormController, PageController } from './';
-import { DetailedMessage, ServiceResponse } from '../agent';
+import { ServiceResponse } from '../agent';
 import { BaseView } from '../view';
 
 /**

@@ -1,8 +1,7 @@
-import { FilterCondition, SortBy, StringMap, Value, Values, Vo } from '../common';
+import { DetailedMessage, FilterCondition, SortBy, StringMap, Value, Values, Vo } from '../common';
 import { BaseView, ChartView, TableEditorView, TableViewerView } from '../view';
-import { Form, Panel, EventName } from '../design';
+import { Form, Panel, EventName, DisplayStates } from '../design';
 import { PageController } from './';
-import { DetailedMessage } from '../agent';
 /**
  * base interface to be implemented by the form/table controllers
  */
@@ -64,16 +63,23 @@ export interface ChartController extends DataController {
 export interface TableViewerController extends DataController {
     readonly type: 'table';
     /**
-     * get the data for this table
+     * set display state for a specific row or cell
+     * @param settings
+     * @param rowIdx
+     * @param columnName
+     */
+    setRowOrCellState(settings: DisplayStates, rowIdx: number, columnName?: string): boolean; /**
+     * get the data for this table as an array of objects
      */
     getData(): Vo[];
     /**
      * return the data associated with the specified row.
      *
      * @param rowIdx optional. defaults to current row.
+     * @param columns optional array of column names to be included in the result. defaults to all columns
      * @returns undefined if there is no data with the specified row index
      */
-    getRowData(rowIdx?: number): Vo | undefined;
+    getRowData(rowIdx?: number, columns?: string[]): Values | undefined;
     /**
      * user has clicked on a row.
      * this event is NOT triggered if the table has any clickable column.

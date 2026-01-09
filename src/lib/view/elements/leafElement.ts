@@ -1,22 +1,7 @@
-import {
-  Button,
-  FormController,
-  PageController,
-  StaticComp,
-} from 'src/lib/types';
+import { Button, FormController, PageController, StaticComp } from '@simplity';
 import { BaseElement } from './baseElement';
-import { HtmlTemplateName } from './htmlUtils';
-
-const getTemplateName = (comp: StaticComp | Button): HtmlTemplateName | '' => {
-  if (comp.compType == 'button') {
-    return 'button';
-  }
-  const st = comp as StaticComp;
-  console.info(
-    `going to create leaf element ${st.name} with type='${st.variant}' and templateName='${st.templateName}'`
-  );
-  return st.variant || '';
-};
+import { HtmlTemplateName, htmlUtil } from './htmlUtils';
+import { logger } from 'lib/logger';
 
 /**
  * base class for elements and buttons. These are elements with no children.
@@ -30,13 +15,28 @@ export class LeafElement extends BaseElement {
     public comp: StaticComp | Button,
     maxWidth: number
   ) {
-    super(pc, fc, comp, getTemplateName(comp), maxWidth);
+    super(pc, fc, comp, comp.compType as HtmlTemplateName, maxWidth);
     /**
      * no labels inside grids
      */
     if (maxWidth === 0 && this.labelEle) {
       this.labelEle.remove();
       this.labelEle = undefined;
+    }
+
+    //TODO: handle different types of static components
+    const ct = comp.compType;
+    if (ct === 'static') {
+      const content = (comp as StaticComp).content || '';
+      const ele = htmlUtil.getChildElement(this.root, 'content');
+      ele.innerHTML = content;
+      return;
+    }
+    if (ct !== 'button') {
+      logger.error(
+        `LeafElement instantiated with unsupported component type '${ct}'`
+      );
+      return;
     }
   }
 }

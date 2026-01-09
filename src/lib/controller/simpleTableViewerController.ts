@@ -1,5 +1,6 @@
 import {
   AppController,
+  Field,
   Form,
   FormController,
   PageController,
@@ -9,7 +10,7 @@ import {
   TableViewerView,
   Values,
   Vo,
-} from 'src/lib/types';
+} from '@simplity';
 import { FC } from './formController';
 import { ReportConfigurator } from './reportConfigurator';
 import { logger } from '../logger';
@@ -83,11 +84,33 @@ export class SimpleTableViewerController implements TableViewerController {
     this.info = new TableInfo(this.table);
   }
 
-  getRowData(rowIdx?: number): Vo | undefined {
+  getRowData(rowIdx?: number, columns?: string[]): Values | undefined {
     if (rowIdx === undefined) {
       rowIdx = this.currentIdx === -1 ? 0 : this.currentIdx;
+    } else {
+      rowIdx = this.sanitizeIdx(rowIdx);
+      if (rowIdx === undefined) {
+        logger.error(`Invalid row index ${rowIdx} for table ${this.name}`);
+        return undefined;
+      }
     }
-    return this.data[rowIdx];
+    const row = this.data[rowIdx];
+    if (!columns || columns.length === 0) {
+      return row;
+    }
+
+    const values: Values = {};
+    for (const col of columns) {
+      const value = row[col];
+      if (value === undefined) {
+        logger.warn(
+          `Column ${col} not found in row ${rowIdx} of table ${this.name}`
+        );
+      } else {
+        values[col] = row[col];
+      }
+    }
+    return values;
   }
 
   public getFormName() {
@@ -134,7 +157,7 @@ export class SimpleTableViewerController implements TableViewerController {
       this.setData(data as Values[]);
       return;
     }
-    let arr = data[this.name] || data['list'];
+    const arr = data[this.name] || data['list'];
     if (arr && Array.isArray(arr)) {
       this.setData(arr as Values[]);
       return;
@@ -160,7 +183,7 @@ export class SimpleTableViewerController implements TableViewerController {
     return this.data;
   }
 
-  resetData(fields?: string[]): void {
+  resetData(_fields?: string[]): void {
     this.setData([]);
   }
 
@@ -254,8 +277,28 @@ export class SimpleTableViewerController implements TableViewerController {
       this.info.currentRowIdx = rowIdx;
     }
   }
+
   setDisplayState(_compName: string, _settings: Values): boolean {
+    //table-viewer has no concept of 'children'. setRowOrCellState() to be used instaed
     return false;
+  }
+  public setRowOrCellState(
+    settings: Values,
+    rowIdx?: number,
+    columnName?: string
+  ): boolean {
+    const idx = this.sanitizeIdx(
+      rowIdx === undefined ? this.currentIdx : rowIdx
+    );
+    if (idx === undefined) {
+      if (rowIdx === undefined) {
+        logger.error(`No current row is selected for table ${this.name}`);
+      } else {
+        logger.error(`Invalid row index ${rowIdx} for table ${this.name}`);
+      }
+      return false;
+    }
+    return this.view.setRowOrCellState(settings, idx, columnName);
   }
 }
 
@@ -334,9 +377,10 @@ export class TableInfo {
     if (meta.children) {
       for (const col of meta.children) {
         this.columnNames.push(col.name);
-        const c: any = col;
+        const c: unknown = col;
         //  no header label for buttons
-        const label = col.compType === 'field' ? c.label || col.name : '';
+        const label =
+          col.compType === 'field' ? (c as Field).label || col.name : '';
         this.columnLabels.push(label);
       }
     }
