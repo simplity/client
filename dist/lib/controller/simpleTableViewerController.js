@@ -15,7 +15,7 @@ export class SimpleTableViewerController {
      */
     table;
     /**
-     * viw-component instance associated with this table (e.g. angular component)
+     * view-component instance associated with this table (e.g. angular component)
      */
     view;
     /**
@@ -62,6 +62,30 @@ export class SimpleTableViewerController {
             this.form = this.ac.getForm(formName);
         }
         this.info = new TableInfo(this.table);
+    }
+    isEditable() {
+        return false;
+    }
+    getFieldValue(fieldName) {
+        let idx = this.currentIdx;
+        if (idx === -1) {
+            if (this.data.length) {
+                idx = 0;
+            }
+            else {
+                logger.warn(`getFieldValue: Table ${this.name} has no data. undefined is returned for field ${fieldName}`);
+                return undefined;
+            }
+        }
+        const row = this.data[idx];
+        const value = row[fieldName];
+        if (value === undefined) {
+            logger.warn(`getFieldValue: Field ${fieldName} not found in current row of table ${this.name}. undefined is returned.`);
+        }
+        return value;
+    }
+    setFieldValue(fieldName, _value) {
+        logger.warn(`setFieldValue: Table ${this.name} is read-only. No action is taken for field ${fieldName}`);
     }
     getRowData(rowIdx, columns) {
         if (rowIdx === undefined) {
@@ -159,6 +183,7 @@ export class SimpleTableViewerController {
             return;
         }
         this.currentIdx = idx;
+        console.info(`Row ${idx} clicked in table ${this.name} with onRowClick = '${this.table.onRowClick}'`);
         this.info.currentRowIdx = idx;
         if (this.table.onRowClick) {
             this.pc.act(this.table.onRowClick, undefined, this.data[idx]);
@@ -169,6 +194,7 @@ export class SimpleTableViewerController {
         if (idx === undefined) {
             return;
         }
+        console.info(`Cell clicked for ${idx} clicked in table ${this.name}, with action ${action}`);
         this.currentIdx = idx;
         this.info.currentRowIdx = idx;
         this.pc.act(action, undefined, this.data[idx]);

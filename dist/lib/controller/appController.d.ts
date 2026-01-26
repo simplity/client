@@ -1,4 +1,4 @@
-import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, StringMap, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent, BaseView } from '@simplity';
+import { AppRuntime, AppController, Form, FunctionImpl, Layout, MenuItem, Page, ValueValidationResult, Values, Vo, AppView, Module, ServiceResponse, SimpleList, KeyedList, ValueType, FunctionType, ValueSchema, NavigationOptions, Alert, Value, ValueFormatter, FormattedValue, PageController, PageView, ServiceAgent, BaseView, DirectLink } from '@simplity';
 export declare class AC implements AppController {
     private readonly agent;
     private readonly appView;
@@ -12,6 +12,7 @@ export declare class AC implements AppController {
     private readonly allMessages;
     private readonly allValueSchemas;
     private readonly allFormatters;
+    private readonly allLinks;
     private readonly loginServiceName;
     private readonly logoutServiceName;
     private readonly defaultPageSize?;
@@ -23,7 +24,7 @@ export declare class AC implements AppController {
     private validPagesArray;
     private allowAllMenus;
     /**
-     * module.menuItem -> true
+     * module:{menuItem : true,...},...
      */
     private allowedMenus;
     /**
@@ -48,7 +49,7 @@ export declare class AC implements AppController {
      * request coming from the controller side to navigate to another page
      * @param options
      */
-    navigate(options: NavigationOptions): void;
+    navigate(options: NavigationOptions, inputData?: Vo): void;
     showAsPopup(panel: BaseView, closeMode?: 'manual' | 'managed'): void;
     closePopup(): void;
     closePage(): void;
@@ -58,6 +59,7 @@ export declare class AC implements AppController {
     disableUx(): void;
     enableUx(force?: boolean): void;
     showAlerts(alerts: Alert[]): void;
+    hideAlerts(): void;
     isPageValid(page: string): boolean;
     getLayout(nam: string): Layout;
     getModule(nam: string): Module;
@@ -67,6 +69,7 @@ export declare class AC implements AppController {
     getModuleIfAccessible(nam: string): Module | undefined;
     getMenuIfAccessible(module: string, nam: string): MenuItem | undefined;
     getPage(nam: string): Page;
+    getDirectLink(name: string): DirectLink | undefined;
     getForm(nam: string): Form;
     getFn(nam: string, type?: FunctionType): FunctionImpl;
     getMessage(id: string, params?: string[], fallbackText?: string): string;
@@ -78,8 +81,8 @@ export declare class AC implements AppController {
     getUser(): Vo | undefined;
     login(credentials: Values): Promise<boolean>;
     logout(): void;
-    grantAccessToAllMenus(): void;
-    grantAccess(menus: StringMap<StringMap<true>>): void;
+    private grantAccessToAllMenus;
+    private grantAccess;
     serve(serviceName: string, data?: Vo): Promise<ServiceResponse>;
     downloadServiceResponse(fileName: string, serviceName: string, data: Vo | undefined): Promise<boolean>;
     getList(listName: string, forceRefresh: boolean, key?: number | string): Promise<SimpleList>;
@@ -94,8 +97,7 @@ export declare class AC implements AppController {
     download(blob: Blob, fileName: string): void;
     getDefaultPageSize(): number;
     /**
-     * method to be called after login, if that is done by another component.
-     * it is better to call login() of this service instead.
+     *user just logged in.
      */
     private afterLogin;
     private shouldExist;

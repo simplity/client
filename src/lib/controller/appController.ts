@@ -32,6 +32,7 @@ import {
   PageView,
   ServiceAgent,
   BaseView,
+  DirectLink,
 } from '@simplity';
 import { utils } from './utils';
 import { parseValue, validateValue } from './validation';
@@ -80,6 +81,7 @@ export class AC implements AppController {
   private readonly allMessages: StringMap<string>;
   private readonly allValueSchemas: StringMap<ValueSchema>;
   private readonly allFormatters: StringMap<ValueFormatter>;
+  private readonly allLinks: StringMap<DirectLink>;
 
   // app level parameters
   private readonly loginServiceName;
@@ -97,7 +99,7 @@ export class AC implements AppController {
   private validPagesArray: string[] = [];
   private allowAllMenus: boolean = false;
   /**
-   * module.menuItem -> true
+   * module:{menuItem : true,...},...
    */
   private allowedMenus: StringMap<StringMap<true>> = {};
 
@@ -114,7 +116,7 @@ export class AC implements AppController {
   public constructor(
     runtime: AppRuntime,
     private readonly agent: ServiceAgent,
-    private readonly appView: AppView
+    private readonly appView: AppView,
   ) {
     //issue in node environment. sessionStorage is just a boolean!!!
     if (
@@ -146,6 +148,7 @@ export class AC implements AppController {
     this.allLayouts = runtime.layouts || {};
     this.allModules = runtime.modules || {};
     this.allMenuItems = this.createMenuItemMap(this.allModules);
+    this.allLinks = runtime.directLinks || {};
 
     //prepare valid pages array
     this.allValueSchemas = {
@@ -165,7 +168,7 @@ export class AC implements AppController {
 
   newWindow(url: string): void {
     logger.info(
-      `Request to open a window for url:${url} received. This feature is not yet implemented`
+      `Request to open a window for url:${url} received. This feature is not yet implemented`,
     );
   }
 
@@ -193,8 +196,8 @@ export class AC implements AppController {
    * request coming from the controller side to navigate to another page
    * @param options
    */
-  navigate(options: NavigationOptions): void {
-    this.appView.navigate(options);
+  navigate(options: NavigationOptions, inputData?: Vo): void {
+    this.appView.navigate(options, inputData);
   }
 
   showAsPopup(panel: BaseView, closeMode?: 'manual' | 'managed'): void {
@@ -247,7 +250,7 @@ export class AC implements AppController {
     }
     if (this.disableUxCount < 0) {
       logger.error(
-        `Request to enable the UX when it is already enabled. Possible internal error, or exception in some path`
+        `Request to enable the UX when it is already enabled. Possible internal error, or exception in some path`,
       );
       this.disableUxCount = 0;
     }
@@ -257,9 +260,13 @@ export class AC implements AppController {
     this.appView.showAlerts(alerts);
   }
 
+  hideAlerts(): void {
+    this.appView.hideAlerts();
+  }
+
   isPageValid(page: string): boolean {
     logger.warn(
-      `isPageValid() not yet implemented. Returning false for page ${page}.`
+      `isPageValid() not yet implemented. Returning false for page ${page}.`,
     );
     return false;
   }
@@ -335,6 +342,9 @@ export class AC implements AppController {
     return obj;
   }
 
+  getDirectLink(name: string): DirectLink | undefined {
+    return this.allLinks[name];
+  }
   getForm(nam: string): Form {
     const obj = this.allForms[nam];
     this.shouldExist(obj, nam, 'form');
@@ -410,14 +420,14 @@ export class AC implements AppController {
   async login(credentials: Values): Promise<boolean> {
     if (!this.loginServiceName) {
       logger.error(
-        'loginServiceName is not set for this app, but a request is made for the same'
+        'loginServiceName is not set for this app, but a request is made for the same',
       );
       return false;
     }
 
     //remove existing user first
     this.removeContextValue(USER);
-    this.grantAccess({});
+    this.grantAccess();
 
     const data = await this.serve(this.loginServiceName, credentials);
     this.afterLogin(data);
@@ -426,17 +436,28 @@ export class AC implements AppController {
 
   logout(): void {
     this.removeContextValue(USER);
-    this.grantAccess({});
+    this.grantAccess();
     this.serve(this.logoutServiceName).then();
   }
 
-  grantAccessToAllMenus(): void {
+  private grantAccessToAllMenus(): void {
     this.allowAllMenus = true;
   }
 
-  grantAccess(menus: StringMap<StringMap<true>>): void {
+  private grantAccess(menuIds?: string): void {
+    const menus: StringMap<StringMap<true>> = {};
     this.allowedMenus = menus;
     this.allowAllMenus = false;
+    if (!menuIds) {
+      return;
+    }
+    for (const id of menuIds.split(',')) {
+      const [module, menu] = id.split('.');
+      if (!menus[module]) {
+        menus[module] = {};
+      }
+      menus[module][menu] = true;
+    }
   }
 
   //server-related
@@ -445,7 +466,7 @@ export class AC implements AppController {
     if (resp.status === 'noSuchSession') {
       // TODO: handle server session timeout.
       logger.warn(
-        'Server has reported that the current session is not valid anymore.'
+        'Server has reported that the current session is not valid anymore.',
       );
       this.sessionId = undefined;
       return resp;
@@ -477,7 +498,7 @@ export class AC implements AppController {
   async downloadServiceResponse(
     fileName: string,
     serviceName: string,
-    data: Vo | undefined
+    data: Vo | undefined,
   ): Promise<boolean> {
     const response = await this.agent.serve(serviceName, this.sessionId, data);
     if (response.status !== 'completed') {
@@ -493,7 +514,7 @@ export class AC implements AppController {
     data = response.data;
     if (!data) {
       logger.warn(
-        `service ${serviceName} succeeded, but did not return any data. file ${fileName} would be empty`
+        `service ${serviceName} succeeded, but did not return any data. file ${fileName} would be empty`,
       );
       data = {};
     }
@@ -505,7 +526,7 @@ export class AC implements AppController {
   async getList(
     listName: string,
     forceRefresh: boolean,
-    key?: number | string
+    key?: number | string,
   ): Promise<SimpleList> {
     const hasKey = key !== undefined;
     let entry = this.listSources[listName];
@@ -523,7 +544,7 @@ export class AC implements AppController {
       //keyed list
       if (!hasKey) {
         logger.error(
-          `List ${listName} requires a key field, but no key is specified for this field. empty options returned.`
+          `List ${listName} requires a key field, but no key is specified for this field. empty options returned.`,
         );
         return [];
       }
@@ -539,7 +560,7 @@ export class AC implements AppController {
         }
 
         logger.error(
-          `List ${listName} is a design-time list, but no ready value-list is found`
+          `List ${listName} is a design-time list, but no ready value-list is found`,
         );
         return [];
       }
@@ -554,7 +575,7 @@ export class AC implements AppController {
           return entry.list;
         }
         logger.error(
-          `List ${listName} is a design-time list, but no ready value-list is found`
+          `List ${listName} is a design-time list, but no ready value-list is found`,
         );
         return [];
       }
@@ -569,7 +590,7 @@ export class AC implements AppController {
     if (!list) {
       if (resp.status !== 'completed') {
         logger.error(
-          `Error while fetching list ${listName}: ${resp.description}\n empty list assumed`
+          `Error while fetching list ${listName}: ${resp.description}\n empty list assumed`,
         );
       }
       return [];
@@ -591,7 +612,7 @@ export class AC implements AppController {
 
   async getKeyedList(
     listName: string,
-    forceRefresh: boolean
+    forceRefresh: boolean,
   ): Promise<KeyedList> {
     let entry = this.listSources[listName];
     if (!entry) {
@@ -606,7 +627,7 @@ export class AC implements AppController {
 
     if (!entry.isKeyed) {
       logger.error(
-        `List ${listName} is a simple list, but a keyed list is requested for the same. empty object is returned`
+        `List ${listName} is a simple list, but a keyed list is requested for the same. empty object is returned`,
       );
       return {};
     }
@@ -622,7 +643,7 @@ export class AC implements AppController {
     if (!list) {
       if (resp.status !== 'completed') {
         logger.error(
-          `Error while fetching list ${listName}: ${resp.description}\n empty list assumed`
+          `Error while fetching list ${listName}: ${resp.description}\n empty list assumed`,
         );
       }
       return {};
@@ -652,7 +673,7 @@ export class AC implements AppController {
   }
 
   private createMenuItemMap(
-    modules: StringMap<Module>
+    modules: StringMap<Module>,
   ): StringMap<StringMap<MenuItem>> {
     const menuItemMap: StringMap<StringMap<MenuItem>> = {};
     for (const [moduleName, module] of Object.entries(modules)) {
@@ -675,7 +696,7 @@ export class AC implements AppController {
 
   private formatUnknown(v: Value, formatter: ValueFormatter): FormattedValue {
     console.error(
-      `Formatting functionality not yet implemented for type=${formatter.type}. Hence formatter is just returning the input value as it is`
+      `Formatting functionality not yet implemented for type=${formatter.type}. Hence formatter is just returning the input value as it is`,
     );
     return { value: v.toString() };
   }
@@ -684,13 +705,13 @@ export class AC implements AppController {
     const fd = this.functionImpls[formatter.function];
     if (!fd) {
       console.error(
-        `Custom formatter function ${formatter.function} not found`
+        `Custom formatter function ${formatter.function} not found`,
       );
       return { value: v.toString() };
     }
     if (fd.type !== 'format') {
       console.error(
-        `Function ${formatter.function} is is used as 'format' but it is of type '${fd.type}'. Hence the value is not formatted`
+        `Function ${formatter.function} is is used as 'format' but it is of type '${fd.type}'. Hence the value is not formatted`,
       );
       return { value: v.toString() };
     }
@@ -740,14 +761,13 @@ export class AC implements AppController {
     return this.defaultPageSize || 0;
   }
   /**
-   * method to be called after login, if that is done by another component.
-   * it is better to call login() of this service instead.
+   *user just logged in.
    */
   private afterLogin(user?: Vo) {
     if (!user) {
-      console.info('No user data returned after login');
+      console.error('No user data returned after login!!');
       this.removeContextValue(USER);
-      this.grantAccess({});
+      this.grantAccess();
       return;
     }
 
@@ -759,16 +779,17 @@ export class AC implements AppController {
       return;
     }
 
-    const menus = user[conventions.accesibleMenus];
-    if (menus && typeof menus === 'object') {
-      this.grantAccess(menus as StringMap<StringMap<true>>);
+    const menus = user[conventions.accessibleMenus];
+
+    if (menus) {
+      this.grantAccess(menus as string);
       return;
     }
 
     console.info(
-      'Login service has not returned access control info. No menu access granted'
+      'Login service has not returned access control info. No menu access granted',
     );
-    this.grantAccess({});
+    this.grantAccess();
     this.removeContextValue(USER);
   }
 

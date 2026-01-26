@@ -8,7 +8,8 @@
  * The app-specific implementations of these interfaces are in app/client/src/viewComponents and app/client/src/controllers respectively
  */
 
-import { Alert, StringMap, Value, Values } from './common';
+import { AppInitPartameters } from './bootStrapper';
+import { Alert, StringMap, Value, Values, Vo } from './common';
 import {
   AppController,
   ChartController,
@@ -43,14 +44,9 @@ export interface AppView {
   /**
    * Renders the application view. Must be called once after the constructor
    * @param ac app controller
-   * @param startinglayout layout to be rendered
-   * @param startingModule module to be rendered
+   * @param options intialization parameters
    */
-  render(
-    ac: AppController,
-    startinglayout: string,
-    startingModule: string
-  ): void;
+  render(ac: AppController, options: AppInitPartameters): void;
   /**
    * disable user interaction.
    * Typically used during page loads/updates
@@ -73,6 +69,11 @@ export interface AppView {
   showAlerts(alerts: Alert[]): void;
 
   /**
+   * hide any shown alerts
+   */
+  hideAlerts(): void;
+
+  /**
    * Show a message/question to get user's response/choice
    * @param text message text to be shown
    * @param choices options to be shown as buttons to choose from
@@ -82,9 +83,10 @@ export interface AppView {
 
   /**
    * navigate to the desired page based on the details in this action
-   * @param options page and other details
+   * @param options menu-item and other navigation options
+   * @param inputData optional data to be passed to the target page
    */
-  navigate(options: NavigationOptions): void;
+  navigate(options: NavigationOptions, inputData?: Vo): void;
 
   /**
    * close the current page. It is an error to try to close the current page if the page stack is empty
@@ -140,7 +142,7 @@ export interface PageView {
   /**
    * run time parameters passed to this page
    */
-  readonly inputs: Values;
+  readonly inputs: Vo;
 
   /**
    * whether the page buttons are to be rendered or hidden
@@ -302,7 +304,7 @@ export interface MultiReportPanelView extends BaseView {
   renderData(
     reportName: string,
     data: Values[],
-    selectedNames?: string[]
+    selectedNames?: string[],
   ): void;
 }
 
@@ -354,7 +356,7 @@ export interface TableViewerView extends BaseView {
   setRowOrCellState(
     settings: DisplayStates,
     rowIdx: number,
-    columnName?: string
+    columnName?: string,
   ): boolean;
 }
 
@@ -435,6 +437,6 @@ export type ViewComponentFactory = {
     fc: FormController | undefined,
     comp: BaseComponent,
     maxWidth: number,
-    value?: Value
+    value?: Value,
   ): BaseView | undefined;
 };

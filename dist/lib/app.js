@@ -14,6 +14,7 @@
 import { AppElement } from './view/elements';
 import { AC } from './controller';
 import { serviceAgent } from './agent';
+import { logger } from './logger';
 let appController;
 function getAc() {
     if (!appController) {
@@ -29,9 +30,56 @@ function bootstrap(appRuntime) {
     });
     const appView = new AppElement(appRuntime.appElement, appRuntime.htmls);
     appController = new AC(appRuntime, agent, appView);
-    appView.render(appController, appRuntime.startingLayout, appRuntime.startingModule);
+    let params = parseQueryString(appController);
+    if (!params) {
+        params = {
+            layout: appRuntime.startingLayout,
+            module: appRuntime.startingModule,
+            menuItem: appRuntime.startingMenuItem,
+        };
+    }
+    appView.render(appController, params);
 }
 function shutDown() { }
+function reportError() {
+    logger.error('Malformed direct link. Ignored');
+    return undefined;
+}
+function parseQueryString(ac) {
+    const s = window.location.search;
+    if (!s) {
+        return undefined;
+    }
+    const urlParams = new URLSearchParams(s);
+    const d = urlParams.get('_d');
+    const t = urlParams.get('_t');
+    if (!d) {
+        return reportError();
+    }
+    //direct link
+    const link = ac.getDirectLink(d);
+    if (!link) {
+        return reportError();
+    }
+    if (link.requiresToken && !t) {
+        return reportError();
+    }
+    const pageParameters = {};
+    for (const [key, value] of urlParams.entries()) {
+        if (key !== '_d' && key !== '_t') {
+            pageParameters[key] = value;
+        }
+    }
+    if (t) {
+        pageParameters['token'] = t;
+    }
+    return {
+        layout: link.layout,
+        module: link.module,
+        menuItem: link.menuItem,
+        pageParameters,
+    };
+}
 export const app = { getAc };
 export const bootStrapper = {
     start: bootstrap,

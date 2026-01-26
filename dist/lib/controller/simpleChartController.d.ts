@@ -1,4 +1,4 @@
-import { Chart, ChartController, ChartView, FormController, Values, Vo } from '@simplity';
+import { Chart, ChartController, ChartView, FormController, Value, Values, Vo } from '@simplity';
 export declare class SimpleChartController implements ChartController {
     readonly fc: FormController;
     private readonly view;
@@ -8,7 +8,9 @@ export declare class SimpleChartController implements ChartController {
     readonly pc: import("@simplity").PageController;
     readonly chart: Chart;
     constructor(fc: FormController, view: ChartView);
-    setDisplayState(compName: string, settings: Values): boolean;
+    isEditable(): boolean;
+    setFieldValue(fieldName: string, value: Value): void;
+    setDisplayState(compName: string, _settings: Values): boolean;
     getFormName(): string | undefined;
     receiveData(data: Vo | Vo[], _childName?: string): void;
     setData(data: Vo | Vo[]): void;
@@ -16,5 +18,6 @@ export declare class SimpleChartController implements ChartController {
     isModified(): boolean;
     isValid(): boolean;
     validate(): boolean;
-    resetData(fields?: string[]): void;
+    resetData(_fields?: string[]): void;
+    getFieldValue(fieldName: string): Value | undefined;
 }

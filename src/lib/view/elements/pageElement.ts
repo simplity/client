@@ -6,7 +6,7 @@ import {
   Page,
   PageController,
   PageView,
-  Values,
+  Vo,
 } from '@simplity';
 import { htmlUtil } from './htmlUtils';
 import { PanelElement } from './panelElement';
@@ -24,7 +24,7 @@ export class PageElement implements PageView {
   constructor(
     public readonly ac: AppController,
     public readonly page: Page,
-    public readonly inputs: Values
+    public readonly inputs: Vo
   ) {
     this.root = htmlUtil.newHtmlElement('page');
 

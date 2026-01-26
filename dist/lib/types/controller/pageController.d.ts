@@ -130,10 +130,9 @@ export interface PageController {
      * @param formName on which operation is to be requested
      * @param operation
      * @param messages an error message is added if an empty error message is returned
-     * @returns service name for this operation.
-     * empty string if this controller has no form, or the operation is not valid for the form
+     * @returns true if peration is valid for the form. false otherwise
      */
-    getServiceName(formName: string, operation: FormOperation, messages: DetailedMessage[]): string;
+    formOk(formName: string, operation: FormOperation, messages: DetailedMessage[]): boolean;
     /**
      * call/execute a function that is defined by the meta data in this page.
      * this function is expected to be called for what it does, not not for what it returns.

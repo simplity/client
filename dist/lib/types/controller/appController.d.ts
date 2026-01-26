@@ -1,7 +1,7 @@
 import { Values, Vo, StringMap, FunctionType, Alert, Value, ValueFormatter, FormattedValue } from '../common';
 import { FunctionImpl, PageController, ValueValidationResult } from './';
 import { BaseView, PageView } from '../view';
-import { Layout, MenuItem, Module, Page, Form, ValueSchema, SimpleList, ValueType, NavigationOptions } from '../design';
+import { Layout, MenuItem, Module, Page, Form, ValueSchema, SimpleList, ValueType, NavigationOptions, DirectLink } from '../design';
 import { ServiceResponse } from '../agent';
 /**
  * App controller provides centralized services for all its components
@@ -78,6 +78,13 @@ export interface AppController {
      * @throws error in case such a page is not defined in this app
      */
     getPage(pageName: string): Page;
+    /**
+     *
+     * @param name unique name of the direct link
+     * @returns direct link if found, undefined otherwise
+     * NOTE: this method does not throw error if such a link is not found, while most other similar methods do.
+     */
+    getDirectLink(name: string): DirectLink | undefined;
     /**
      * get a component that is custom-designed for this app.
      * designed for production where we do expect the component to be defined.
@@ -231,20 +238,11 @@ export interface AppController {
      */
     formatValue(formatterName: string, value: Value): FormattedValue;
     /**
-     * grant access to all menus
-     */
-    grantAccessToAllMenus(): void;
-    /**
-     *
-     * @param menus module.menu -> true
-     */
-    grantAccess(menus: StringMap<StringMap<true>>): void;
-    /**
      * navigate to a page based on layout/module/menu.
      * This is initiated from the controller side
      * @param page to navigate to
      */
-    navigate(options: NavigationOptions): void;
+    navigate(options: NavigationOptions, inputData?: Vo): void;
     /**
      * close this page. It is error to close the page if there are no pages in the page stack.
      */
@@ -306,6 +304,10 @@ export interface AppController {
      * @param alerts
      */
     showAlerts(alerts: Alert[]): void;
+    /**
+     * hide any shown alerts
+     */
+    hideAlerts(): void;
     /**
      * download the blob as a file
      * @param blob

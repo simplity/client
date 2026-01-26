@@ -22,13 +22,17 @@ export declare const conventions: {
      */
     listServiceName: string;
     /**
+     * special pre-defined service for form operations
+     */
+    formServiceName: string;
+    /**
      * special pre-defined service to get a report
      */
     reportServiceName: string;
     /**
      * user attribute that has the module.menu -> true map of allowed menus
      */
-    accesibleMenus: string;
+    accessibleMenus: string;
     /**
      * user attribute that has the list of allowed menu ids
      */

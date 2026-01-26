@@ -51,6 +51,16 @@ export class SimpleTableEditorController {
             this.form = this.ac.getForm(formName);
         }
     }
+    isEditable() {
+        return true;
+    }
+    getFieldValue(fieldName) {
+        logger.warn(`getFieldValue is not implemented for TableEditorController ${this.name}. undefined is returned for fiedld ${fieldName}`);
+        return undefined;
+    }
+    setFieldValue(fieldName, _value) {
+        logger.warn(`setFieldValue is not implemented for TableEditorController ${this.name}. No action is taken for fiedld ${fieldName}`);
+    }
     //todo: implement this
     isModified() {
         return false;
@@ -86,7 +96,8 @@ export class SimpleTableEditorController {
             idx++;
         }
     }
-    resetData(fields) {
+    //TODO: implement this properly
+    resetData(_fields) {
         this.setData([]);
     }
     appendRow(values) {

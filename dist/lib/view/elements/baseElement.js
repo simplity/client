@@ -61,6 +61,11 @@ export class BaseElement {
         this.root = htmlUtil.newHtmlElement(templateName, comp);
         if (fc) {
             fc.registerChild(this);
+        }
+        /**
+         * if fc is specified, we add click listener to notify the fc irrespective of onclick being specified
+         */
+        if (fc || comp.onClick) {
             this.root.addEventListener('click', () => {
                 this.clicked();
             });

@@ -45,6 +45,10 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
    * populated if headerDetails is added. Else will remain empty
    */
   private readonly columnDetailsMap: StringMap<ColumnDetails> = {};
+  /**
+   * button comps for row actions
+   */
+  private readonly rowActionButtons?: Button[];
 
   /**
    * what features are enabled?
@@ -146,7 +150,24 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
     this.initSearch();
     this.initConfig();
     /**
-     * dev-utils ensures that a table-editor will have columns, or it is a dynamic
+     * any row action?
+     */
+    if (this.table.rowActions) {
+      this.rowActionButtons = [];
+      for (const [action, label] of Object.entries(this.table.rowActions)) {
+        const btnComp: Button = {
+          name: `${this.name}_row_action_${action}`,
+          compType: 'button',
+          variant: 'link',
+          label,
+          onClick: action,
+        };
+        this.rowActionButtons.push(btnComp);
+      }
+    }
+
+    /**
+     * dev-utils ensures that a table-viewer will have columns, or it is a dynamic
      */
     if (table.columns) {
       this.columnDetails = table.columns;
@@ -167,6 +188,11 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
   /////////////////// methods to render rows
 
   private renderHeaders(cols: ColumnDetails[]): void {
+    //  any row actions?
+    if (this.rowActionButtons) {
+      this.addTh('_actions', false, 'Actions');
+    }
+
     for (const col of cols) {
       const isNumeric =
         col.valueType === 'integer' || col.valueType === 'decimal';
@@ -207,6 +233,15 @@ export class TableViewerElement extends BaseElement implements TableViewerView {
        */
       const searchRow: string[] = [];
       const rowEle = this.addTr(idx);
+
+      if (this.rowActionButtons) {
+        const td = this.dataCellEle.cloneNode(true) as HTMLElement;
+        for (const btnComp of this.rowActionButtons) {
+          const btnEle = new LeafElement(this.pc, undefined, btnComp, 0);
+          td.appendChild(btnEle.root);
+        }
+        rowEle.appendChild(td);
+      }
 
       for (const col of cols) {
         if (col.comp) {

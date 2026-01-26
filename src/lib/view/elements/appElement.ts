@@ -1,10 +1,10 @@
 import {
   Alert,
   AppController,
+  AppInitPartameters,
   AppView,
   NavigationOptions,
   StringMap,
-  Values,
   Vo,
 } from '@simplity';
 
@@ -157,22 +157,19 @@ export class AppElement implements AppView {
   /**
    * Renders the application view. Must be called once after the constructor
    * @param ac app controller
-   * @param startinglayout layout to be rendered
+   * @param options intialization parameters
    * @param startingModule module to be rendered
    */
-  render(
-    ac: AppController,
-    startinglayout: string,
-    startingModule: string
-  ): void {
+  render(ac: AppController, options: AppInitPartameters): void {
     this.ac = ac;
-    const pageName = this.renderLayout(startinglayout, {
-      module: startingModule,
+    const pageName = this.renderLayout(options.layout, {
+      module: options.module,
+      menuItem: options.menuItem,
     });
-    this.renderPage(pageName, false);
+    this.renderPage(pageName, false, options.pageParameters);
   }
 
-  public navigate(options: NavigationOptions) {
+  public navigate(options: NavigationOptions, inputData?: Vo): void {
     if (options.erasePagesOnTheStack && this.pageStack.length) {
       this.purgeStack();
     }
@@ -239,7 +236,7 @@ export class AppElement implements AppView {
       htmlUtil.setViewState(this.modalPageEle!, 'hidden', true);
     }
 
-    this.renderPage(pageName, options.asModal || false, options.pageParameters);
+    this.renderPage(pageName, options.asModal || false, inputData);
     if (options.module) {
       this.layoutEle.showModule(options.module);
     }
@@ -445,13 +442,9 @@ export class AppElement implements AppView {
     }
   }
 
-  private renderPage(
-    pageName: string,
-    asModal: boolean,
-    pageParameters?: Values
-  ): void {
+  private renderPage(pageName: string, asModal: boolean, inputData?: Vo): void {
     const page = this.ac.getPage(pageName);
-    const pageView = new PageElement(this.ac, page, pageParameters || {});
+    const pageView = new PageElement(this.ac, page, inputData || {});
     this.currentPage = pageView;
     this.modalOpened = asModal;
 

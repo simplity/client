@@ -56,6 +56,28 @@ export interface DataController {
      * @returns true is all editable components are valid. false otherwise
      */
     validate(): boolean;
+    /**
+     * is this controller editable?
+     * methods like setFieldValue will fail if this returns false
+     * other methods tha that are meanrt for editable controllers may return default values or fail
+     * @return true if editable, false otherwise
+     */
+    isEditable(): boolean;
+    /**
+     * If this is a form-controller, then this returns the value of the field or variable.
+     * If this is a table/chart controller, then this returns the value of the column with this name in the current row
+     * @param fieldName
+     * @returns value of this field or variable if present. Else undefined
+     */
+    getFieldValue(fieldName: string): Value | undefined;
+    /**
+     * fails if this is not editable.
+     * if this is a form-controller, then this sets the value of the field.
+     * else if this is ab editable table controller, then this sets the value of the column with this name in the current row
+     * @param fieldName
+     * @param value
+     */
+    setFieldValue(fieldName: string, value: Value): void;
 }
 export interface ChartController extends DataController {
     readonly type: 'chart';
@@ -268,18 +290,6 @@ export interface FormController extends DataController {
      * undefined if value is not found for any of the key fields (an error message would have been added to messages)
      */
     extractKeys(messages: DetailedMessage[]): Values | undefined;
-    /**
-     *
-     * @param fieldName name of the field for which value is required
-     * @returns value to be set to the field.
-     */
-    setFieldValue(fieldName: string, value: Value): void;
-    /**
-     *
-     * @param fieldName name of the field for which value is required
-     * @returns value or undefined if this field has no value/not part of this form
-     */
-    getFieldValue(fieldName: string): Value | undefined;
     /**
      * get all the child views of this form.
      * @returns  all the child views of this form

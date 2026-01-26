@@ -1,5 +1,5 @@
 import { SortBy, Value } from '../common';
-import { SimpleList, ValueType } from '.';
+import { SimpleList } from '.';
 /**
  * ways to render a field(data-bound control) in a page/form
  */
@@ -131,16 +131,6 @@ export type RecordFieldAndDataField = {
    * used by the client-side for rendering
    */
   suffix?: string;
-
-  /**
-   * what type of primitve value
-   */
-  valueType: ValueType;
-  /**
-   * Schema based validation of this field, if this is expected from an outside source.
-   * Optional for internal fields.
-   */
-  valueSchema?: string;
   /**
    * used for validating ranges.
    * May also be used for rendering date-range instead of two separate date fields.
@@ -292,6 +282,10 @@ export type UniqueFields = {
   fields: string[];
 };
 
+export type FieldOverride = {
+  name: string;
+} & Partial<Field>;
+
 /**
  * a record that hs fields from another record and possibly some more fields
  */
@@ -310,6 +304,11 @@ export type ExtendedRecord = BaseRecord & {
    * any additional fields
    */
   additionalFields?: Field[];
+
+  /**
+   * any overrides to be applied to the fields from the main record
+   */
+  fieldOverrides?: FieldOverride[];
 };
 
 export type CompositeRecord = BaseRecord & {
@@ -335,6 +334,13 @@ export type Field = RecordFieldAndDataField & {
    * otherwise, only optional/required
    */
   fieldType: FieldType;
+
+  /**
+   * Schema for the expected value. Used for validating values received from external sources.
+   * For internal fields, apps should have default schema like text, number, boolean, date, date-time etc..
+   */
+  valueSchema: string;
+
   /**
    * required if this is a column in the RDBMS table
    */

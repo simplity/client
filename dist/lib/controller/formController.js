@@ -63,6 +63,9 @@ export class FC {
             this.data = data;
         }
     }
+    isEditable() {
+        return true;
+    }
     getFormName() {
         return this.form ? this.form.name : undefined;
     }
@@ -425,6 +428,21 @@ export class FC {
         }
     }
     getFieldValue(fieldName) {
+        const value = this.data[fieldName];
+        if (value !== undefined) {
+            return value;
+        }
+        if (this.fieldViews[fieldName]) {
+            //field exists but no value set
+            return undefined;
+        }
+        //try looking into child-controllers
+        for (const controller of Object.values(this.controllers)) {
+            const value = controller.getFieldValue(fieldName);
+            if (value !== undefined) {
+                return value;
+            }
+        }
         return this.data[fieldName];
     }
     getChild(name) {

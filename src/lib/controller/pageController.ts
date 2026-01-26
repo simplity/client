@@ -47,8 +47,10 @@ import {
   PopupAction,
   ResetAction,
   PopdownAction,
+  DataSource,
 } from '@simplity';
 import { FC } from './formController';
+import { conventions } from 'lib/conventions';
 
 type StringSet = StringMap<boolean>;
 
@@ -87,10 +89,6 @@ export class PC implements PageController {
     show: boolean;
   }[] = [];
 
-  /**
-   * is this page for saving data? (for add or update depending on the mode)
-   */
-  private forSave = false;
   /**
    * relevant if forSave is true.
    * true if the page is invoked with keys, and hence we are updating
@@ -135,7 +133,7 @@ export class PC implements PageController {
 
   public constructor(
     public readonly ac: AppController,
-    pageView: PageView
+    pageView: PageView,
   ) {
     this.pageView = pageView;
     this.page = pageView.page;
@@ -157,6 +155,7 @@ export class PC implements PageController {
   }
 
   pageRendered(): void {
+    this.ac.hideAlerts();
     this.fc.formRendered();
     //we may have to enable/disable buttons
     this.setButtonDisplays(this.page.leftButtons);
@@ -172,7 +171,7 @@ export class PC implements PageController {
     const expectedInputs = this.page.inputs;
 
     const inputNames: string[] = [];
-    const inputValues: Values = {};
+    const inputValues: Vo = {};
 
     if (expectedInputs) {
       /**
@@ -185,8 +184,8 @@ export class PC implements PageController {
           inputValues[key] = val;
           inputNames.push(key);
         } else if (isRequired && !this.page.inputIsForUpdate) {
-          throw new Error(
-            `Input value missing for parameter ${key} for page ${this.name}`
+          throw this.ac.newError(
+            `Input value missing for parameter ${key} for page ${this.name}`,
           );
         }
       }
@@ -195,13 +194,19 @@ export class PC implements PageController {
     if (inputNames.length) {
       this.fc.setData(inputValues);
       if (this.page.inputIsForUpdate) {
-        this.forSave = true;
+        /**
+         * it is possible that some parent field is also sent along with key fields.
+         * in such a case, it is update if all fields are recd.
+         */
+        const keysReceived = this.fc.hasKeyValues();
+        if (keysReceived) {
+          this.saveIsUpdate = keysReceived;
+        } else {
+          logger.warn(
+            `Not all key values received for update on page ${this.name}. Page is assumed to be for "new" operation.`,
+          );
+        }
       }
-      /**
-       * it is possible that some parent field is also sent along with key fields.
-       * in such a case, it is update if all fields are recd.
-       */
-      this.saveIsUpdate = this.fc.hasKeyValues();
     }
 
     if (this.page.onLoadActions) {
@@ -258,7 +263,7 @@ export class PC implements PageController {
     const listName = control.field.listName;
     if (!listName) {
       logger.warn(
-        `Control ${control.name} does not have listName, but a list is requested for it. Request ignored`
+        `Control ${control.name} does not have listName, but a list is requested for it. Request ignored`,
       );
       return;
     }
@@ -275,7 +280,7 @@ export class PC implements PageController {
           list = (localList as KeyedList)[key] || [];
         } else {
           logger.error(
-            `List ${listName} is a keyed list but no key value is specified while requesting this list for control "${control.name}" `
+            `List ${listName} is a keyed list but no key value is specified while requesting this list for control "${control.name}" `,
           );
         }
       }
@@ -288,17 +293,17 @@ export class PC implements PageController {
     });
   }
 
-  getServiceName(
+  formOk(
     formName: string | undefined,
     operation: FormOperation,
-    messages: DetailedMessage[]
-  ): string {
+    messages: DetailedMessage[],
+  ): boolean {
     if (!formName) {
       addMessage(
         `Form controller ${this.name} is not associated with a form. Can not do form based service`,
-        messages
+        messages,
       );
-      return '';
+      return false;
     }
     const form = this.ac.getForm(formName);
 
@@ -306,28 +311,30 @@ export class PC implements PageController {
     if (!ops) {
       addMessage(
         `Form ${form.name} is not designed for any form operation. Can not do form based service`,
-        messages
+        messages,
       );
-      return '';
+      return false;
     }
 
-    if (!form.serveGuests) {
-      if (!this.ac.getUser()) {
-        addMessage(`User needs to login for this operation`, messages);
-        return '';
-      }
-    }
+    //TODO: check for guest access after generator is fixed
+    //    if (!form.serveGuests) {
+    //      if (!this.ac.getUser()) {
+    //        addMessage(`User needs to login for this operation`, messages);
+    //        return false;
+    //      }
+    //    }
 
     if (!ops[operation]) {
       addMessage(
         `operation '${operation}' is not allowed on the form ${this.name}`,
-        messages
+        messages,
       );
-      return '';
+      return false;
     }
 
-    return operation + '_' + form.name;
+    return true;
   }
+
   requestService(serviceName: string, options?: ServiceRequestOptions): void {
     if (!options) {
       options = {};
@@ -364,7 +371,7 @@ export class PC implements PageController {
   takeAction(
     action: Action,
     controller?: FormController,
-    additionalParams?: StringMap<unknown>
+    additionalParams?: StringMap<unknown>,
   ): void {
     const ap: ActionParameters = {
       msgs: [],
@@ -383,7 +390,7 @@ export class PC implements PageController {
   act(
     actionName: string,
     controller?: FormController,
-    additionalParams?: StringMap<unknown>
+    additionalParams?: StringMap<unknown>,
   ): void {
     /**
      * run time functions override design time actions.
@@ -425,13 +432,13 @@ export class PC implements PageController {
         const c = fc.getController(part);
         if (!c) {
           logger.error(
-            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' does not exist `
+            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' does not exist `,
           );
           return undefined;
         }
         if (c.type !== 'form') {
           logger.error(
-            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' is of type '${c.type}'. Sub forms must be of type 'form'`
+            `No value could be determined for field '${qualifiedName}' because the sub-form '${part}' is of type '${c.type}'. Sub forms must be of type 'form'`,
           );
           return undefined;
         }
@@ -449,7 +456,7 @@ export class PC implements PageController {
     name: string,
     params?: StringMap<unknown>,
     msgs?: DetailedMessage[],
-    controller?: FormController
+    controller?: FormController,
   ): FnStatus {
     const entry = this.ac.getFn(name);
     const status: FnStatus = { allOk: false };
@@ -459,7 +466,7 @@ export class PC implements PageController {
     if (!entry) {
       addMessage(
         `function ${name} is not defined but is being requested`,
-        msgs
+        msgs,
       );
       return status;
     }
@@ -474,7 +481,7 @@ export class PC implements PageController {
             ret = (entry.fn as FormFunction)(controller, params, msgs);
           } else {
             logger.warn(
-              `function ${name} is of type "form" but is invoked with no data-controller. Root dc is assumed.`
+              `function ${name} is of type "form" but is invoked with no data-controller. Root dc is assumed.`,
             );
             ret = (entry.fn as FormFunction)(this.fc, params, msgs);
           }
@@ -490,7 +497,7 @@ export class PC implements PageController {
 
         case 'field':
           logger.warn(
-            `function ${name} is a validation function, but is being called in a non-validation context in page ${this.name}`
+            `function ${name} is a validation function, but is being called in a non-validation context in page ${this.name}`,
           );
           ret = (entry.fn as FieldValidationFn)(params as { value: string });
           break;
@@ -499,14 +506,14 @@ export class PC implements PageController {
         case 'response':
           addMessage(
             `function ${name} is defined with type="${fnType}".  It should not be invoked on its own. (It is used internally by the page controller with a serviceAction with which this function may be associated.)`,
-            msgs
+            msgs,
           );
           break;
 
         default:
           addMessage(
             `function ${name} is defined with type="${fnType}", but this type of function is not yet implemented.`,
-            msgs
+            msgs,
           );
           break;
       }
@@ -569,7 +576,7 @@ export class PC implements PageController {
     fc: FormController,
     data?: Vo,
     targetChild?: string,
-    onResponseFn?: string
+    onResponseFn?: string,
   ): Promise<boolean> {
     if (targetChild) {
       if (!this.fc.getController(targetChild)) {
@@ -585,7 +592,7 @@ export class PC implements PageController {
     const respAt = new Date().getTime();
     logger.info(
       `Service '${serviceName}' returned after  ${respAt - reqAt}ms`,
-      resp
+      resp,
     );
 
     if (onResponseFn) {
@@ -608,7 +615,7 @@ export class PC implements PageController {
 
       const completedAt = new Date().getTime();
       logger.info(
-        `It took ${completedAt - respAt}ms to render the data received from the service '${serviceName}' `
+        `It took ${completedAt - respAt}ms to render the data received from the service '${serviceName}' `,
       );
     }
     return ok;
@@ -623,7 +630,7 @@ export class PC implements PageController {
   private doAct(
     actionName: string,
     p: ActionParameters,
-    action?: Action // provided only by run-time actions
+    action?: Action, // provided only by run-time actions
   ): void {
     if (!action) {
       action = this.getAction(actionName, p.fc);
@@ -634,14 +641,14 @@ export class PC implements PageController {
     if (!action) {
       addMessage(
         `${actionName} is not defined as an action on this page but is requested by a component.`,
-        p.msgs
+        p.msgs,
       );
       errorFound = true;
     } else if (p.activeActions[actionName]) {
       addMessage(
         `Action ${actionName} started to chain of action links that is leading to a circular relationship.
             This may result in an infinite loop, and hence is not allowed`,
-        p.msgs
+        p.msgs,
       );
       errorFound = true;
     }
@@ -691,37 +698,40 @@ export class PC implements PageController {
         break;
 
       case 'function':
-        // no nextAction. it is determined by errorFound
         nextAction = this.doFn(action as FunctionAction, p, fcToUse);
         break;
 
       case 'form':
-        //request the form action as an async, chain the call back, and return.
-        nextAction = this.doFormAction(action as FormAction, p);
+        if (this.doFormAction(action as FormAction, p)) {
+          //async action was initiated successfully. action chining is handled there
+          return;
+        }
+        //got errors
         break;
-
       case 'navigation':
         this.navigate(action as NavigationAction, p);
         //can not ask for another action after navigation
         break;
 
       case 'service':
-        /**
-         * async action. we return immediately after requesting the service.
-         */
-        nextAction = this.tryToServe(action as ServiceAction, p, fcToUse);
+        if (this.tryToServe(action as ServiceAction, p, fcToUse)) {
+          //async action was initiated successfully. action chining is handled there
+          return;
+        }
 
+        //got errors
         break;
 
       default:
         addMessage(
           `${actionType} is an invalid action-type specified in action ${actionName}`,
-          p.msgs
+          p.msgs,
         );
         errorFound = true;
         break;
     }
-    this.actionReturned(action, p, nextAction);
+
+    this.actionReturned(errorFound ? undefined : action, p, nextAction);
   }
 
   private doReset(action: ResetAction): string | undefined {
@@ -730,7 +740,7 @@ export class PC implements PageController {
       const controller = this.fc.getController(action.panelToReset);
       if (!controller) {
         throw this.ac.newError(
-          `No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`
+          `No panel/table named ${action.panelToReset} or that panel is not associated with a child-form. Reset action aborted`,
         );
       }
       fc = controller;
@@ -741,7 +751,7 @@ export class PC implements PageController {
 
   private doDisplay(action: DisplayAction): string | undefined {
     for (const [compName, settings] of Object.entries(
-      (action as DisplayAction).displaySettings
+      (action as DisplayAction).displaySettings,
     )) {
       this.setDisplayState(compName, settings as Values);
     }
@@ -750,7 +760,7 @@ export class PC implements PageController {
 
   private doSetters(
     action: ValueSetterAction,
-    p: ActionParameters
+    p: ActionParameters,
   ): string | undefined {
     for (const setter of action.setters) {
       const value = this.getValueOf(setter.value, p.fc || this.fc);
@@ -758,7 +768,7 @@ export class PC implements PageController {
         this.setValueTo(setter.field, value, p.fc || this.fc);
       } else {
         logger.error(
-          `ValueSetter action with setter = ${JSON.stringify(setter)} could not determine a value to set`
+          `ValueSetter action with setter = ${JSON.stringify(setter)} could not determine a value to set`,
         );
       }
     }
@@ -767,11 +777,11 @@ export class PC implements PageController {
 
   private doPopup(
     action: PopupAction,
-    p: ActionParameters
+    p: ActionParameters,
   ): string | undefined {
     if (this.popupIsActive) {
       throw this.ac.newError(
-        `A popup is already active. Close the current popup before showing another one.`
+        `A popup is already active. Close the current popup before showing another one.`,
       );
     }
 
@@ -802,7 +812,7 @@ export class PC implements PageController {
 
     if (this.popdownParams) {
       throw this.ac.newError(
-        `Popup is active with managed-close. But a manual close was attempted.`
+        `Popup is active with managed-close. But a manual close was attempted.`,
       );
     }
     this.ac.closePopup();
@@ -816,13 +826,13 @@ export class PC implements PageController {
   public popupClosed(): void {
     if (!this.popupIsActive) {
       throw this.ac.newError(
-        `no popup is active to be closed, but popupClosed called.`
+        `no popup is active to be closed, but popupClosed called.`,
       );
     }
 
     if (!this.popdownParams) {
       throw this.ac.newError(
-        `Popup is active with manual-close. But a managed-close was attempted.`
+        `Popup is active with manual-close. But a managed-close was attempted.`,
       );
     }
     //note that the view has already closed the popup and called us.
@@ -839,7 +849,7 @@ export class PC implements PageController {
   private doFn(
     action: FunctionAction,
     p: ActionParameters,
-    controller: FormController
+    controller: FormController,
   ): string | undefined {
     const functionName = action.functionName;
     /**
@@ -869,8 +879,8 @@ export class PC implements PageController {
   private tryToServe(
     action: ServiceAction,
     p: ActionParameters,
-    controller: FormController
-  ): string | undefined {
+    controller: FormController,
+  ): boolean {
     let values: Vo | undefined;
     const payload = action.dataToSend;
     if (payload) {
@@ -883,8 +893,8 @@ export class PC implements PageController {
           controllerToUse = this.getControllerByType(payload.panelName, 'form');
 
           if (!controllerToUse) {
-            throw new Error(
-              `Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${payload.panelName}' but that form is not used on this page `
+            throw this.ac.newError(
+              `Design Error. Action '${action.name}' on page '${this.name}' specifies panelToSubmit='${payload.panelName}' but that form is not used on this page `,
             );
           }
         }
@@ -894,22 +904,22 @@ export class PC implements PageController {
           values = controllerToUse.getData() as Vo;
         } else {
           addMessage('Please fix the errors on this page', p.msgs);
-          return;
+          return false;
         }
       } else if (source === 'fields') {
         const n = p.msgs.length;
         values = controller.extractData(payload.fields, p.msgs);
         if (n !== p.msgs.length) {
-          return;
+          return false;
         }
       } else if (source === 'table') {
         const tc = this.getControllerByType(
           payload.tablePanel,
-          'table'
+          'table',
         ) as TableViewerController;
         if (!tc) {
           throw this.ac.newError(
-            `Design Error. Action '${action.name}' on page '${this.name}' specifies tablePanel='${payload.tablePanel}' but that table is not used on this page `
+            `Design Error. Action '${action.name}' on page '${this.name}' specifies tablePanel='${payload.tablePanel}' but that table is not used on this page `,
           );
         }
         if (payload.sendARow) {
@@ -919,7 +929,7 @@ export class PC implements PageController {
         }
       } else {
         throw this.ac.newError(
-          `Design Error. Action '${action.name}' on page '${this.name}' specifies an invalid source='${source}' `
+          `Design Error. Action '${action.name}' on page '${this.name}' specifies an invalid source='${source}' `,
         );
       }
     }
@@ -932,7 +942,7 @@ export class PC implements PageController {
       const fn = fnd.fn as RequestFunction;
       const ok = fn(controller, values, p.msgs);
       if (!ok) {
-        return;
+        return false;
       }
     }
     /**
@@ -944,13 +954,15 @@ export class PC implements PageController {
       controller,
       values,
       action.targetPanelName,
-      action.fnAfterResponse
+      action.fnAfterResponse,
     ).then((ok: boolean) => {
       this.actionReturned(action, p, ok ? action.onSuccess : action.onFailure);
     });
 
-    return action.nextAction;
+    this.actionReturned(undefined, p, action.nextAction);
+    return true;
   }
+
   /**
    *
    * @param name may be of the form ${run-time-name}
@@ -959,13 +971,10 @@ export class PC implements PageController {
     if (!name.startsWith('$')) {
       return this.actions[name];
     }
-    let an = substituteValue(name, this.fc);
-    if (an === undefined && fc && this.fc !== fc) {
-      an = substituteValue(name, fc);
-    }
+    const an = this.substituteValue(name, fc);
     if (an === undefined) {
       logger.error(
-        `Action '${name}' could not be translated because a value for that field was not found`
+        `Action '${name}' could not be translated because a value for that field was not found`,
       );
       return undefined;
     }
@@ -986,7 +995,7 @@ export class PC implements PageController {
 
     const tc = this.getControllerByType(
       tablePart.name,
-      'table'
+      'table',
     ) as TableViewerController;
     if (tc) {
       tc.setRowOrCellState(settings, tablePart.rowIdx!, tablePart.columnName);
@@ -1030,7 +1039,7 @@ export class PC implements PageController {
   private actionReturned(
     action: Action | undefined,
     p: ActionParameters,
-    nextAction?: string
+    nextAction?: string,
   ): void {
     this.showMessages(p.msgs);
     if (action?.toDisableUx) {
@@ -1042,81 +1051,66 @@ export class PC implements PageController {
   }
 
   private navigate(action: NavigationAction, p: ActionParameters): boolean {
-    //NavigationOptions is a subset of NavigationAction
-    const navOptions = action as NavigationOptions;
-    if (action.pageParameters) {
-      const values: Values = {};
-      for (const [name, v] of Object.entries(action.pageParameters)) {
-        const value = v as Value; // TypeScript quirk
-        if (typeof value === 'string') {
-          const v = substituteValue(value, p.fc || this.fc);
-          if (v !== undefined) {
-            values[name] = v;
-          }
-        } else {
-          values[name] = value;
-        }
-      }
-      navOptions.pageParameters = values;
-    }
+    const data = this.getDataInput(action.dataSources, p);
+    const options: NavigationOptions = { ...action.navigationOptions };
 
-    if (action.retainCurrentPage) {
-      if (!action.menuItem) {
+    if (options.retainCurrentPage) {
+      if (!options.menuItem) {
         addMessage(
           `Action ${action.name} requires that the current page be retained,
             but does not specify the menu item to be used to open a new page`,
-          p.msgs
+          p.msgs,
         );
         return false;
       }
 
-      if (action.module) {
+      if (options.module) {
         addMessage(
           `Action ${action.name} requires that the current page be retained.
             It should not specify moduleName in this case.`,
-          p.msgs
+          p.msgs,
         );
         return false;
       }
-      this.ac.navigate(navOptions);
+      this.ac.navigate(options, data);
       return true;
     }
     /**
      * we are to close this page
      */
-    if (action.warnIfModified && this.isModified) {
+    if (options.warnIfModified && this.isModified) {
       /**
        * TODO: use message service for this
        */
       if (
         window.confirm(
-          'Click on Okay to abandon any changes you would have made. Cancel to get back to editing '
+          'Click on Okay to abandon any changes you would have made. Cancel to get back to editing ',
         )
       ) {
         return true;
       }
     }
 
-    const closeAction = this.page.onCloseAction;
-    if (!closeAction) {
-      this.ac.navigate(navOptions);
+    const onClose = this.page.onCloseAction;
+    if (!onClose) {
+      this.ac.navigate(options, data);
       return true;
     }
 
-    const tr = this.actions[closeAction];
-    if (!tr || tr.type === 'navigation') {
+    const trigger = this.actions[onClose];
+    if (!trigger || trigger.type === 'navigation') {
       addMessage(
-        `${closeAction} is specified as close-action for this page.
+        `${onClose} is specified as close-action for this page.
           This action is not defined, or it is defined as a navigation action.`,
-        p.msgs
+        p.msgs,
       );
       return false;
     }
 
-    this.act(closeAction, undefined);
+    this.act(onClose, undefined);
 
     window.setTimeout(() => {
-      this.ac.navigate(navOptions);
+      this.ac.navigate(options, data);
     }, 0);
     return true;
   }
@@ -1129,31 +1123,17 @@ export class PC implements PageController {
    * @returns nextAction to be taken without waiting for thr form-service to return
    * undefined in case of any error in submitting the form..
    */
-  private doFormAction(
-    action: FormAction,
-    p: ActionParameters
-  ): string | undefined {
+  private doFormAction(action: FormAction, p: ActionParameters): boolean {
     const fc = p.fc || this.fc;
 
     let operation = action.formOperation;
     if (operation === 'save') {
-      if (!this.forSave) {
-        throw this.ac.newError(
-          'This page is not designed for a save operation'
-        );
-      }
       operation = this.saveIsUpdate ? 'update' : 'create';
     }
 
     const nbrMessages = p.msgs.length;
-    const serviceName = this.getServiceName(
-      action.formName || fc.getFormName(),
-      action.formOperation,
-      p.msgs
-    );
-
-    if (nbrMessages < p.msgs.length) {
-      return;
+    if (!this.formOk(action.formName || fc.getFormName(), operation, p.msgs)) {
+      return false;
     }
 
     let data: Vo | undefined;
@@ -1184,28 +1164,41 @@ export class PC implements PageController {
 
       default:
         addMessage(
-          `Form operation ${(action as FormAction).formOperation} is not valid`,
-          p.msgs
+          `Form operation ${action.formOperation} is not valid`,
+          p.msgs,
         );
         break;
     }
     if (nbrMessages < p.msgs.length) {
-      return;
+      return false;
     }
 
+    //format payload for FormService
+    const payload = {
+      formName: action.formName,
+      formOperation: operation,
+      formData: data || {},
+    };
     //all ok to call the service. this function returns immediately after requesting the service.
-    this.serve(serviceName, fc, data, targetChild, undefined).then((ok) => {
+    this.serve(
+      conventions.formServiceName,
+      fc,
+      payload,
+      targetChild,
+      undefined,
+    ).then((ok) => {
       this.actionReturned(action, p, ok ? action.onSuccess : action.onFailure);
     });
 
     //nextAction is to be taken without waiting for the form-service to return
-    return action.nextAction;
+    this.actionReturned(undefined, p, action.nextAction);
+    return true;
   }
 
   private getFilterData(
     fc: FormController,
     action: FilterAction,
-    messages: DetailedMessage[]
+    messages: DetailedMessage[],
   ): Vo {
     const vo: Vo = {};
     if (action.sortBy) {
@@ -1222,10 +1215,10 @@ export class PC implements PageController {
 
     let filters: FilterCondition[] | undefined;
     if (action.filters) {
-      filters = getConditions(fc, action.filters, messages);
+      filters = this.getConditions(fc, action.filters, messages);
     } else {
       // any value in the form is considered to be a filter-condition of type '='
-      filters = toFilters(fc.getData() as Values);
+      filters = this.toFilters(fc.getData() as Values);
     }
 
     if (filters) {
@@ -1237,7 +1230,7 @@ export class PC implements PageController {
 
   private getValueOf(
     source: Value | FormField | TableColumn,
-    fc: FormController
+    fc: FormController,
   ): Value | undefined {
     if (typeof source !== 'object') {
       //we do not check for null and functions. It is a constant value
@@ -1260,7 +1253,7 @@ export class PC implements PageController {
     const t = source as TableColumn;
     const tc = this.getControllerByType(
       t.tableName,
-      'table'
+      'table',
     ) as TableViewerController;
     if (tc) {
       return tc.getRowData(t.rowIdx)?.[t.columnName] as Value | undefined;
@@ -1271,7 +1264,7 @@ export class PC implements PageController {
   private setValueTo(
     field: ValueSetter['field'],
     value: Value,
-    fc: FormController
+    fc: FormController,
   ): void {
     if (typeof field === 'string') {
       fc.setFieldValue(field, value);
@@ -1289,7 +1282,7 @@ export class PC implements PageController {
     const t = field as TableColumn;
     const tc = this.getControllerByType(
       t.tableName,
-      'table'
+      'table',
     ) as TableViewerController;
     if (tc) {
       const row = tc.getRowData(t.rowIdx);
@@ -1301,7 +1294,7 @@ export class PC implements PageController {
 
   private getControllerByType(
     name: string,
-    type: string //TODO: use enum
+    type: string, //TODO: use enum
   ): DataController | undefined {
     const controller = this.fc.getController(name);
     if (!controller) {
@@ -1311,232 +1304,249 @@ export class PC implements PageController {
 
     if (controller.type !== type) {
       logger.error(
-        `child controller '${name}' is expected to be a '${type}' but it is ${controller.type}`
+        `child controller '${name}' is expected to be a '${type}' but it is ${controller.type}`,
       );
       return undefined;
     }
 
     return controller;
   }
-
-  /*  ********** methods discontinued 
-  requestGet(
-    controller: FormController,
-    params?: StringMap<boolean>,
-    callback?: (allOK: boolean) => void
-  ): void {
-    const msgs: DetailedMessage[] = [];
-    let data: Vo | undefined;
-    let serviceName = this.getServiceName(
-      controller.getFormName(),
-      'get',
-      msgs
-    );
-
-    if (serviceName && params) {
-      data = controller.extractData(params, msgs);
-    }
-
-    if (msgs.length) {
-      this.showMessages(msgs);
-      if (callback) {
-        callback(false);
-      }
-      return;
-    }
-
-    this.serve(serviceName, controller, data).then((ok) => {
-      if (callback) {
-        callback(ok);
-      }
-    });
-  }
-
-  requestSave(
-    saveOperation: 'update' | 'create' | 'delete' | 'save',
-    controller: FormController,
-    callback?: (allOK: boolean) => void
-  ): void {
-    const msgs: DetailedMessage[] = [];
-    const serviceName = this.getServiceName(
-      controller.getFormName(),
-      saveOperation,
-      msgs
-    );
-    if (serviceName) {
-      if (this.isValid() === false) {
-        addMessage('Page has fields with errors.', msgs);
-      }
-
-      if (saveOperation === 'save') {
-        if (!this.forSave) {
-          addMessage('This page is not designed for a save operation', msgs);
-        } else {
-          saveOperation = this.saveIsUpdate ? 'update' : 'create';
-        }
-      }
-    }
-
-    if (msgs.length) {
-      this.showMessages(msgs);
-      if (callback) {
-        callback(false);
-      }
-      return;
-    }
-
-    const data = controller.getData();
-    this.serve(serviceName, controller, data).then((ok) => {
-      if (callback) {
-        callback(ok);
-      }
-    });
-  }
-
-*************************/
-}
-
-/**
- * //TODO we have to validate the fields
- * @param values
- * @returns
- */
-function toFilters(values: Values): FilterCondition[] | undefined {
-  const filters: FilterCondition[] = [];
-  for (const [field, value] of Object.entries(values)) {
-    if (value) {
-      filters.push({ field, value: '' + value, comparator: '=' });
-    }
-  }
-
-  if (filters.length) {
-    return filters;
-  }
-  return undefined;
-}
-
-function addMessage(text: string, msgs: DetailedMessage[]) {
-  msgs.push({ text, id: '', type: 'error' });
-}
-
-function getConditions(
-  fc: FormController,
-  conditions: FilterCondition[],
-  msgs: DetailedMessage[]
-): FilterCondition[] | undefined {
-  const filters: FilterCondition[] = [];
-  if (!conditions || !conditions.length) {
-    return filters;
-  }
-
-  for (const con of conditions) {
-    const op = con.comparator || '=';
-    if (op === '!#' || op === '#') {
-      filters.push(con);
-      continue;
-    }
-
-    const value = getFilterValue(con.field, con.value, fc);
-    if (value === '') {
-      if (!con.isRequired) {
-        continue;
-      }
-      addMessage(
-        `value is missing for the field '${con.field}'. Action will abort.`,
-        msgs
-      );
-      return undefined;
-    }
-
-    if (con.comparator !== '><') {
-      filters.push({ ...con, value });
-      continue;
-    }
-
-    let toValue = con.toValue;
-
-    if (typeof toValue === 'string') {
-      toValue = substituteValue(toValue, fc);
-    }
-    if (toValue !== '') {
-      filters.push({ ...con, value, toValue });
-      continue;
-    }
-
-    if (!con.isRequired) {
-      continue;
-    }
-
-    addMessage(
-      `value is missing for the field '${con.field}'. Action will abort.`,
-      msgs
-    );
-    return undefined;
-  }
-  return filters;
-}
-
-/**
- * get the value for the filter-field.
- * if the supplied value is undefined, it means that the value must be taken from fc.
- * If it is of the form ${fieldName}, it means that the value must be taken for this field-name
- * otherwise the value is taken as it is.
- * @param fieldName name of the field on which the condition is to be put for filtering
- * @param value as specified at design time.
- * @param fc: form controller that has values for the relevant fields
- * @returns
- */
-function getFilterValue(
-  fieldName: string | undefined,
-  value: Value | undefined,
-  fc: FormController
-): Value {
-  let nameToUse = fieldName;
-
-  // Is the value specified at design time?
-  if (value !== undefined) {
-    if (typeof value !== 'string' || !FIELD_REGEX.test(value)) {
+  /**
+   * If the value is of the pattern ${fieldName}, get the value of that field-name.
+   * else return the value as it is
+   * @param value as specified at design time.
+   * @param fc: form controller that has values for the relevant fields
+   * @returns
+   */
+  private substituteValue(
+    value: string,
+    fc?: FormController,
+  ): Value | undefined {
+    if (!FIELD_REGEX.test(value)) {
       //it's a constant
       return value;
     }
 
-    //it is a run-time field-name of the form ${field-name}
-    nameToUse = value.substring(2, value.length);
+    const name = value.substring(2, value.length - 1);
+
+    let val: Value | undefined;
+    if (fc) {
+      val = fc.getFieldValue(name);
+    }
+    if (val == undefined) {
+      val = this.getFieldValue(name);
+    }
+    if (val === undefined) {
+      logger.warn(
+        `${value}: No value found for run-time-field ${name} in the form-controller`,
+      );
+    }
+
+    return val;
   }
-  if (!nameToUse) {
+
+  /**
+   * //TODO we have to validate the fields
+   * @param values
+   * @returns
+   */
+  private toFilters(values: Values): FilterCondition[] | undefined {
+    const filters: FilterCondition[] = [];
+    for (const [field, value] of Object.entries(values)) {
+      if (value) {
+        filters.push({ field, value: '' + value, comparator: '=' });
+      }
+    }
+
+    if (filters.length) {
+      return filters;
+    }
+    return undefined;
+  }
+
+  private getConditions(
+    fc: FormController,
+    conditions: FilterCondition[],
+    msgs: DetailedMessage[],
+  ): FilterCondition[] | undefined {
+    const filters: FilterCondition[] = [];
+    if (!conditions || !conditions.length) {
+      return filters;
+    }
+
+    for (const con of conditions) {
+      const op = con.comparator || '=';
+      if (op === '!#' || op === '#') {
+        filters.push(con);
+        continue;
+      }
+
+      const value = this.getFilterValue(con.field, con.value, fc);
+      if (value === '') {
+        if (!con.isRequired) {
+          continue;
+        }
+        addMessage(
+          `value is missing for the field '${con.field}'. Action will abort.`,
+          msgs,
+        );
+        return undefined;
+      }
+
+      if (con.comparator !== '><') {
+        filters.push({ ...con, value });
+        continue;
+      }
+
+      let toValue = con.toValue;
+
+      if (typeof toValue === 'string') {
+        toValue = this.substituteValue(toValue, fc);
+      }
+      if (toValue !== '') {
+        filters.push({ ...con, value, toValue });
+        continue;
+      }
+
+      if (!con.isRequired) {
+        continue;
+      }
+
+      addMessage(
+        `value is missing for the field '${con.field}'. Action will abort.`,
+        msgs,
+      );
+      return undefined;
+    }
+    return filters;
+  }
+
+  /**
+   * get the value for the filter-field.
+   * if the supplied value is undefined, it means that the value must be taken from fc.
+   * If it is of the form ${fieldName}, it means that the value must be taken for this field-name
+   * otherwise the value is taken as it is.
+   * @param fieldName name of the field on which the condition is to be put for filtering
+   * @param value as specified at design time.
+   * @param fc: form controller that has values for the relevant fields
+   * @returns
+   */
+  private getFilterValue(
+    fieldName: string | undefined,
+    value: Value | undefined,
+    fc: FormController,
+  ): Value {
+    let nameToUse = fieldName;
+
+    // Is the value specified at design time?
+    if (value !== undefined) {
+      if (typeof value !== 'string' || !FIELD_REGEX.test(value)) {
+        //it's a constant
+        return value;
+      }
+
+      //it is a run-time field-name of the form ${field-name}
+      nameToUse = value.substring(2, value.length);
+    }
+    if (!nameToUse) {
+      return '';
+    }
+    const fieldValue = fc.getFieldValue(nameToUse);
+    if (fieldValue !== undefined) {
+      return fieldValue;
+    }
+
+    logger.warn(
+      `Parameter ${fieldName} has no value while invoking an action that uses this parameter`,
+    );
     return '';
   }
-  const fieldValue = fc.getFieldValue(nameToUse);
-  if (fieldValue !== undefined) {
-    return fieldValue;
-  }
 
-  logger.warn(
-    `Parameter ${fieldName} has no value while invoking an action that uses this parameter`
-  );
-  return '';
+  private getDataInput(
+    dataSources: DataSource[] | undefined,
+    p: ActionParameters,
+  ): Vo | undefined {
+    if (!dataSources || !dataSources.length) {
+      return undefined;
+    }
+    let allData: Vo = {};
+    for (const dataSource of dataSources) {
+      const controller = p.fc || this.fc;
+      let vo: Vo | undefined;
+      const source = dataSource.source;
+
+      if (source === 'all' || source === 'panel') {
+        let controllerToUse: DataController | undefined;
+        if (source === 'all') {
+          controllerToUse = this.fc;
+        } else {
+          controllerToUse = this.getControllerByType(
+            dataSource.panelName,
+            'form',
+          );
+
+          if (!controllerToUse) {
+            throw this.ac.newError(
+              `Design Error. An action on page '${this.name}' specifies panelToSubmit='${dataSource.panelName}' but that form is not used on this page `,
+            );
+          }
+
+          //let us validate the form again
+          if (controllerToUse.validate()) {
+            vo = controllerToUse.getData() as Vo;
+          } else {
+            addMessage('Please fix the errors on this page', p.msgs);
+            return;
+          }
+        }
+      } else if (source === 'fields') {
+        vo = {};
+        for (const [name, isRequired] of Object.entries(dataSource.fields)) {
+          const v = controller.getFieldValue(name);
+          if (v === undefined || v === '') {
+            if (isRequired) {
+              addMessage(
+                `Field '${name}' is required to be sent as data-source, but has no value`,
+                p.msgs,
+              );
+              return;
+            }
+          } else {
+            vo[name] = v;
+          }
+        }
+      } else if (source === 'values') {
+        vo = dataSource.values;
+      } else if (source === 'table') {
+        const tc = this.getControllerByType(
+          dataSource.tablePanel,
+          'table',
+        ) as TableViewerController;
+
+        if (!tc) {
+          throw this.ac.newError(
+            `Design Error. An action on page '${this.name}' specifies tablePanel='${dataSource.tablePanel}' but that table is not used on this page `,
+          );
+        }
+
+        if (dataSource.sendARow) {
+          vo = tc.getRowData(dataSource.rowIdx, dataSource.columns);
+        } else {
+          vo = { list: tc.getData() };
+        }
+      } else {
+        throw this.ac.newError(
+          `Design Error. An action on page '${this.name}' specifies an invalid source='${source}' `,
+        );
+      }
+      if (vo) {
+        allData = { ...allData, ...vo };
+      }
+    }
+    return allData;
+  }
 }
 
-/**
- * If the value is of the pattern ${fieldName}, get the value of that field-name.
- * else return the value as it is
- * @param value as specified at design time.
- * @param fc: form controller that has values for the relevant fields
- * @returns
- */
-function substituteValue(value: string, fc: FormController): Value | undefined {
-  if (!FIELD_REGEX.test(value)) {
-    return value;
-  }
-
-  const name = value.substring(2, value.length - 1);
-
-  const val = fc.getFieldValue(name);
-  if (val === undefined) {
-    logger.warn(
-      `${value}: No value found for run-time-field ${name} in the form-controller`
-    );
-  }
-
-  return val;
+function addMessage(text: string, msgs: DetailedMessage[]) {
+  msgs.push({ text, id: '', type: 'error' });
 }

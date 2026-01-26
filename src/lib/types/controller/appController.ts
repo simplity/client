@@ -22,6 +22,7 @@ import {
   SimpleList,
   ValueType,
   NavigationOptions,
+  DirectLink,
 } from '../design';
 
 import { ServiceResponse } from '../agent';
@@ -109,7 +110,13 @@ export interface AppController {
    * @throws error in case such a page is not defined in this app
    */
   getPage(pageName: string): Page;
-
+  /**
+   *
+   * @param name unique name of the direct link
+   * @returns direct link if found, undefined otherwise
+   * NOTE: this method does not throw error if such a link is not found, while most other similar methods do.
+   */
+  getDirectLink(name: string): DirectLink | undefined;
   /**
    * get a component that is custom-designed for this app.
    * designed for production where we do expect the component to be defined.
@@ -224,7 +231,7 @@ export interface AppController {
   serve(
     serviceName: string,
     data?: Vo,
-    toDisableUx?: boolean
+    toDisableUx?: boolean,
   ): Promise<ServiceResponse>;
 
   /**
@@ -238,7 +245,7 @@ export interface AppController {
   downloadServiceResponse(
     fileName: string,
     serviceName: string,
-    data?: Vo
+    data?: Vo,
   ): Promise<boolean>;
 
   /**
@@ -254,7 +261,7 @@ export interface AppController {
   getList(
     listName: string,
     forceRefresh: boolean,
-    key?: string | number | undefined
+    key?: string | number | undefined,
   ): Promise<SimpleList>;
 
   /**
@@ -268,7 +275,7 @@ export interface AppController {
    */
   getKeyedList(
     listName: string,
-    forceRefresh: boolean
+    forceRefresh: boolean,
   ): Promise<StringMap<SimpleList>>;
 
   /* *******   Validation Related utilities  ****** */
@@ -305,23 +312,13 @@ export interface AppController {
    */
   formatValue(formatterName: string, value: Value): FormattedValue;
 
-  /**
-   * grant access to all menus
-   */
-  grantAccessToAllMenus(): void;
-  /**
-   *
-   * @param menus module.menu -> true
-   */
-  grantAccess(menus: StringMap<StringMap<true>>): void;
-
   /////// UX related
   /**
    * navigate to a page based on layout/module/menu.
    * This is initiated from the controller side
    * @param page to navigate to
    */
-  navigate(options: NavigationOptions): void;
+  navigate(options: NavigationOptions, inputData?: Vo): void;
 
   /**
    * close this page. It is error to close the page if there are no pages in the page stack.
@@ -395,6 +392,10 @@ export interface AppController {
    */
   showAlerts(alerts: Alert[]): void;
 
+  /**
+   * hide any shown alerts
+   */
+  hideAlerts(): void;
   /**
    * download the blob as a file
    * @param blob

@@ -277,6 +277,16 @@ export type Button = BaseComponent & {
 
 type FieldAttributes = RecordFieldAndDataField & {
   isRequired: boolean;
+  /**
+   * what type of primitve value this field holds.
+   * this is derived from valueSchema if that is specified at design time.
+   */
+  valueType: ValueType;
+
+  /**
+   * Schema for the expected value. Used for validating values received from external sources.
+   */
+  valueSchema?: string;
 };
 /**
  * Simplest way to render a field based on the field defined in the associated record.
@@ -295,9 +305,10 @@ export type PanelVariant = 'outline' | 'flex';
 /**
  * Field is a component that is bound to a data-element at run time.
  */
-export type DataField = BaseComponent & {
-  compType: 'field';
-} & FieldAttributes;
+export type DataField = BaseComponent &
+  FieldAttributes & {
+    compType: 'field';
+  };
 
 /**
  * Primarily designed to render date-range fields
@@ -723,9 +734,9 @@ export type FilterAction = ActionMetaData &
   };
 
 /**
- * what data to be sent to the service
+ * what data is to be sent to the service.
  */
-type DataPayload =
+export type DataSource =
   | /**
    * send all the data defined for this form.
    */ { source: 'all' }
@@ -736,7 +747,17 @@ type DataPayload =
   | /**
    * Send a list of fields.
    * If the boolean is true, the field is considered to be mandatory, and an error is generated if the value is missing
-   */ { source: 'fields'; fields: Record<string, boolean> }
+   */ {
+      source: 'fields';
+      /**
+       * field names with boolean to indicate if the field is mandatory
+       */
+      fields: Record<string, boolean>;
+    }
+  /**
+   * send fields with values known at design time (constants)
+   */
+  | { source: 'values'; values: Values }
   | /**
    * Send data from a table-panel.
    */ {
@@ -766,7 +787,7 @@ export type ServiceAction = ActionMetaData &
   Chainable & {
     type: 'service';
     serviceName: string;
-    dataToSend?: DataPayload;
+    dataToSend?: DataSource;
     /**
      * function to be executed just before requesting this service.
      * this function should be a RequestFunction type.
@@ -793,19 +814,17 @@ export type ServiceAction = ActionMetaData &
  * Note:
  * One of menuItem, module or layout is mandatory.
  */
-export type NavigationAction = ActionMetaData &
-  NavigationOptions & {
-    type: 'navigation';
-    /**
-     * user is warned and is asked to reconfirm before taking this action, in case the form is modified by the user
-     */
-    warnIfModified?: boolean;
-
-    /**
-     * relevant if retainCurrentPage = true. action to be taken when this page is un-hidden/activated again.
-     */
-    onReactivation?: string;
-  };
+export type NavigationAction = ActionMetaData & {
+  type: 'navigation';
+  /**
+   * navigation related options
+   */
+  navigationOptions: NavigationOptions;
+  /**
+   * What data is to be sent to the new page/module?
+   */
+  dataSources?: DataSource[];
+};
 
 /**
  * specifies a field in a form
@@ -966,7 +985,6 @@ export type NavigationOptions = {
    * default from the module if this is omitted
    */
   menuItem?: string;
-  pageParameters?: Values;
   /**
    * if true, then the current page is not deleted, and saved on a stack
    */
@@ -979,6 +997,16 @@ export type NavigationOptions = {
    * whether existing pages on the stack are to be deleted
    */
   erasePagesOnTheStack?: boolean;
+
+  /**
+   * user is warned and is asked to reconfirm before taking this action, in case the form is modified by the user
+   */
+  warnIfModified?: boolean;
+
+  /**
+   * relevant if retainCurrentPage = true. action to be taken when this page is un-hidden/activated again.
+   */
+  onReactivation?: string;
 };
 
 /**

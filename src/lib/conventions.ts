@@ -23,15 +23,20 @@ export const conventions = {
   listServiceName: '_getList',
 
   /**
+   * special pre-defined service for form operations
+   */
+  formServiceName: '_formService',
+
+  /**
    * special pre-defined service to get a report
    */
   reportServiceName: '_getReportSettings',
   /**
    * user attribute that has the module.menu -> true map of allowed menus
    */
-  accesibleMenus: 'accessibleMenus',
+  accessibleMenus: '_accessibleMenus',
   /**
    * user attribute that has the list of allowed menu ids
    */
-  grantAllAccess: 'grantAllAccess',
+  grantAllAccess: '_grantAllAccess',
 };

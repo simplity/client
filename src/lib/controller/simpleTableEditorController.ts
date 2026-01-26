@@ -6,6 +6,7 @@ import {
   TableEditor,
   TableEditorController,
   TableEditorView,
+  Value,
   Values,
   Vo,
 } from '@simplity';
@@ -55,7 +56,7 @@ export class SimpleTableEditorController implements TableEditorController {
    */
   public constructor(
     public readonly fc: FormController,
-    view: TableEditorView
+    view: TableEditorView,
   ) {
     this.name = view.name;
     this.pc = fc.pc;
@@ -69,6 +70,21 @@ export class SimpleTableEditorController implements TableEditorController {
     }
   }
 
+  isEditable(): boolean {
+    return true;
+  }
+
+  getFieldValue(fieldName: string): Value | undefined {
+    logger.warn(
+      `getFieldValue is not implemented for TableEditorController ${this.name}. undefined is returned for fiedld ${fieldName}`,
+    );
+    return undefined;
+  }
+  setFieldValue(fieldName: string, _value: Value): void {
+    logger.warn(
+      `setFieldValue is not implemented for TableEditorController ${this.name}. No action is taken for fiedld ${fieldName}`,
+    );
+  }
   //todo: implement this
   isModified(): boolean {
     return false;
@@ -87,7 +103,7 @@ export class SimpleTableEditorController implements TableEditorController {
       return;
     }
     logger.error(
-      `${this.name} is a table controller but a non-array data is being set. Data ignored`
+      `${this.name} is a table controller but a non-array data is being set. Data ignored`,
     );
   }
 
@@ -111,7 +127,8 @@ export class SimpleTableEditorController implements TableEditorController {
     }
   }
 
-  resetData(fields?: string[]): void {
+  //TODO: implement this properly
+  resetData(_fields?: string[]): void {
     this.setData([]);
   }
 
@@ -199,7 +216,7 @@ export class SimpleTableEditorController implements TableEditorController {
 
   private warn(rowId: number): void {
     logger.warn(
-      `Table ${this.name} has ${this.data.length} rows, but a request was made for row ${rowId} (0 based)`
+      `Table ${this.name} has ${this.data.length} rows, but a request was made for row ${rowId} (0 based)`,
     );
   }
 
@@ -237,7 +254,7 @@ export class SimpleTableEditorController implements TableEditorController {
   setColumnDisplayState(
     _columnName: string,
     _stateName: string,
-    _stateValue: string | number | boolean
+    _stateValue: string | number | boolean,
   ): void {
     throw new Error('Method not implemented.');
   }
@@ -245,7 +262,7 @@ export class SimpleTableEditorController implements TableEditorController {
     _columnName: string,
     _stateName: string,
     _stateValue: string | number | boolean,
-    _rowId?: number
+    _rowId?: number,
   ): void {
     throw new Error('Method not implemented.');
   }

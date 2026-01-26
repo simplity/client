@@ -1,4 +1,4 @@
-export function generateForms(records, forms) {
+export function generateForms(records, forms, valueSchemas) {
     let nbrErrors = 0;
     for (const [name, record] of Object.entries(records.all)) {
         if (!record.isVisibleToClient) {
@@ -24,7 +24,7 @@ export function generateForms(records, forms) {
             temp.fields = ref.fields;
             sr = temp;
         }
-        const form = toForm(sr);
+        const form = toForm(sr, valueSchemas);
         if (childRecords) {
             form.childForms = toChildForms(childRecords);
         }
@@ -32,7 +32,7 @@ export function generateForms(records, forms) {
     }
     return nbrErrors;
 }
-function toForm(record) {
+function toForm(record, valueSchemas) {
     const form = {};
     copyAttrs(record, form, [
         'name',
@@ -48,7 +48,7 @@ function toForm(record) {
         }
         form.operations = ops;
     }
-    const [fields, fieldNames, keyFields] = toDataFields(record.fields);
+    const [fields, fieldNames, keyFields] = toDataFields(record.fields, valueSchemas);
     form.fieldNames = fieldNames;
     form.fields = fields;
     if (keyFields) {
@@ -56,13 +56,13 @@ function toForm(record) {
     }
     return form;
 }
-function toDataFields(recordFields) {
+function toDataFields(recordFields, valueSchemas) {
     const fields = {};
     const names = [];
     const keyFields = [];
     for (const f of recordFields) {
         names.push(f.name);
-        fields[f.name] = toDataField(f);
+        fields[f.name] = toDataField(f, valueSchemas);
         if (f.fieldType === 'generatedPrimaryKey' || f.fieldType === 'primaryKey') {
             keyFields.push(f.name);
         }
@@ -72,22 +72,19 @@ function toDataFields(recordFields) {
     }
     return [fields, names, keyFields];
 }
-function toDataField(field) {
+function toDataField(field, valueSchemas) {
     const dataField = {};
     copyAttrs(field, dataField, [
-        'customHtml',
         'initialValue',
         'filterable',
-        'formattingFn',
         'hideInList',
         'hideInSave',
-        'hint',
+        'helpText',
         'icon',
         'imageNamePrefix',
         'imageNameSuffix',
         'isArray',
         'label',
-        'labelAttributes',
         'listKeyFieldName',
         'listKeyValue',
         'listName',
@@ -99,18 +96,28 @@ function toDataField(field) {
         'onClick',
         'placeHolder',
         'prefix',
+        'renderAs',
         'sortable',
         'suffix',
-        'renderAs',
+        'textWhenNotProvided',
+        'toField',
         'valueFormatter',
         'valueSchema',
-        'valueType',
         'width',
     ]);
     dataField.isRequired = toIsRequired(field.fieldType);
+    const vs = valueSchemas[field.valueSchema];
+    let vt = 'text';
+    if (vs) {
+        vt = vs.valueType;
+    }
+    else {
+        console.error(`Error: valueSchema "${field.valueSchema}" for field "${field.name}" is not defined. text is assumed`);
+    }
     dataField.compType = 'field';
+    dataField.valueType = vt;
     if (!field.renderAs) {
-        dataField.renderAs = getRenderAs(field, field.valueType);
+        dataField.renderAs = getRenderAs(field, vt);
     }
     return dataField;
 }

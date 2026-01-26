@@ -44,6 +44,7 @@ export class AC {
     allMessages;
     allValueSchemas;
     allFormatters;
+    allLinks;
     // app level parameters
     loginServiceName;
     logoutServiceName;
@@ -59,7 +60,7 @@ export class AC {
     validPagesArray = [];
     allowAllMenus = false;
     /**
-     * module.menuItem -> true
+     * module:{menuItem : true,...},...
      */
     allowedMenus = {};
     /**
@@ -99,6 +100,7 @@ export class AC {
         this.allLayouts = runtime.layouts || {};
         this.allModules = runtime.modules || {};
         this.allMenuItems = this.createMenuItemMap(this.allModules);
+        this.allLinks = runtime.directLinks || {};
         //prepare valid pages array
         this.allValueSchemas = {
             ...internalResources.valueSchemas,
@@ -137,8 +139,8 @@ export class AC {
      * request coming from the controller side to navigate to another page
      * @param options
      */
-    navigate(options) {
-        this.appView.navigate(options);
+    navigate(options, inputData) {
+        this.appView.navigate(options, inputData);
     }
     showAsPopup(panel, closeMode) {
         this.appView.showAsPopup(panel, closeMode);
@@ -187,6 +189,9 @@ export class AC {
     }
     showAlerts(alerts) {
         this.appView.showAlerts(alerts);
+    }
+    hideAlerts() {
+        this.appView.hideAlerts();
     }
     isPageValid(page) {
         logger.warn(`isPageValid() not yet implemented. Returning false for page ${page}.`);
@@ -250,6 +255,9 @@ export class AC {
         const obj = this.allPages[nam];
         this.shouldExist(obj, nam, 'page');
         return obj;
+    }
+    getDirectLink(name) {
+        return this.allLinks[name];
     }
     getForm(nam) {
         const obj = this.allForms[nam];
@@ -322,22 +330,33 @@ export class AC {
         }
         //remove existing user first
         this.removeContextValue(USER);
-        this.grantAccess({});
+        this.grantAccess();
         const data = await this.serve(this.loginServiceName, credentials);
         this.afterLogin(data);
         return !!data;
     }
     logout() {
         this.removeContextValue(USER);
-        this.grantAccess({});
+        this.grantAccess();
         this.serve(this.logoutServiceName).then();
     }
     grantAccessToAllMenus() {
         this.allowAllMenus = true;
     }
-    grantAccess(menus) {
+    grantAccess(menuIds) {
+        const menus = {};
         this.allowedMenus = menus;
         this.allowAllMenus = false;
+        if (!menuIds) {
+            return;
+        }
+        for (const id of menuIds.split(',')) {
+            const [module, menu] = id.split('.');
+            if (!menus[module]) {
+                menus[module] = {};
+            }
+            menus[module][menu] = true;
+        }
     }
     //server-related
     async serve(serviceName, data) {
@@ -583,14 +602,13 @@ export class AC {
         return this.defaultPageSize || 0;
     }
     /**
-     * method to be called after login, if that is done by another component.
-     * it is better to call login() of this service instead.
+     *user just logged in.
      */
     afterLogin(user) {
         if (!user) {
-            console.info('No user data returned after login');
+            console.error('No user data returned after login!!');
             this.removeContextValue(USER);
-            this.grantAccess({});
+            this.grantAccess();
             return;
         }
         console.info('User context being created', user);
@@ -599,13 +617,13 @@ export class AC {
             this.grantAccessToAllMenus();
             return;
         }
-        const menus = user[conventions.accesibleMenus];
-        if (menus && typeof menus === 'object') {
+        const menus = user[conventions.accessibleMenus];
+        if (menus) {
             this.grantAccess(menus);
             return;
         }
         console.info('Login service has not returned access control info. No menu access granted');
-        this.grantAccess({});
+        this.grantAccess();
         this.removeContextValue(USER);
     }
     shouldExist(obj, nam, desc) {

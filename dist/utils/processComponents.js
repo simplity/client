@@ -12,13 +12,22 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
     let nbrErrors = 0;
     /**
      * check if all our named-components have the right name
+     * remember to include internal resources in the check
      */
-    const records = appDesign.records || {};
+    const records = appDesign.records
+        ? { ...appDesign.records, ...internalResources.records }
+        : internalResources.records;
     const pages = appDesign.pages || {};
     const templates = appDesign.templates || {};
     const alters = appDesign.alters || {};
-    const valueLists = appDesign.valueLists || {};
-    const valueSchemas = appDesign.valueSchemas || {};
+    const valueLists = {
+        ...(appDesign.valueLists || {}),
+        ...internalResources.valueLists,
+    };
+    const valueSchemas = {
+        ...(appDesign.valueSchemas || {}),
+        ...internalResources.valueSchemas,
+    };
     Object.entries({
         records,
         pages,
@@ -117,7 +126,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      * 9. /form/*.ts
      */
     const forms = {};
-    nbrErrors += generateForms(processedRecords, forms);
+    nbrErrors += generateForms(processedRecords, forms, valueSchemas);
     writeAll(forms, tsFolder, 'Form', 'forms');
     /**
      * resolve references in the hand-crafted pages
@@ -443,6 +452,11 @@ function done(_fileName) {
 function checkNames(objects, fileName) {
     let nbrErrors = 0;
     for (const [name, obj] of Object.entries(objects)) {
+        if (!obj) {
+            console.error(`Error: Undefined object found for key '${name}' in file ${fileName}.`);
+            nbrErrors++;
+            continue;
+        }
         if (name === '') {
             console.error(`Error: Empty string as name found in file ${fileName}.`);
             nbrErrors++;

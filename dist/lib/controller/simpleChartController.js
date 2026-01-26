@@ -14,7 +14,13 @@ export class SimpleChartController {
         this.pc = fc.pc;
         this.chart = view.chart;
     }
-    setDisplayState(compName, settings) {
+    isEditable() {
+        return false;
+    }
+    setFieldValue(fieldName, value) {
+        console.error(`Chart Component ${this.name} : setFieldValue() for field ${fieldName} with a value of '${value}' is ignored as chart is not editable.`);
+    }
+    setDisplayState(compName, _settings) {
         console.error(`Chart Component '${this.name}' : setDisplayState() for a sub-component named ${compName} is ignored`);
         return false;
     }
@@ -26,7 +32,7 @@ export class SimpleChartController {
             this.setData(data);
             return;
         }
-        let arr = data[this.name] || data['list'];
+        const arr = data[this.name] || data['list'];
         if (arr && Array.isArray(arr)) {
             this.setData(arr);
             return;
@@ -53,8 +59,12 @@ export class SimpleChartController {
     validate() {
         return true;
     }
-    resetData(fields) {
+    resetData(_fields) {
         this.setData([]);
+    }
+    getFieldValue(fieldName) {
+        console.error(`Chart Component ${this.name}: getFieldValue() for field ${fieldName} is not supported.`);
+        return undefined;
     }
 }
 //# sourceMappingURL=simpleChartController.js.map

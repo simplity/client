@@ -24,6 +24,10 @@ export declare class TableViewerElement extends BaseElement implements TableView
      */
     private readonly columnDetailsMap;
     /**
+     * button comps for row actions
+     */
+    private readonly rowActionButtons?;
+    /**
      * what features are enabled?
      */
     private searchable;

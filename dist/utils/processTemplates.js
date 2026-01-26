@@ -111,7 +111,7 @@ class Gen {
         if (fields) {
             for (const key of fields) {
                 this.inputParams[key] = true;
-                this.allParams[key] = '$' + key;
+                this.allParams[key] = true;
                 this.keyParams[key] = true;
             }
         }
@@ -119,8 +119,8 @@ class Gen {
         if (t) {
             for (const key of Object.keys(t)) {
                 this.inputParams[key] = t[key];
-                this.allParams[key] = '$' + key;
-                this.addParams[key] = '$' + key;
+                this.allParams[key] = true;
+                this.addParams[key] = true;
             }
         }
         this.actions = {};
@@ -156,7 +156,9 @@ class Gen {
             close: {
                 name: 'close',
                 type: 'navigation',
-                menuItem: this.template.menuToGoBack,
+                navigationOptions: {
+                    menuItem: this.template.menuToGoBack,
+                },
             },
         };
         this.buttons.push({
@@ -235,8 +237,10 @@ class Gen {
         const a = {
             name: actionName,
             type: 'navigation',
-            menuItem: btn.menuItem,
-            pageParameters: params,
+            navigationOptions: {
+                menuItem: btn.menuItem,
+            },
+            dataSources: [{ source: 'fields', fields: params }],
         };
         this.actions[actionName] = a;
     }
@@ -353,13 +357,18 @@ class Gen {
             cancel: {
                 name: 'cancel',
                 type: 'navigation',
-                menuItem: this.template.menuToGoBack,
-                warnIfModified: true,
+                navigationOptions: {
+                    menuItem: this.template.menuToGoBack,
+                    warnIfModified: true,
+                },
             },
             close: {
                 name: 'close',
                 type: 'navigation',
-                menuItem: this.template.menuToGoBack,
+                navigationOptions: {
+                    menuItem: this.template.menuToGoBack,
+                    warnIfModified: true,
+                },
             },
         };
         this.buttons = [
@@ -577,8 +586,10 @@ class Gen {
         this.actions[name] = {
             type: 'navigation',
             name,
-            menuItem: name,
-            pageParameters: params,
+            navigationOptions: {
+                menuItem: name,
+            },
+            dataSources: [{ source: 'fields', fields: params }],
         };
     }
 }

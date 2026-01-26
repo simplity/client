@@ -9,7 +9,7 @@ export const _reportSettingsHeader: SimpleRecord = {
     {
       name: 'maxRows',
       fieldType: 'optionalData',
-      valueType: 'integer',
+      valueSchema: '_integer',
       description: 'Maximum rows to be fetched',
       initialValue: 100,
     },

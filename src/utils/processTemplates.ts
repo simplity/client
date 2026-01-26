@@ -135,20 +135,20 @@ class Gen {
    * key is made optional to allow save page to skip key fields.
    * boolean indicates whether the input is required or not
    */
-  private inputParams: StringMap<boolean> = {};
+  private inputParams: Record<string, boolean> = {};
   /**
    * all parameters: keys + additional
    */
-  private allParams: Values = {};
+  private allParams: Record<string, boolean> = {};
 
   /**
    * only the additional params. Add page needs only these. (not the key fields)
    */
-  private addParams: Values = {};
+  private addParams: Record<string, boolean> = {};
   /**
    * only the key fields. view
    */
-  private keyParams: StringMap<boolean> = {};
+  private keyParams: Record<string, boolean> = {};
   private actions: { [key: string]: Action } = {};
   private buttons: Button[] = [];
   private nbrErrors = 0;
@@ -166,7 +166,7 @@ class Gen {
     if (fields) {
       for (const key of fields) {
         this.inputParams[key] = true;
-        this.allParams[key] = '$' + key;
+        this.allParams[key] = true;
         this.keyParams[key] = true;
       }
     }
@@ -174,8 +174,8 @@ class Gen {
     if (t) {
       for (const key of Object.keys(t)) {
         this.inputParams[key] = t[key];
-        this.allParams[key] = '$' + key;
-        this.addParams[key] = '$' + key;
+        this.allParams[key] = true;
+        this.addParams[key] = true;
       }
     }
 
@@ -217,7 +217,9 @@ class Gen {
       close: {
         name: 'close',
         type: 'navigation',
-        menuItem: this.template.menuToGoBack,
+        navigationOptions: {
+          menuItem: this.template.menuToGoBack,
+        },
       } as NavigationAction,
     };
 
@@ -289,7 +291,7 @@ class Gen {
   private addButtonAndAction(
     btn: MenuButton | undefined,
     actionName: string,
-    params: Values
+    params: Record<string, boolean> | undefined
   ) {
     if (!btn) {
       return;
@@ -307,8 +309,10 @@ class Gen {
     const a: NavigationAction = {
       name: actionName,
       type: 'navigation',
-      menuItem: btn.menuItem,
-      pageParameters: params,
+      navigationOptions: {
+        menuItem: btn.menuItem,
+      },
+      dataSources: [{ source: 'fields', fields: params }],
     } as NavigationAction;
     this.actions[actionName] = a;
   }
@@ -447,13 +451,18 @@ class Gen {
       cancel: {
         name: 'cancel',
         type: 'navigation',
-        menuItem: this.template.menuToGoBack,
-        warnIfModified: true,
+        navigationOptions: {
+          menuItem: this.template.menuToGoBack,
+          warnIfModified: true,
+        },
       } as NavigationAction,
       close: {
         name: 'close',
         type: 'navigation',
-        menuItem: this.template.menuToGoBack,
+        navigationOptions: {
+          menuItem: this.template.menuToGoBack,
+          warnIfModified: true,
+        },
       } as NavigationAction,
     };
 
@@ -690,8 +699,10 @@ class Gen {
     this.actions[name] = {
       type: 'navigation',
       name,
-      menuItem: name,
-      pageParameters: params,
+      navigationOptions: {
+        menuItem: name,
+      },
+      dataSources: [{ source: 'fields', fields: params }],
     } as NavigationAction;
   }
 }

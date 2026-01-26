@@ -1,6 +1,6 @@
 import {
   AppController,
-  Field,
+  DataField,
   Form,
   FormController,
   PageController,
@@ -8,6 +8,7 @@ import {
   TableViewer,
   TableViewerController,
   TableViewerView,
+  Value,
   Values,
   Vo,
 } from '@simplity';
@@ -28,7 +29,7 @@ export class SimpleTableViewerController implements TableViewerController {
    */
   private readonly table: TableViewer;
   /**
-   * viw-component instance associated with this table (e.g. angular component)
+   * view-component instance associated with this table (e.g. angular component)
    */
   private readonly view: TableViewerView;
   /**
@@ -69,7 +70,7 @@ export class SimpleTableViewerController implements TableViewerController {
    */
   public constructor(
     public readonly fc: FormController,
-    view: TableViewerView
+    view: TableViewerView,
   ) {
     this.name = view.name;
     this.pc = fc.pc;
@@ -82,6 +83,38 @@ export class SimpleTableViewerController implements TableViewerController {
       this.form = this.ac.getForm(formName);
     }
     this.info = new TableInfo(this.table);
+  }
+
+  isEditable(): boolean {
+    return false;
+  }
+
+  getFieldValue(fieldName: string): Value | undefined {
+    let idx = this.currentIdx;
+    if (idx === -1) {
+      if (this.data.length) {
+        idx = 0;
+      } else {
+        logger.warn(
+          `getFieldValue: Table ${this.name} has no data. undefined is returned for field ${fieldName}`,
+        );
+        return undefined;
+      }
+    }
+    const row = this.data[idx];
+    const value = row[fieldName];
+    if (value === undefined) {
+      logger.warn(
+        `getFieldValue: Field ${fieldName} not found in current row of table ${this.name}. undefined is returned.`,
+      );
+    }
+    return value;
+  }
+
+  setFieldValue(fieldName: string, _value: Value): void {
+    logger.warn(
+      `setFieldValue: Table ${this.name} is read-only. No action is taken for field ${fieldName}`,
+    );
   }
 
   getRowData(rowIdx?: number, columns?: string[]): Values | undefined {
@@ -104,7 +137,7 @@ export class SimpleTableViewerController implements TableViewerController {
       const value = row[col];
       if (value === undefined) {
         logger.warn(
-          `Column ${col} not found in row ${rowIdx} of table ${this.name}`
+          `Column ${col} not found in row ${rowIdx} of table ${this.name}`,
         );
       } else {
         values[col] = row[col];
@@ -163,7 +196,7 @@ export class SimpleTableViewerController implements TableViewerController {
       return;
     }
     logger.error(
-      `${this.name} is a table-controller but a non-array data is being set. Data ignored`
+      `${this.name} is a table-controller but a non-array data is being set. Data ignored`,
     );
   }
   public setData(data: Values[]): void {
@@ -194,6 +227,9 @@ export class SimpleTableViewerController implements TableViewerController {
     }
     this.currentIdx = idx;
 
+    console.info(
+      `Row ${idx} clicked in table ${this.name} with onRowClick = '${this.table.onRowClick}'`,
+    );
     this.info.currentRowIdx = idx;
     if (this.table.onRowClick) {
       this.pc.act(this.table.onRowClick, undefined, this.data[idx]);
@@ -205,6 +241,9 @@ export class SimpleTableViewerController implements TableViewerController {
     if (idx === undefined) {
       return;
     }
+    console.info(
+      `Cell clicked for ${idx} clicked in table ${this.name}, with action ${action}`,
+    );
     this.currentIdx = idx;
     this.info.currentRowIdx = idx;
     this.pc.act(action, undefined, this.data[idx]);
@@ -226,7 +265,7 @@ export class SimpleTableViewerController implements TableViewerController {
     if (this.info.nbrSelected < this.info.minRows) {
       // todo: flash error message
       logger.error(
-        `At least  ${this.info.minRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`
+        `At least  ${this.info.minRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`,
       );
       return false;
     }
@@ -234,7 +273,7 @@ export class SimpleTableViewerController implements TableViewerController {
     if (this.info.maxRows && this.info.nbrSelected > this.info.maxRows) {
       // todo: flash error message
       logger.error(
-        `At most  ${this.info.maxRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`
+        `At most  ${this.info.maxRows} row/s to be selected. You have selected ${this.info.nbrSelected} row/s`,
       );
       return false;
     }
@@ -285,10 +324,10 @@ export class SimpleTableViewerController implements TableViewerController {
   public setRowOrCellState(
     settings: Values,
     rowIdx?: number,
-    columnName?: string
+    columnName?: string,
   ): boolean {
     const idx = this.sanitizeIdx(
-      rowIdx === undefined ? this.currentIdx : rowIdx
+      rowIdx === undefined ? this.currentIdx : rowIdx,
     );
     if (idx === undefined) {
       if (rowIdx === undefined) {
@@ -364,7 +403,7 @@ export class TableInfo {
     if (meta.selectFieldName) {
       if (meta.onRowClick) {
         throw new Error(
-          `Panel ${meta.name} has both onRowClick and selectColumnName.`
+          `Panel ${meta.name} has both onRowClick and selectColumnName.`,
         );
       }
       this.columnNames.push('_select_');
@@ -380,7 +419,7 @@ export class TableInfo {
         const c: unknown = col;
         //  no header label for buttons
         const label =
-          col.compType === 'field' ? (c as Field).label || col.name : '';
+          col.compType === 'field' ? (c as DataField).label || col.name : '';
         this.columnLabels.push(label);
       }
     }

@@ -12,10 +12,18 @@
  * In future, we can improve this by using a dependency injection framework or a service locator pattern.
  */
 
-import { AppController, AppRuntime, AppView, BootStrapper } from '@simplity';
+import {
+  AppController,
+  AppInitPartameters,
+  AppRuntime,
+  AppView,
+  BootStrapper,
+  Values,
+} from '@simplity';
 import { AppElement } from './view/elements';
 import { AC } from './controller';
 import { serviceAgent } from './agent';
+import { logger } from './logger';
 
 let appController: AppController | undefined;
 function getAc(): AppController {
@@ -39,14 +47,63 @@ function bootstrap(appRuntime: AppRuntime): void {
   );
   appController = new AC(appRuntime, agent, appView);
 
-  appView.render(
-    appController,
-    appRuntime.startingLayout,
-    appRuntime.startingModule
-  );
+  let params = parseQueryString(appController);
+
+  if (!params) {
+    params = {
+      layout: appRuntime.startingLayout,
+      module: appRuntime.startingModule,
+      menuItem: appRuntime.startingMenuItem,
+    };
+  }
+  appView.render(appController, params);
 }
+
 function shutDown(): void {}
 
+function reportError(): undefined {
+  logger.error('Malformed direct link. Ignored');
+  return undefined;
+}
+
+function parseQueryString(ac: AppController): AppInitPartameters | undefined {
+  const s = window.location.search;
+  if (!s) {
+    return undefined;
+  }
+  const urlParams = new URLSearchParams(s);
+  const d = urlParams.get('_d');
+  const t = urlParams.get('_t');
+  if (!d) {
+    return reportError();
+  }
+
+  //direct link
+  const link = ac.getDirectLink(d);
+  if (!link) {
+    return reportError();
+  }
+
+  if (link.requiresToken && !t) {
+    return reportError();
+  }
+
+  const pageParameters: Values = {};
+  for (const [key, value] of urlParams.entries()) {
+    if (key !== '_d' && key !== '_t') {
+      pageParameters[key] = value;
+    }
+  }
+  if (t) {
+    pageParameters['token'] = t;
+  }
+  return {
+    layout: link.layout,
+    module: link.module,
+    menuItem: link.menuItem,
+    pageParameters,
+  };
+}
 export const app = { getAc };
 
 export const bootStrapper: BootStrapper = {

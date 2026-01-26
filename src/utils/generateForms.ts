@@ -10,19 +10,21 @@ import {
   SimpleRecord,
   StringMap,
   ValidFormOperations,
+  ValueSchema,
   ValueType,
 } from '@simplity';
 import { ProcessedRecords } from './processRecords';
 
 export function generateForms(
   records: ProcessedRecords,
-  forms: StringMap<Form>
+  forms: StringMap<Form>,
+  valueSchemas: StringMap<ValueSchema>,
 ): number {
   let nbrErrors = 0;
   for (const [name, record] of Object.entries(records.all)) {
     if (!record.isVisibleToClient) {
       console.warn(
-        `Warning: Record ${name} is not visible to the client-side. Form not created.`
+        `Warning: Record ${name} is not visible to the client-side. Form not created.`,
       );
       continue;
     }
@@ -40,7 +42,7 @@ export function generateForms(
 
       if (ref === undefined) {
         console.error(
-          `Error: Composite/extended Record "${name}" has mainRecord="${cr.mainRecordName}" but that record is not defined, or is a composite-record. Source NOT generated`
+          `Error: Composite/extended Record "${name}" has mainRecord="${cr.mainRecordName}" but that record is not defined, or is a composite-record. Source NOT generated`,
         );
         nbrErrors++;
         continue;
@@ -52,7 +54,7 @@ export function generateForms(
       sr = temp as SimpleRecord;
     }
 
-    const form = toForm(sr);
+    const form = toForm(sr, valueSchemas);
     if (childRecords) {
       form.childForms = toChildForms(childRecords);
     }
@@ -61,7 +63,10 @@ export function generateForms(
   return nbrErrors;
 }
 
-function toForm(record: SimpleRecord): Form {
+function toForm(
+  record: SimpleRecord,
+  valueSchemas: StringMap<ValueSchema>,
+): Form {
   const form: StringMap<unknown> = {};
   copyAttrs(record, form, [
     'name',
@@ -79,7 +84,10 @@ function toForm(record: SimpleRecord): Form {
     form.operations = ops;
   }
 
-  const [fields, fieldNames, keyFields] = toDataFields(record.fields);
+  const [fields, fieldNames, keyFields] = toDataFields(
+    record.fields,
+    valueSchemas,
+  );
   form.fieldNames = fieldNames;
   form.fields = fields;
   if (keyFields) {
@@ -89,14 +97,15 @@ function toForm(record: SimpleRecord): Form {
   return form as Form;
 }
 function toDataFields(
-  recordFields: Field[]
+  recordFields: Field[],
+  valueSchemas: StringMap<ValueSchema>,
 ): [StringMap<DataField>, string[], string[] | undefined] {
   const fields: StringMap<DataField> = {};
   const names: string[] = [];
   const keyFields: string[] = [];
   for (const f of recordFields) {
     names.push(f.name);
-    fields[f.name] = toDataField(f);
+    fields[f.name] = toDataField(f, valueSchemas);
     if (f.fieldType === 'generatedPrimaryKey' || f.fieldType === 'primaryKey') {
       keyFields.push(f.name);
     }
@@ -107,22 +116,22 @@ function toDataFields(
   return [fields, names, keyFields];
 }
 
-function toDataField(field: Field): DataField {
+function toDataField(
+  field: Field,
+  valueSchemas: StringMap<ValueSchema>,
+): DataField {
   const dataField: StringMap<unknown> = {};
   copyAttrs(field, dataField, [
-    'customHtml',
     'initialValue',
     'filterable',
-    'formattingFn',
     'hideInList',
     'hideInSave',
-    'hint',
+    'helpText',
     'icon',
     'imageNamePrefix',
     'imageNameSuffix',
     'isArray',
     'label',
-    'labelAttributes',
     'listKeyFieldName',
     'listKeyValue',
     'listName',
@@ -134,19 +143,30 @@ function toDataField(field: Field): DataField {
     'onClick',
     'placeHolder',
     'prefix',
+    'renderAs',
     'sortable',
     'suffix',
-    'renderAs',
+    'textWhenNotProvided',
+    'toField',
     'valueFormatter',
     'valueSchema',
-    'valueType',
     'width',
   ]);
 
   dataField.isRequired = toIsRequired(field.fieldType);
+  const vs = valueSchemas[field.valueSchema];
+  let vt: ValueType = 'text';
+  if (vs) {
+    vt = vs.valueType;
+  } else {
+    console.error(
+      `Error: valueSchema "${field.valueSchema}" for field "${field.name}" is not defined. text is assumed`,
+    );
+  }
   dataField.compType = 'field';
+  dataField.valueType = vt;
   if (!field.renderAs) {
-    dataField.renderAs = getRenderAs(field, field.valueType);
+    dataField.renderAs = getRenderAs(field, vt);
   }
 
   return dataField as DataField;
@@ -199,7 +219,7 @@ function toChildForms(childRecords: ChildRecord[]): StringMap<ChildForm> {
 function copyAttrs(
   fromObj: StringMap<unknown>,
   toObj: StringMap<unknown>,
-  attrs: string[]
+  attrs: string[],
 ): void {
   for (const attr of attrs) {
     const value = fromObj[attr];

@@ -105,17 +105,18 @@ export class AppElement {
     /**
      * Renders the application view. Must be called once after the constructor
      * @param ac app controller
-     * @param startinglayout layout to be rendered
+     * @param options intialization parameters
      * @param startingModule module to be rendered
      */
-    render(ac, startinglayout, startingModule) {
+    render(ac, options) {
         this.ac = ac;
-        const pageName = this.renderLayout(startinglayout, {
-            module: startingModule,
+        const pageName = this.renderLayout(options.layout, {
+            module: options.module,
+            menuItem: options.menuItem,
         });
-        this.renderPage(pageName, false);
+        this.renderPage(pageName, false, options.pageParameters);
     }
-    navigate(options) {
+    navigate(options, inputData) {
         if (options.erasePagesOnTheStack && this.pageStack.length) {
             this.purgeStack();
         }
@@ -170,7 +171,7 @@ export class AppElement {
             this.modalOpened = false;
             htmlUtil.setViewState(this.modalPageEle, 'hidden', true);
         }
-        this.renderPage(pageName, options.asModal || false, options.pageParameters);
+        this.renderPage(pageName, options.asModal || false, inputData);
         if (options.module) {
             this.layoutEle.showModule(options.module);
         }
@@ -329,9 +330,9 @@ export class AppElement {
             htmlUtil.setViewState(this.modalPanelEle, 'hidden', true);
         }
     }
-    renderPage(pageName, asModal, pageParameters) {
+    renderPage(pageName, asModal, inputData) {
         const page = this.ac.getPage(pageName);
-        const pageView = new PageElement(this.ac, page, pageParameters || {});
+        const pageView = new PageElement(this.ac, page, inputData || {});
         this.currentPage = pageView;
         this.modalOpened = asModal;
         if (asModal) {

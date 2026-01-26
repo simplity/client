@@ -51,6 +51,7 @@ export declare class FC implements FormController {
      * @param data optional. initial data with which the fields are to be rendered with
      */
     constructor(name: string, pc: PageController, form?: Form | undefined, data?: Vo);
+    isEditable(): boolean;
     getFormName(): string | undefined;
     registerChild(view: BaseView): void;
     /**

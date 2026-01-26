@@ -1,4 +1,4 @@
-import { AppController, Form, FormController, PageController, TableEditorController, TableEditorView, Values, Vo } from '@simplity';
+import { AppController, Form, FormController, PageController, TableEditorController, TableEditorView, Value, Values, Vo } from '@simplity';
 /**
  * controls a tabular data (rows and columns)
  */
@@ -39,12 +39,15 @@ export declare class SimpleTableEditorController implements TableEditorControlle
      * @param view
      */
     constructor(fc: FormController, view: TableEditorView);
+    isEditable(): boolean;
+    getFieldValue(fieldName: string): Value | undefined;
+    setFieldValue(fieldName: string, _value: Value): void;
     isModified(): boolean;
     tableRendered(): void;
     getFormName(): string | undefined;
     receiveData(data: Vo | Vo[]): void;
     setData(data: Values[]): void;
-    resetData(fields?: string[]): void;
+    resetData(_fields?: string[]): void;
     appendRow(values?: Values): number;
     private doAppend;
     getData(): Values[];

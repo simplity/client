@@ -1,5 +1,5 @@
 import { ServiceFunction, ServiceResponse } from './agent';
-import { StringMap } from './common';
+import { StringMap, Values } from './common';
 import { FunctionImpl } from './controller';
 import { AppDesign, ValueList } from './design';
 import { ViewComponentFactory } from './view';
@@ -28,6 +28,11 @@ export type AppRuntime = AppDesign & {
    * module to be selected by default on loading
    */
   startingModule: string;
+
+  /**
+   * menu item to be selected by default on loading
+   */
+  startingMenuItem: string;
 
   /**
    * ready responses are cached responses by serviceNames,  by the client.
@@ -65,10 +70,16 @@ export type AppRuntime = AppDesign & {
   appElement: HTMLElement;
 };
 
+export interface AppInitPartameters {
+  layout: string;
+  module: string;
+  menuItem: string;
+  pageParameters?: Values;
+}
 export interface BootStrapper {
   /**
    * called once to initialize the application
    */
-  start(app: AppRuntime): void;
+  start(app: AppRuntime, params?: AppInitPartameters): void;
   stop(): void;
 }

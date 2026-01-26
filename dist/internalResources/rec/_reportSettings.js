@@ -9,14 +9,14 @@ export const _reportSettings = {
         {
             name: 'reportName',
             fieldType: 'primaryKey',
-            valueType: 'text',
+            valueSchema: '_text',
             nameInDb: 'report_name',
             description: 'Name of the underlying record that can fetch data for this report using filter method',
         },
         {
             name: 'variantName',
             fieldType: 'primaryKey',
-            valueType: 'text',
+            valueSchema: '_text',
             nameInDb: 'variant_name',
             description: 'Must be unique for a record.',
             label: 'Variant Name',
@@ -27,7 +27,7 @@ export const _reportSettings = {
         {
             name: 'settings',
             fieldType: 'requiredData',
-            valueType: 'text',
+            valueSchema: '_text',
             nameInDb: 'settings',
             description: 'JSON for the settings.',
         },

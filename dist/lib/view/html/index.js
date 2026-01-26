@@ -32,26 +32,14 @@ export const predefinedHtmls = {
     '_button-primary': `<button
   data-id="label"
   type="button"
-  class="
-    rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm 
-    hover:bg-indigo-500
-    focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
+  class="rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
 ></button>
-<!-- w-auto -->
-
 `,
     '_button-secondary': `<button
   data-id="label"
   type="button"
-  class="rounded-md bg-slate-800 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:[outline-2 outline-offset-2 outline-slate-600]"
+  class="rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
 ></button>
-<!-- w-auto -->
-<button
-  type="button"
-  class="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 text-sm px-4 py-2.5 focus:outline-none"
->
-  Secondary
-</button>
 `,
     '_button-submit': `<button
   data-id="label"
@@ -67,13 +55,8 @@ export const predefinedHtmls = {
     '_button': `<button
   data-id="label"
   type="button"
-  class="
-    rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm 
-    hover:bg-indigo-500
-    focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
+  class="rounded-md bg-indigo-600 px-2.5 py-1.5 mx-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:[outline-2 outline-offset-2 outline-indigo-600]"
 ></button>
-<!-- w-auto -->
-
 `,
     '_calendar': `<svg
   xmlns="http://www.w3.org/2000/svg"

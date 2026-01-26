@@ -16,10 +16,6 @@ export declare class PC implements PageController {
     private readonly pageView;
     private readonly buttonsToDisplay;
     /**
-     * is this page for saving data? (for add or update depending on the mode)
-     */
-    private forSave;
-    /**
      * relevant if forSave is true.
      * true if the page is invoked with keys, and hence we are updating
      */
@@ -67,7 +63,7 @@ export declare class PC implements PageController {
      */
     showMessages(messages: DetailedMessage[]): void;
     getList(control: FieldView, key?: string | number | undefined): void;
-    getServiceName(formName: string | undefined, operation: FormOperation, messages: DetailedMessage[]): string;
+    formOk(formName: string | undefined, operation: FormOperation, messages: DetailedMessage[]): boolean;
     requestService(serviceName: string, options?: ServiceRequestOptions): void;
     /**
      * to be called by a run-time app-specific function.
@@ -132,4 +128,31 @@ export declare class PC implements PageController {
     private getValueOf;
     private setValueTo;
     private getControllerByType;
+    /**
+     * If the value is of the pattern ${fieldName}, get the value of that field-name.
+     * else return the value as it is
+     * @param value as specified at design time.
+     * @param fc: form controller that has values for the relevant fields
+     * @returns
+     */
+    private substituteValue;
+    /**
+     * //TODO we have to validate the fields
+     * @param values
+     * @returns
+     */
+    private toFilters;
+    private getConditions;
+    /**
+     * get the value for the filter-field.
+     * if the supplied value is undefined, it means that the value must be taken from fc.
+     * If it is of the form ${fieldName}, it means that the value must be taken for this field-name
+     * otherwise the value is taken as it is.
+     * @param fieldName name of the field on which the condition is to be put for filtering
+     * @param value as specified at design time.
+     * @param fc: form controller that has values for the relevant fields
+     * @returns
+     */
+    private getFilterValue;
+    private getDataInput;
 }

@@ -4,11 +4,11 @@ export const _sorts = {
     recordType: 'simple',
     description: 'Columns to be sorted on',
     fields: [
-        { name: 'name', fieldType: 'requiredData', valueType: 'text' },
+        { name: 'name', fieldType: 'requiredData', valueSchema: '_text' },
         {
             name: 'ascending',
             fieldType: 'requiredData',
-            valueType: 'boolean',
+            valueSchema: '_boolean',
             renderAs: 'check-box',
         },
     ],

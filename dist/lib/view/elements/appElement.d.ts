@@ -1,4 +1,4 @@
-import { Alert, AppController, AppView, NavigationOptions, StringMap, Vo } from '@simplity';
+import { Alert, AppController, AppInitPartameters, AppView, NavigationOptions, StringMap, Vo } from '@simplity';
 import { BaseElement } from './baseElement';
 export declare class AppElement implements AppView {
     ac: AppController;
@@ -53,11 +53,11 @@ export declare class AppElement implements AppView {
     /**
      * Renders the application view. Must be called once after the constructor
      * @param ac app controller
-     * @param startinglayout layout to be rendered
+     * @param options intialization parameters
      * @param startingModule module to be rendered
      */
-    render(ac: AppController, startinglayout: string, startingModule: string): void;
-    navigate(options: NavigationOptions): void;
+    render(ac: AppController, options: AppInitPartameters): void;
+    navigate(options: NavigationOptions, inputData?: Vo): void;
     closePage(): void;
     renderContextValues(values: StringMap<string>): void;
     renderPageTitle(title: string): void;

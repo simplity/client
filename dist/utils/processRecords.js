@@ -35,7 +35,7 @@ export function processRecords(records) {
 }
 /**
  * convert the extended record to simple record, and add it to the records collections
- * @returns new simple record that is already added to the records collection
+ * @returns new simple record that is already added to the records collection if successful; undefined and number of errors otherwise
  */
 function toSimpleRecord(record, comps, dependencies) {
     const recordName = record.name;
@@ -113,19 +113,21 @@ function extendIt(recordToExtend, ref) {
     }
     const newFields = [];
     obj.fields = newFields;
+    let errorFound = false;
     const newRecord = obj;
     //fields from ref records into a map
     const refFields = {};
     for (const field of ref.fields) {
         refFields[field.name] = field;
     }
-    if (recordToExtend.fieldNames && recordToExtend.fieldNames[0] !== '*') {
+    if (recordToExtend.fieldNames) {
         // subset of fields to be copied
         for (const fieldName of recordToExtend.fieldNames) {
             const field = refFields[fieldName];
             if (!field) {
                 console.error(`Error: Extended record ${recordToExtend.name} specifies ${fieldName} as a reference field but that field is not defined in the reference record ${ref.name}. Field skipped`);
-                return undefined;
+                errorFound = true;
+                continue;
             }
             newFields.push(field);
         }
@@ -139,12 +141,36 @@ function extendIt(recordToExtend, ref) {
     if (recordToExtend.additionalFields) {
         for (const field of recordToExtend.additionalFields) {
             if (refFields[field.name]) {
-                if (replaceField(field, newRecord.fields)) {
-                    continue; // replaced an existing entry in the array
-                }
+                console.error(`Error: Extended record ${recordToExtend.name} specifies ${field.name} as an additional field but that field is already defined in the reference record ${ref.name}. 
+          If you want to override some attributes of this field, use fieldOverrides instead. Additional field skipped.`);
+                errorFound = true;
+                continue;
             }
             newFields.push(field);
         }
+    }
+    if (recordToExtend.fieldOverrides) {
+        for (const ovr of recordToExtend.fieldOverrides) {
+            const fieldName = ovr.name;
+            const baseField = refFields[fieldName];
+            if (!baseField) {
+                console.error(`Error: Extended record ${recordToExtend.name} specifies ${fieldName} as a field override but that field is not defined in the reference record ${ref.name}. Override skipped`);
+                errorFound = true;
+                continue;
+            }
+            const newField = {
+                ...baseField,
+                ...ovr,
+            };
+            if (!replaceField(newField, newRecord.fields)) {
+                console.error(`Error: Extended record ${recordToExtend.name} could not apply override for field ${fieldName}. Override skipped`);
+                errorFound = true;
+                continue;
+            }
+        }
+    }
+    if (errorFound) {
+        return undefined;
     }
     return newRecord;
 }

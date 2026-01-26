@@ -1,4 +1,4 @@
-import { AppController, Form, FormController, PageController, Panel, TableViewer, TableViewerController, TableViewerView, Values, Vo } from '@simplity';
+import { AppController, Form, FormController, PageController, Panel, TableViewer, TableViewerController, TableViewerView, Value, Values, Vo } from '@simplity';
 /**
  * controls a tabular data (rows and columns)
  */
@@ -13,7 +13,7 @@ export declare class SimpleTableViewerController implements TableViewerControlle
      */
     private readonly table;
     /**
-     * viw-component instance associated with this table (e.g. angular component)
+     * view-component instance associated with this table (e.g. angular component)
      */
     private readonly view;
     /**
@@ -49,6 +49,9 @@ export declare class SimpleTableViewerController implements TableViewerControlle
      * @param view
      */
     constructor(fc: FormController, view: TableViewerView);
+    isEditable(): boolean;
+    getFieldValue(fieldName: string): Value | undefined;
+    setFieldValue(fieldName: string, _value: Value): void;
     getRowData(rowIdx?: number, columns?: string[]): Values | undefined;
     getFormName(): string | undefined;
     createConfig(): {

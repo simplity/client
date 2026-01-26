@@ -1,4 +1,4 @@
-import { FunctionType, StringMap, ValueFormatter } from '../common';
+import { FunctionType, StringMap, ValueFormatter, Values } from '../common';
 import {
   Layout,
   Module,
@@ -88,6 +88,11 @@ export type AppDesign = {
    * how field values are validated
    */
   valueSchemas?: StringMap<ValueSchema>;
+
+  /**
+   * links that can be accessed by typing/clicking a URL that is encoded with all the information required to land on a specific page
+   */
+  directLinks?: StringMap<DirectLink>;
 };
 /**
  *   All the metadata that captures the core design that are directly used at design time to generate
@@ -150,4 +155,32 @@ export type GeneratorInput = {
    * how field values are validated
    */
   valueSchemas?: StringMap<ValueSchema>;
+};
+
+/**
+ * for operations like password reset, where a token is treated as authorization.
+ */
+type Authorized = {
+  requiresToken: true;
+  requiresLogin?: false;
+};
+/**
+ * for operations that are not pre-authorized with a token, but may or may not require login.
+ * This is the default case.
+ */
+type Bookmarked = {
+  requiresToken?: false;
+  requiresLogin?: boolean;
+};
+
+/**
+ * links that can be accessed by typing/clicking a URL that is encoded with all the information required to land on a specific page
+ * the link format is index.html?_d=name&_t=token (if token is required) followed by any number of page-specific parameters
+ */
+export type DirectLink = (Authorized | Bookmarked) & {
+  name: string;
+  layout: string;
+  module: string;
+  menuItem: string;
+  pageParameters?: Values;
 };

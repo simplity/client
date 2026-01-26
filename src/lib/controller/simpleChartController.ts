@@ -4,6 +4,7 @@ import {
   ChartController,
   ChartView,
   FormController,
+  Value,
   Values,
   Vo,
 } from '@simplity';
@@ -17,16 +18,24 @@ export class SimpleChartController implements ChartController {
 
   constructor(
     public readonly fc: FormController,
-    private readonly view: ChartView
+    private readonly view: ChartView,
   ) {
     this.name = view.name;
     this.pc = fc.pc;
     this.chart = view.chart;
   }
 
-  setDisplayState(compName: string, settings: Values): boolean {
+  isEditable(): boolean {
+    return false;
+  }
+  setFieldValue(fieldName: string, value: Value): void {
     console.error(
-      `Chart Component '${this.name}' : setDisplayState() for a sub-component named ${compName} is ignored`
+      `Chart Component ${this.name} : setFieldValue() for field ${fieldName} with a value of '${value}' is ignored as chart is not editable.`,
+    );
+  }
+  setDisplayState(compName: string, _settings: Values): boolean {
+    console.error(
+      `Chart Component '${this.name}' : setDisplayState() for a sub-component named ${compName} is ignored`,
     );
     return false;
   }
@@ -40,13 +49,13 @@ export class SimpleChartController implements ChartController {
       this.setData(data as Values[]);
       return;
     }
-    let arr = data[this.name] || data['list'];
+    const arr = data[this.name] || data['list'];
     if (arr && Array.isArray(arr)) {
       this.setData(arr as Values[]);
       return;
     }
     logger.error(
-      `${this.name} requires a tabular data but a non-array data is being set. Data ignored`
+      `${this.name} requires a tabular data but a non-array data is being set. Data ignored`,
     );
   }
 
@@ -58,7 +67,7 @@ export class SimpleChartController implements ChartController {
     }
     console.error(
       `Chart Component ${this.name}: Non-array data is received. Data Ignored`,
-      data
+      data,
     );
   }
   getData(): Vo | Vo[] {
@@ -74,7 +83,13 @@ export class SimpleChartController implements ChartController {
     return true;
   }
 
-  resetData(fields?: string[]): void {
+  resetData(_fields?: string[]): void {
     this.setData([]);
+  }
+  getFieldValue(fieldName: string): Value | undefined {
+    console.error(
+      `Chart Component ${this.name}: getFieldValue() for field ${fieldName} is not supported.`,
+    );
+    return undefined;
   }
 }
