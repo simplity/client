@@ -15,9 +15,13 @@ import {
 } from '.';
 
 /**
- * All the metadata that captures the core design that are directly used at run time.
- * This is the output of the design layer, and input to the runtime layer
+ * All the metadata that captures the core design of the App.
+ * Some components are used at runtime as they are, while others may be transformed.
+ * All the c=components that are relevant for the server side are transformed to relevant JSONs.
+ * These JSONs are then used by the server-side generator to generate appropriate java classes.
+ * We intend to shift the server-side generation also to TS for ease of maintenance.
  */
+
 export type AppDesign = {
   ///////////// simple atributes ///////////
   name: string;
@@ -25,136 +29,139 @@ export type AppDesign = {
   date: string;
   description: string;
 
+  ///////////// design components ///////////
   /**
-   * simplity agent manages login process, if it is configured at the app level.
-   * this service, if specified, has to conform to the login-specific API
+   * small alteration to a designed or generated page.
    */
-  loginServiceName?: string;
-  /**
-   * simplity agent invokes the logout service, but does not expect any response back.
-   */
-  logoutServiceName?: string;
+  alters: StringMap<PageAlteration>;
 
   /**
-   * default page size to be used for paginating tables that do not specify a table-specific page size
-   * Works only if the app provides a plugin to render tables with pagination
+   * links that can be accessed by typing/clicking a URL that is encoded with all the information required to land on a specific page
    */
-  defaultPageSize?: number;
+  directLinks: StringMap<DirectLink>;
 
-  /////////////// Design Components
-
-  forms: StringMap<Form>;
   /**
    * all functions defined for this app. Note that the function name has to be unique across all pages.
    * an App may follow naming convention like pageName.functionName if the app is quite large
    */
-  functions?: StringMap<FunctionType>;
+  functions: StringMap<FunctionType>;
+
+  /**
+   * all pages in the app, including hand-coded as well as generated ones
+   */
+  handCraftedPages: StringMap<Page>;
 
   /**
    * html fragments that work with view-components to render the view-components in a browser.
    * Simplity provides the default htmls required. User apps can extend or override these.
    */
-  htmls?: StringMap<string>;
+  htmls: StringMap<string>;
   /**
    * page layouts. The way the page as the user views is laid out from its components
    */
-  layouts?: StringMap<Layout>;
-
-  /**
-   * how to get list of valid values for a field
-   */
-  listSources: StringMap<ListSource>;
-
+  layouts: StringMap<Layout>;
   /**
    * run-time messages
    */
-  messages?: StringMap<string>;
+  messages: StringMap<string>;
 
   /**
    * modules of the app. It's a logical grouping of pages
    */
-  modules?: StringMap<Module>;
+  modules: StringMap<Module>;
 
   /**
-   * all pages in the app, including hand-coded as well as generated ones
+   * all the data-structures, including API input-outputs, tables, views etc.. used in the app
    */
-  pages?: StringMap<Page>;
-  /**
-   * how the values are formatted for display
-   */
-  valueFormatters?: StringMap<ValueFormatter>;
-
-  /**
-   * how field values are validated
-   */
-  valueSchemas?: StringMap<ValueSchema>;
-
-  /**
-   * links that can be accessed by typing/clicking a URL that is encoded with all the information required to land on a specific page
-   */
-  directLinks?: StringMap<DirectLink>;
-};
-/**
- *   All the metadata that captures the core design that are directly used at design time to generate
- *   code and other artifacts.
- */
-export type GeneratorInput = {
-  name: string;
-  /**
-   * default max length to be used for a text-value-schema with no max specified
-   */
-  maxLengthForTextField: number;
-  /**
-   * if this app is an multi-tenant app.
-   */
-  tenantFieldName?: string;
-  /**
-   * column name in db tables for the tenant column
-   */
-  tenantNameInDb?: string;
-  /**
-   * server-side. Used for generating java classes
-   */
-  javaRootPackageName?: string;
-
-  /**
-   * small alteration to a designed or generated page.
-   */
-  alters?: StringMap<PageAlteration>;
-
-  /**
-   * all the messages that may be shown to the user
-   */
-  messages?: StringMap<string>;
-  /**
-   * pages that are hand-coded by the app-designer, without using any template
-   */
-  pages?: StringMap<Page>;
-
   records: StringMap<Record>;
+
   /**
-   * API (input-output) specification for all the services that are exposed by the server-app for the client-app
+   * all services exposed by the app
    */
-  services?: StringMap<Service>;
+  services: StringMap<Service>;
 
   /**
    * sqls are server-side components to interface with the database
    */
-  sqls?: StringMap<Sql>;
+  sqls: StringMap<Sql>;
 
   /**
    * page templates are short-cuts to generate a standard (predefined-format) page.
    */
-  templates?: StringMap<PageTemplate>;
+  templates: StringMap<PageTemplate>;
+  /**
+   * how the values are formatted for display
+   */
+  valueFormatters: StringMap<ValueFormatter>;
 
   /**
-   * value lists are used to define a set of predefined values for a field
+   * value lists are used to define a set of predefined values for a field.
+   * These are used in select/drop-down fields.
    */
   valueLists: StringMap<ValueList>;
   /**
    * how field values are validated
    */
-  valueSchemas?: StringMap<ValueSchema>;
+  valueSchemas: StringMap<ValueSchema>;
+};
+
+/**
+ * Design components that are relevant for the client-side app.
+ * Some of these are generated from the core design components.
+ * These are directly used at run-time by the client app
+ */
+export type ClientDesign = {
+  loginServiceName?: string;
+  logoutServiceName?: string;
+  defaultPageSize: number;
+  /////////////// Design Components
+  /**
+   * links that can be accessed by typing/clicking a URL that is encoded with all the information required to land on a specific page
+   */
+  directLinks: StringMap<DirectLink>;
+
+  /**
+   * forms are generated from records that are relevant for the client-side.
+   */
+  forms: StringMap<Form>;
+
+  /**
+   * html fragments that work with view-components to render the view-components in a browser.
+   * Simplity provides the default htmls required. User apps can extend or override these.
+   */
+  htmls: StringMap<string>;
+  /**
+   * page layouts. The way the page as the user views is laid out from its components
+   */
+  layouts: StringMap<Layout>;
+
+  /**
+   * run-time messages
+   */
+  messages: StringMap<string>;
+
+  /**
+   * modules of the app. It's a logical grouping of pages
+   */
+  modules: StringMap<Module>;
+
+  /**
+   * how to get list of valid values for a field.
+   * These are generated from value-lists defined in the core design.
+   */
+  listSources: StringMap<ListSource>;
+  /**
+   * all pages, including hand-coded as well as generated ones
+   */
+  pages: StringMap<Page>;
+  /**
+   * how the values are formatted for display
+   */
+  valueFormatters: StringMap<ValueFormatter>;
+  /**
+   * how field values are validated
+   */
+  valueSchemas: StringMap<ValueSchema>;
 };
 
 /**

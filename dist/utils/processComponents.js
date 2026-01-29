@@ -8,36 +8,42 @@ import { processTemplates } from './processTemplates';
 import { generateForms } from './generateForms';
 import { processRecords } from './processRecords';
 import { internalResources } from '../internalResources';
+import { generateTableSqls } from './generateTableSql';
 export function processComponents(appDesign, jsonFolder, tsFolder) {
     let nbrErrors = 0;
+    // May not be required, but let us make our copy of appDesign
+    const ctx = { ...appDesign };
     /**
      * check if all our named-components have the right name
      * remember to include internal resources in the check
      */
-    const records = appDesign.records
-        ? { ...appDesign.records, ...internalResources.records }
-        : internalResources.records;
-    const pages = appDesign.pages || {};
-    const templates = appDesign.templates || {};
-    const alters = appDesign.alters || {};
-    const valueLists = {
-        ...(appDesign.valueLists || {}),
+    ctx.records = { ...appDesign.records, ...internalResources.records };
+    ctx.valueLists = {
+        ...appDesign.valueLists,
         ...internalResources.valueLists,
     };
-    const valueSchemas = {
-        ...(appDesign.valueSchemas || {}),
+    ctx.valueSchemas = {
+        ...appDesign.valueSchemas,
         ...internalResources.valueSchemas,
     };
-    Object.entries({
-        records,
-        pages,
-        templates,
-        alters,
-        valueLists,
-        valueSchemas,
-    }).forEach(([key, value]) => {
-        nbrErrors += checkNames(value, `${key}.ts`);
-    });
+    // ensure that named objects are indexed with the right name
+    const objects = [
+        ['alters', ctx.alters],
+        ['directLinks', ctx.directLinks],
+        ['layouts', ctx.layouts],
+        ['modules', ctx.modules],
+        ['pages', ctx.handCraftedPages],
+        ['records', ctx.records],
+        ['services', ctx.services],
+        ['sqls', ctx.sqls],
+        ['templates', ctx.templates],
+        ['valueFormatters', ctx.valueFormatters],
+        ['valueLists', ctx.valueLists],
+        ['valueSchemas', ctx.valueSchemas],
+    ];
+    for (const [key, map] of objects) {
+        nbrErrors += checkNames(map, `${key}.ts`);
+    }
     /**
      * 0. clean-up folders that we are going to generate to
      */
@@ -51,9 +57,9 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
     let fileName = jsonFolder + 'application.json';
     const appJson = {
         appName: appDesign.name,
-        maxLengthForTextField: appDesign.maxLengthForTextField,
-        tenantFieldName: appDesign.tenantFieldName,
-        tenantNameInDb: appDesign.tenantNameInDb,
+        //maxLengthForTextField: appDesign.maxLengthForTextField,
+        //tenantFieldName: appDesign.tenantFieldName,
+        //tenantNameInDb: appDesign.tenantNameInDb,
     };
     writeFileSync(fileName, JSON.stringify(appJson));
     done(fileName);
@@ -62,10 +68,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      */
     fileName = jsonFolder + 'valueLists.json';
     writeFileSync(fileName, JSON.stringify({
-        valueLists: {
-            ...internalResources.valueLists,
-            ...appDesign.valueLists,
-        },
+        valueLists: ctx.valueLists,
     }));
     done(fileName);
     /**
@@ -73,7 +76,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      */
     fileName = jsonFolder + 'messages.json';
     writeFileSync(fileName, JSON.stringify({
-        messages: { ...internalResources.messages, ...appDesign.messages },
+        messages: ctx.messages,
     }));
     done(fileName);
     /**
@@ -81,10 +84,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      */
     fileName = jsonFolder + 'valueSchemas.json';
     writeFileSync(fileName, JSON.stringify({
-        valueSchemas: {
-            ...internalResources.valueSchemas,
-            ...appDesign.valueSchemas,
-        },
+        valueSchemas: ctx.valueSchemas,
     }));
     done(fileName);
     /**
@@ -93,10 +93,7 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      *
      * Note: framework requires some records. These are defined in systemResources.records
      */
-    const [processedRecords, n] = processRecords({
-        ...internalResources.records,
-        ...records,
-    });
+    const [processedRecords, n] = processRecords(ctx.records);
     nbrErrors += n;
     /**
      * 5. records.json
@@ -126,32 +123,55 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
      * 9. /form/*.ts
      */
     const forms = {};
-    nbrErrors += generateForms(processedRecords, forms, valueSchemas);
+    nbrErrors += generateForms(processedRecords, forms, ctx.valueSchemas);
     writeAll(forms, tsFolder, 'Form', 'forms');
     /**
      * resolve references in the hand-crafted pages
      */
-    nbrErrors += processPages(pages, forms);
+    nbrErrors += processPages(ctx.handCraftedPages, forms);
     /**
      * generate pages from templates. Generated pages are added to the pages collection
      */
-    nbrErrors += processTemplates(templates, forms, pages);
+    nbrErrors += processTemplates(ctx.templates, forms, ctx.handCraftedPages);
     /**
      * Alter the pages based on the defined alterations. Note that the alteration could be on hand-crafted pages or on the generated pages.
      */
-    alterPages(alters, pages);
+    alterPages(ctx.alters, ctx.handCraftedPages);
     /**
      * 10. page.ts for all pages. These include hand-crafted pages that have been de-referenced as well as generated pages, duly altered.
      * IMPORTANT: generated pages are of type 'AppPage' that is defined in app-specific type alias
      */
-    writeAll(pages, tsFolder, 'AppPage', 'pages', '@app-types');
+    writeAll(ctx.handCraftedPages, tsFolder, 'AppPage', 'pages', '@app-types');
     /**
      * 11. write collection files for pages and forms
      */
-    let text = toCollectionFile(Object.keys(pages), 'pages', 'Page', 'PageName');
+    let text = toCollectionFile(Object.keys(ctx.handCraftedPages), 'pages', 'Page', 'PageName');
     writeFileSync(tsFolder + 'pages/index.ts', text);
     text = toCollectionFile(Object.keys(forms), 'forms', 'Form', 'FormName');
     writeFileSync(tsFolder + 'forms/index.ts', text);
+    /**
+     * 12. generate sqls for table creation based on records
+     */
+    const dbFolder = tsFolder + '/db/';
+    mkdirSync(dbFolder, { recursive: true });
+    const createTableSql = [];
+    const foreignKeySql = [];
+    // generate SQL for each simple record
+    for (const record of Object.values(processedRecords.simple)) {
+        if (record.nameInDb) {
+            generateTableSqls(record, ctx.valueSchemas, createTableSql, foreignKeySql);
+        }
+    }
+    text = createTableSql.join('\n\n') + '\n';
+    fileName = dbFolder + 'createTables.sql';
+    writeFileSync(fileName, text);
+    done(fileName);
+    if (foreignKeySql.length > 0) {
+        text = foreignKeySql.join('\n\n') + '\n';
+        fileName = dbFolder + 'createForeignKeys.sql';
+        writeFileSync(fileName, text);
+        done(fileName);
+    }
     if (nbrErrors == 0) {
         return;
     }

@@ -1,10 +1,10 @@
 import { ServiceFunction, ServiceResponse } from './agent';
 import { StringMap, Values } from './common';
 import { FunctionImpl } from './controller';
-import { AppDesign, ValueList } from './design';
+import { ClientDesign, ValueList } from './design';
 import { ViewComponentFactory } from './view';
 
-export type AppRuntime = AppDesign & {
+export type AppRuntime = ClientDesign & {
   /**
    * URL for the server. All requests are sent to this url.
    * Only local resources are used if the url is not set

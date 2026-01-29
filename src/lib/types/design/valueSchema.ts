@@ -65,7 +65,7 @@ export type TextSchema = BaseSchema & {
    * defaults to 1000.
    * NOTE: unicode characters are not counted properly. Use with care.
    */
-  maxLength?: number;
+  maxLength: number;
   /**
    * as per javascript RegExp syntax.
    */

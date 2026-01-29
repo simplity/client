@@ -66,10 +66,6 @@ export type RecordFieldAndDataField = {
    * used by the client-side for rendering
    */
   label?: string;
-  /**
-   * formatter that converts the value to a displayable format.
-   */
-  valueFormatter?: string;
 
   /**
    * if the list of values is a keyed-list and the key value is to be taken from another field.
@@ -132,11 +128,20 @@ export type RecordFieldAndDataField = {
    */
   suffix?: string;
   /**
+   * Required if the field is optional, and has no default value.
+   * This is the text field to be displayed on the client-side if the field is not provided. (NULL in the database)
+   */
+  textWhenNotProvided?: string;
+  /**
    * used for validating ranges.
    * May also be used for rendering date-range instead of two separate date fields.
    */
   toField?: string;
 
+  /**
+   * formatter that converts the value to a displayable format.
+   */
+  valueFormatter?: string;
   /**
    * used by the client-side for rendering
    */
@@ -350,11 +355,6 @@ export type Field = RecordFieldAndDataField & {
    */
   demoValue?: string;
 
-  /**
-   * Required if the field is optional, and has no default value.
-   * This is the text field to be displayed on the client-side if the field is not provided. (NULL in the database)
-   */
-  textWhenNotProvided?: string;
   /**
    * is this a primary key in a linked record?
    */

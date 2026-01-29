@@ -22,13 +22,14 @@ export type ProcessedRecords = {
    */
   wrongOnes: StringMap<true>;
 };
+
 /**
  * Records are designed with a syntax that allows extending, and copying fields from one another
  * It is better to make each record independent of the other for run time effeciemcy.
  * This function processes the record components to achieve that independence.
  */
 export function processRecords(
-  records: StringMap<Record>
+  records: StringMap<Record>,
 ): [ProcessedRecords, number] {
   const allRecords: ProcessedRecords = {
     all: records,
@@ -66,7 +67,7 @@ export function processRecords(
 function toSimpleRecord(
   record: ExtendedRecord,
   comps: ProcessedRecords,
-  dependencies: string[]
+  dependencies: string[],
 ): [SimpleRecord | undefined, number] {
   const recordName = record.name;
 
@@ -84,7 +85,7 @@ function toSimpleRecord(
   const mainRecordName = record.mainRecordName;
   if (recordName === mainRecordName) {
     console.error(
-      `Error: Extended ${recordName} has set itself as its mainRecord!! `
+      `Error: Extended ${recordName} has set itself as its mainRecord!! `,
     );
     comps.wrongOnes[recordName] = true;
     return [undefined, 1];
@@ -94,7 +95,7 @@ function toSimpleRecord(
   const idx = dependencies.indexOf(recordName);
   if (idx !== -1) {
     console.error(
-      `Error: Record ${recordName} is an extended record, but has a cyclical/recursive dependency on itself`
+      `Error: Record ${recordName} is an extended record, but has a cyclical/recursive dependency on itself`,
     );
     const t = dependencies.slice(idx);
     t.push(recordName);
@@ -109,7 +110,7 @@ function toSimpleRecord(
     mainRecord = comps.all[mainRecordName];
     if (mainRecord === undefined) {
       console.error(
-        `Error: Extended record ${recordName} uses mainRecordName="${mainRecordName}", but that record is not defined`
+        `Error: Extended record ${recordName} uses mainRecordName="${mainRecordName}", but that record is not defined`,
       );
 
       comps.wrongOnes[recordName] = true;
@@ -118,7 +119,7 @@ function toSimpleRecord(
 
     if (mainRecord.recordType === 'composite') {
       console.error(
-        `Error: Extended record ${recordName} uses mainRecordName="${mainRecordName}", but that is a form/composite-record`
+        `Error: Extended record ${recordName} uses mainRecordName="${mainRecordName}", but that is a form/composite-record`,
       );
 
       comps.wrongOnes[recordName] = true;
@@ -133,7 +134,7 @@ function toSimpleRecord(
     [mainRecord] = toSimpleRecord(
       mainRecord as ExtendedRecord,
       comps,
-      dependencies
+      dependencies,
     );
     dependencies.pop();
 
@@ -155,7 +156,7 @@ function toSimpleRecord(
 
 function extendIt(
   recordToExtend: ExtendedRecord,
-  ref: SimpleRecord
+  ref: SimpleRecord,
 ): SimpleRecord | undefined {
   const obj: StringMap<unknown> = {
     ...ref,
@@ -188,7 +189,7 @@ function extendIt(
       const field = refFields[fieldName];
       if (!field) {
         console.error(
-          `Error: Extended record ${recordToExtend.name} specifies ${fieldName} as a reference field but that field is not defined in the reference record ${ref.name}. Field skipped`
+          `Error: Extended record ${recordToExtend.name} specifies ${fieldName} as a reference field but that field is not defined in the reference record ${ref.name}. Field skipped`,
         );
         errorFound = true;
         continue;
@@ -207,7 +208,7 @@ function extendIt(
       if (refFields[field.name]) {
         console.error(
           `Error: Extended record ${recordToExtend.name} specifies ${field.name} as an additional field but that field is already defined in the reference record ${ref.name}. 
-          If you want to override some attributes of this field, use fieldOverrides instead. Additional field skipped.`
+          If you want to override some attributes of this field, use fieldOverrides instead. Additional field skipped.`,
         );
         errorFound = true;
         continue;
@@ -222,7 +223,7 @@ function extendIt(
       const baseField = refFields[fieldName];
       if (!baseField) {
         console.error(
-          `Error: Extended record ${recordToExtend.name} specifies ${fieldName} as a field override but that field is not defined in the reference record ${ref.name}. Override skipped`
+          `Error: Extended record ${recordToExtend.name} specifies ${fieldName} as a field override but that field is not defined in the reference record ${ref.name}. Override skipped`,
         );
         errorFound = true;
         continue;
@@ -233,7 +234,7 @@ function extendIt(
       };
       if (!replaceField(newField, newRecord.fields)) {
         console.error(
-          `Error: Extended record ${recordToExtend.name} could not apply override for field ${fieldName}. Override skipped`
+          `Error: Extended record ${recordToExtend.name} could not apply override for field ${fieldName}. Override skipped`,
         );
         errorFound = true;
         continue;

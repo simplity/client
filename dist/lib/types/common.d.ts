@@ -78,7 +78,6 @@ export type Vo = {
  */
 export type Markup = [string, string];
 export type BaseFormatter = {
-    name: string;
     /**
      * mark-ups are value-markup pairs.
      * markup, in an html client, translates to a data-* attribute being set for the enclosing element
@@ -93,6 +92,7 @@ export type BaseFormatter = {
  * format a boolean for output
  */
 export type BooleanFormatter = BaseFormatter & {
+    name: string;
     type: 'boolean';
     trueValue: string;
     falseValue: string;
@@ -102,6 +102,7 @@ export type BooleanFormatter = BaseFormatter & {
  * format a number for output
  */
 export type NumberFormatter = BaseFormatter & {
+    name: string;
     type: 'number';
     /**
      * e.g. to output 001 instead of 1
@@ -124,6 +125,7 @@ export type NumberFormatter = BaseFormatter & {
  * format a date for output
  */
 export type DateFormatter = BaseFormatter & {
+    name: string;
     type: 'date';
     format: string;
 };
@@ -131,6 +133,7 @@ export type DateFormatter = BaseFormatter & {
  * format a timestamp for output
  */
 export type TimestampFormatter = BaseFormatter & {
+    name: string;
     type: 'timestamp';
     /**
      * defaults to locale of the client machine.
@@ -143,6 +146,7 @@ export type TimestampFormatter = BaseFormatter & {
  * format a text for output
  */
 export type TextFormatter = BaseFormatter & {
+    name: string;
     type: 'text';
     /**
      * x is substituted, while everything else is reproduced as it is
@@ -158,6 +162,7 @@ export type TextFormatter = BaseFormatter & {
  * If your need requires a custom function for formatting the value.
  */
 export type CustomFormatter = {
+    name: string;
     type: 'custom';
     /**
      * name of the formatter function provided by the app
