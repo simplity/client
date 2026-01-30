@@ -64,9 +64,12 @@ export function processComponents(
   // May not be required, but let us make our copy of appDesign
   const ctx: AppDesign = { ...appDesign };
   /**
-   * check if all our named-components have the right name
    * remember to include internal resources in the check
    */
+  ctx.messages = {
+    ...appDesign.messages,
+    ...internalResources.messages,
+  };
   ctx.records = { ...appDesign.records, ...internalResources.records };
   ctx.valueLists = {
     ...appDesign.valueLists,
