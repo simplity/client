@@ -26,6 +26,12 @@ export type FixedList = {
     name: string;
     listType: 'simple';
     list: SimpleList;
+    /**
+     * should the list be generated as an enum in the server code
+     * values must be strings for this to be possible.
+     * Strongly recommended that values must use ALL_CAPS convention if this is to be generated as an enum
+     */
+    generateEnum?: boolean;
 };
 export type FixedKeyedList = {
     name: string;

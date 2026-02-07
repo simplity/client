@@ -31,6 +31,7 @@ export type RecordFieldAndDataField = {
 
   /**
    * relevant if this field is included in a tabular list
+   * Also used by the server-side to generate code that handles filtering/sorting based on this field
    */
   filterable?: boolean;
 
@@ -220,10 +221,6 @@ type BaseRecord = {
    * If this record represents a table/view in the RDBMS
    */
   nameInDb?: string;
-  /**
-   * whether the database table associated with this record uses audit fields
-   */
-  usesAuditFields?: boolean;
   /**
    * name of the function that validates an instance of data.
    * this function must follow the prescribed API for such a function, and is made available at run time.

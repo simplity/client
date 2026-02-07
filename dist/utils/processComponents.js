@@ -100,7 +100,8 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
     nbrErrors += n;
     /**
      * 5. records.json
-     * Records are already extended, and any references are already resolved. Java generator need not handle 'extended' records...
+     * Records are already extended, and any references are already resolved.
+     * Java generator need not handle 'extended' records...
      */
     writeJsons(jsonFolder, 'rec', {
         ...processedRecords.all,

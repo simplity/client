@@ -37,6 +37,27 @@ export type DevFolders = {
   types: string;
 };
 
+export interface ProcessingError {
+  type: 'error' | 'warning';
+  componentType:
+    | 'alteration'
+    | 'directLink'
+    | 'function'
+    | 'layout'
+    | 'module'
+    | 'page'
+    | 'record'
+    | 'service'
+    | 'sql'
+    | 'template'
+    | 'valueFormatter'
+    | 'valueSchema'
+    | 'valueList'
+    | 'other';
+  componentName: string;
+  message: string;
+}
+
 /**
  * attributes for application.json
  */
@@ -169,7 +190,8 @@ export function processComponents(
 
   /**
    * 5. records.json
-   * Records are already extended, and any references are already resolved. Java generator need not handle 'extended' records...
+   * Records are already extended, and any references are already resolved.
+   * Java generator need not handle 'extended' records...
    */
   writeJsons(jsonFolder, 'rec', {
     ...processedRecords.all,
