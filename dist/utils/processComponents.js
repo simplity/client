@@ -161,10 +161,14 @@ export function processComponents(appDesign, jsonFolder, tsFolder) {
     const createTableSql = [];
     const foreignKeySql = [];
     // generate SQL for each simple record
-    for (const record of Object.values(processedRecords.simple)) {
-        if (record.nameInDb) {
-            generateTableSqls(record, ctx.valueSchemas, createTableSql, foreignKeySql);
+    for (let record of Object.values(processedRecords.all)) {
+        // extended records are already converted to simple records and added to the collection.
+        // So we need to process only simple records here.
+        if (record.recordType !== 'simple' || !record.nameInDb) {
+            continue;
         }
+        record = processedRecords.simple[record.name] || record;
+        generateTableSqls(record, ctx.valueSchemas, createTableSql, foreignKeySql);
     }
     text = createTableSql.join('\n\n') + '\n';
     fileName = dbFolder + 'createTables.sql';
