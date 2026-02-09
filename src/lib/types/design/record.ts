@@ -169,7 +169,7 @@ export type FieldType =
   | 'requiredData'
   | 'optionalData';
 
-type InterFieldValidationType =
+export type InterFieldValidationType =
   /**
    * either both fields have values or both are empty
    */
@@ -232,13 +232,14 @@ type BaseRecord = {
    */
   useTimestampCheck?: boolean;
   /**
-   * used to generate a form
+   * what operations are allowed on this record. This is used for generating forms and services based on this record.
    */
-  operations?: FormOperation[];
+  operations?: DbOperations[];
+
   /**
    * a form is generated only if this is visible to client-side
    */
-  isVisibleToClient: boolean;
+  generateClientForm: boolean;
   /**
    * if this is visible to the client-app, is authentication required for the client to trigger any form-based service?
    */
@@ -386,7 +387,7 @@ export type BusinessValidation = {
 /**
  * operations on a record/form/data-set. Traditionally called CRUD for Create, Read, Update,Delete
  */
-export type FormOperation =
+export type DbOperations =
   | 'get'
   | 'create'
   | 'update'

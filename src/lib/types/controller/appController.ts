@@ -255,13 +255,15 @@ export interface AppController {
    * Hence the caller may just use the returned list, without any error-handling.
    * @param listName
    * @param forceRefresh if true, for a runtime list, any locally cached list from a previous fetch is discarded.
-   * @param key
+   * @param key required if this list is keyed.
+   * @param hierarchyName required if this is a hierarchy list
    * @returns Promise that gets you the required list
    */
   getList(
     listName: string,
     forceRefresh: boolean,
-    key?: string | number | undefined,
+    key?: string | number,
+    hierarchyName?: string,
   ): Promise<SimpleList>;
 
   /**

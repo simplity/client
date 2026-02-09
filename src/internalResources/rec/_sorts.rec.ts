@@ -2,7 +2,7 @@ import { SimpleRecord } from '@simplity';
 
 export const _sorts: SimpleRecord = {
   name: '_sorts',
-  isVisibleToClient: true,
+  generateClientForm: true,
   recordType: 'simple',
   description: 'Columns to be sorted on',
   fields: [

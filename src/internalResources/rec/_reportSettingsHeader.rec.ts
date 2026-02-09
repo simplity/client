@@ -2,7 +2,7 @@ import { SimpleRecord } from '@simplity';
 
 export const _reportSettingsHeader: SimpleRecord = {
   name: '_reportSettingsHeader',
-  isVisibleToClient: true,
+  generateClientForm: true,
   recordType: 'simple',
   description: 'Main/Header for report settings',
   fields: [

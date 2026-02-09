@@ -22,7 +22,7 @@ export function generateForms(
 ): number {
   let nbrErrors = 0;
   for (const [name, record] of Object.entries(records.all)) {
-    if (!record.isVisibleToClient) {
+    if (!record.generateClientForm) {
       console.warn(
         `Warning: Record ${name} is not visible to the client-side. Form not created.`,
       );

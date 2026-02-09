@@ -540,7 +540,25 @@ export class AC implements AppController {
       this.listSources[listName] = entry;
     }
 
-    if (entry.isKeyed) {
+    if (entry.isKeyed && !hasKey) {
+      logger.error(
+        `List ${listName} is a keyed list, but no key is specified for this field. empty options returned.`,
+      );
+      return [];
+    }
+
+    //locall list?
+    if (!entry.isRuntime) {
+      if (!entry.isKeyed) {
+        if (entry.list) {
+          return entry.list;
+        }
+        logger.error(
+          `List ${listName} is a design-time list, but no ready value-list is found`,
+        );
+        return [];
+      }
+
       //keyed list
       if (!hasKey) {
         logger.error(
@@ -549,35 +567,29 @@ export class AC implements AppController {
         return [];
       }
 
-      if (entry.isRuntime) {
-        if (entry.keyedList && !forceRefresh) {
-          return entry.keyedList[key];
-        }
-      } else {
-        const list = entry.keyedList ? entry.keyedList[key] : undefined;
-        if (list) {
-          return list;
-        }
-
-        logger.error(
-          `List ${listName} is a design-time list, but no ready value-list is found`,
-        );
-        return [];
+      const list = entry.keyedList ? entry.keyedList[key] : undefined;
+      if (list) {
+        return list;
       }
-    } else {
-      //simple list
-      if (entry.isRuntime) {
-        if (entry.list && !forceRefresh) {
-          return entry.list;
-        }
-      } else {
+
+      logger.error(
+        `List ${listName} is a design-time list, but no ready value-list is found`,
+      );
+      return [];
+    }
+
+    //run time list. may be we already have it cached?
+    if (!forceRefresh) {
+      if (!entry.isKeyed) {
         if (entry.list) {
           return entry.list;
         }
-        logger.error(
-          `List ${listName} is a design-time list, but no ready value-list is found`,
-        );
-        return [];
+      } else {
+        //if this is keyed list, then we have already checked the case of missing key above. Hence we can safely assume that key is present here.
+        const list = entry.keyedList ? entry.keyedList[key!] : undefined;
+        if (list) {
+          return list;
+        }
       }
     }
 
@@ -610,12 +622,20 @@ export class AC implements AppController {
     return list;
   }
 
+  /**
+   * get list for all possible keys. This is useful when the client needs to do multiple lookups from the same list, and it is more efficient to get the entire list in one go instead of multiple calls for different keys.
+   * @param listName
+   * @param forceRefresh
+   * @returns
+   */
   async getKeyedList(
     listName: string,
     forceRefresh: boolean,
   ): Promise<KeyedList> {
     let entry = this.listSources[listName];
     if (!entry) {
+      // we would like to try this as a run-time list. Run-time error will help fixing issues related to list definition and usage.
+      // If we assume it as design-time list, then we may end up with silent errors (like empty list) in case of any issue with the list definition or usage.
       entry = {
         name: listName,
         okToCache: false,

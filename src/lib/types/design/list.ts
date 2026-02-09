@@ -24,7 +24,11 @@ export type SimpleList = ListPair[];
  */
 export type KeyedList = StringMap<SimpleList>;
 
-export type ValueList = FixedList | FixedKeyedList | RuntimeList;
+export type ValueList =
+  | FixedList
+  | FixedKeyedList
+  | RuntimeList
+  | HierarchyList;
 
 export type FixedList = {
   name: string;
@@ -88,6 +92,15 @@ export type RuntimeList = {
   parentNameColumnName?: string;
 };
 
+export type HierarchyList = {
+  name: string;
+  listType: 'hierarchy';
+  /**
+   * refers to the name of the hierarchy defined in _hierarchy record
+   */
+  hierarchyName: string;
+};
+
 /**
  * Defines how the options for a named list is to be sourced at run time.
  * This is generated from ValueList defined at design time
@@ -97,6 +110,7 @@ export type ListSource = {
   okToCache: boolean;
   isKeyed: boolean;
   isRuntime: boolean;
+  hierarchyName?: string;
   /**
    * relevant if this is not keyed
    * provided at design time, or cached if allowed
