@@ -5,7 +5,7 @@ export const _reportSettings: SimpleRecord = {
   recordType: 'simple',
   description:
     'configuration of a dynamic report. This may be done by the app=administrator, or by an end-users',
-  isVisibleToClient: true,
+  generateClientForm: true,
   nameInDb: '_report_settings',
   operations: ['create', 'delete', 'filter', 'get', 'save', 'update'],
   fields: [

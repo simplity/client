@@ -32,7 +32,7 @@ import {
   AnyValue,
   SimpleList,
   KeyedList,
-  FormOperation,
+  DbOperations,
   ServiceRequestOptions,
   DataController,
   DisplayAction,
@@ -259,7 +259,7 @@ export class PC implements PageController {
     this.ac.showAlerts(alerts);
   }
 
-  getList(control: FieldView, key?: string | number | undefined): void {
+  getList(control: FieldView, key?: string | number): void {
     const listName = control.field.listName;
     if (!listName) {
       logger.warn(
@@ -268,6 +268,7 @@ export class PC implements PageController {
       return;
     }
 
+    //a page may have added some lists at run time.
     const localList = this.lists[listName];
     if (localList) {
       const isSimple = Array.isArray(localList);
@@ -295,7 +296,7 @@ export class PC implements PageController {
 
   formOk(
     formName: string | undefined,
-    operation: FormOperation,
+    operation: DbOperations,
     messages: DetailedMessage[],
   ): boolean {
     if (!formName) {

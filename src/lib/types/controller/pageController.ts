@@ -10,7 +10,7 @@ import {
 
 import { AppController, FnStatus, FormController } from './';
 
-import { Action, FormOperation, KeyedList, SimpleList } from '../design';
+import { Action, DbOperations, KeyedList, SimpleList } from '../design';
 import { FilterParams } from '../agent';
 /**
  * options for a service request
@@ -126,7 +126,7 @@ export interface PageController {
   act(
     actionName: string,
     fc?: FormController,
-    params?: StringMap<unknown>
+    params?: StringMap<unknown>,
   ): void;
 
   /**
@@ -138,7 +138,7 @@ export interface PageController {
   takeAction(
     action: Action,
     fc?: FormController,
-    params?: StringMap<unknown>
+    params?: StringMap<unknown>,
   ): void;
 
   /**
@@ -165,8 +165,8 @@ export interface PageController {
    */
   formOk(
     formName: string,
-    operation: FormOperation,
-    messages: DetailedMessage[]
+    operation: DbOperations,
+    messages: DetailedMessage[],
   ): boolean;
 
   /**
@@ -181,7 +181,7 @@ export interface PageController {
   callFunction(
     nam: string,
     additionalParams?: StringMap<unknown>,
-    msgs?: DetailedMessage[]
+    msgs?: DetailedMessage[],
   ): FnStatus;
 
   /**

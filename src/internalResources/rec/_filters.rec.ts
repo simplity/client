@@ -2,7 +2,7 @@ import { SimpleRecord } from '@simplity';
 
 export const _filters: SimpleRecord = {
   name: '_filters',
-  isVisibleToClient: true,
+  generateClientForm: true,
   recordType: 'simple',
   description: 'Filtering criterion for columns',
   fields: [

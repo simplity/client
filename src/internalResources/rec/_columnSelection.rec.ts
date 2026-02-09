@@ -2,7 +2,7 @@ import { SimpleRecord } from '@simplity';
 
 export const _columnSelection: SimpleRecord = {
   name: '_columnSelection',
-  isVisibleToClient: true,
+  generateClientForm: true,
   recordType: 'simple',
   description: 'Column/Field to be included in the report',
   fields: [

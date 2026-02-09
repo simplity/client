@@ -641,6 +641,14 @@ function writeListSources(valueLists: StringMap<ValueList>, tsFolder: string) {
         okToCache: true,
         keyedList: (list as FixedKeyedList).keyedList,
       };
+    } else if (list.listType === 'hierarchy') {
+      listSources[name] = {
+        name,
+        isKeyed: true,
+        isRuntime: true,
+        okToCache: true,
+        hierarchyName: list.hierarchyName,
+      };
     } else {
       listSources[name] = {
         name,

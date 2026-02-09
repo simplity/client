@@ -20,7 +20,7 @@ import {
 } from '../common';
 
 import {
-  FormOperation,
+  DbOperations,
   RecordFieldAndDataField,
   ValueType,
   VisualWidth,
@@ -666,7 +666,7 @@ export type FormAction = ActionMetaData &
   Chainable & {
     type: 'form';
     formName: string;
-    formOperation: FormOperation;
+    formOperation: DbOperations;
   };
 
 /**

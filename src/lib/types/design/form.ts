@@ -1,5 +1,5 @@
 import { StringMap } from '../common';
-import { FormOperation, InterFieldValidation, DataField } from '.';
+import { DbOperations, InterFieldValidation, DataField } from '.';
 
 /**
  * form has the meta data for the data model.
@@ -38,5 +38,5 @@ export type ChildForm = {
 };
 
 export type ValidFormOperations = {
-  [key in FormOperation]?: boolean;
+  [key in DbOperations]?: boolean;
 };
